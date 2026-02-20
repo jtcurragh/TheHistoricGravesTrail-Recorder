@@ -1,14 +1,21 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { SetupGate } from './components/SetupGate'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <main>
-        <h1>The Memory Trail</h1>
-        <p>Community heritage trail recording app</p>
-      </main>
-    ),
+    element: <SetupGate />,
+    children: [
+      {
+        index: true,
+        element: (
+          <main>
+            <h1>The Memory Trail</h1>
+            <p>Community heritage trail recording app</p>
+          </main>
+        ),
+      },
+    ],
   },
 ])
 
