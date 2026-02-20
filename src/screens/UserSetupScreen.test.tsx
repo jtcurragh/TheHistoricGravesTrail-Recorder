@@ -27,14 +27,14 @@ describe('UserSetupScreen', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows Your Name and Your Group Name inputs', () => {
+  it('shows Your Name and Parish name inputs', () => {
     render(
       <MemoryRouter>
         <UserSetupScreen onCreateComplete={() => {}} />
       </MemoryRouter>
     )
     expect(screen.getByLabelText(/your name/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/your group name/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/parish name/i)).toBeInTheDocument()
   })
 
   it('disables Create My Trails button when fields are empty', () => {
@@ -67,33 +67,33 @@ describe('UserSetupScreen', () => {
       </MemoryRouter>
     )
     await user.type(screen.getByLabelText(/your name/i), 'Sheila')
-    await user.type(screen.getByLabelText(/your group name/i), 'Clonfert Trails')
+    await user.type(screen.getByLabelText(/parish name/i), 'Ardmore')
     const button = screen.getByRole('button', { name: /create my trails/i })
     expect(button).toBeEnabled()
   })
 
-  it('shows live preview of trail names when group name entered', async () => {
+  it('shows live preview of trail names when parish name entered', async () => {
     const user = userEvent.setup()
     render(
       <MemoryRouter>
         <UserSetupScreen onCreateComplete={() => {}} />
       </MemoryRouter>
     )
-    await user.type(screen.getByLabelText(/your group name/i), 'Clonfert Trails')
+    await user.type(screen.getByLabelText(/parish name/i), 'Ardmore')
     expect(
-      screen.getByText(/clonfert trails graveyard trail and clonfert trails parish trail/i)
+      screen.getByText(/ardmore graveyard trail and ardmore parish trail/i)
     ).toBeInTheDocument()
   })
 
-  it('shows group code preview when group name entered', async () => {
+  it('shows group code preview when parish name entered', async () => {
     const user = userEvent.setup()
     render(
       <MemoryRouter>
         <UserSetupScreen onCreateComplete={() => {}} />
       </MemoryRouter>
     )
-    await user.type(screen.getByLabelText(/your group name/i), 'Clonfert Trails')
-    expect(screen.getByText(/your site code will be: clonfert/i)).toBeInTheDocument()
+    await user.type(screen.getByLabelText(/parish name/i), 'Ardmore')
+    expect(screen.getByText(/your site code will be: ardmore/i)).toBeInTheDocument()
   })
 
   it('calls onCreateComplete on submit', async () => {
@@ -107,7 +107,7 @@ describe('UserSetupScreen', () => {
     )
 
     await user.type(screen.getByLabelText(/your name/i), 'Sheila')
-    await user.type(screen.getByLabelText(/your group name/i), 'Clonfert Trails')
+    await user.type(screen.getByLabelText(/parish name/i), 'Ardmore')
     await user.click(screen.getByRole('button', { name: /create my trails/i }))
 
     await waitFor(() => {

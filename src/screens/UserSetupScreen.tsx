@@ -11,12 +11,12 @@ interface UserSetupScreenProps {
 
 export function UserSetupScreen({ onCreateComplete }: UserSetupScreenProps) {
   const [name, setName] = useState('')
-  const [groupName, setGroupName] = useState('')
+  const [parishName, setParishName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const groupCode = groupName.trim() ? deriveGroupCode(groupName) : ''
+  const groupCode = parishName.trim() ? deriveGroupCode(parishName) : ''
   const canSubmit =
-    name.trim().length > 0 && groupName.trim().length > 0 && !isSubmitting
+    name.trim().length > 0 && parishName.trim().length > 0 && !isSubmitting
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +26,7 @@ export function UserSetupScreen({ onCreateComplete }: UserSetupScreenProps) {
     try {
       const profile = await createUserProfile({
         name: name.trim(),
-        groupName: groupName.trim(),
+        groupName: parishName.trim(),
         groupCode,
       })
 
@@ -68,19 +68,19 @@ export function UserSetupScreen({ onCreateComplete }: UserSetupScreenProps) {
           required
         />
         <FormField
-          id="groupName"
-          label="Your Group Name"
-          value={groupName}
-          onChange={setGroupName}
-          placeholder="e.g. Clonfert Trails, Clashmore Trails"
+          id="parishName"
+          label="Parish name"
+          value={parishName}
+          onChange={setParishName}
+          placeholder="e.g. Ardmore, Clonfert"
           required
         />
 
-        {groupName.trim() && (
+        {parishName.trim() && (
           <div className="mb-6 space-y-1">
             <p className="text-lg text-govuk-text" aria-live="polite">
-              Your trails will be: {groupName.trim()} Graveyard Trail and{' '}
-              {groupName.trim()} Parish Trail
+              Your trails will be: {parishName.trim()} Graveyard Trail and{' '}
+              {parishName.trim()} Parish Trail
             </p>
             {groupCode && (
               <p className="text-base text-govuk-muted">
