@@ -23,6 +23,7 @@ export function CaptureScreen() {
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [photoCapturedThisSession, setPhotoCapturedThisSession] = useState(false)
 
   const { stream, error: cameraError, startCamera, stopCamera, captureFrame, videoRef } = useCamera()
   const { latitude, longitude, accuracy, status: gpsStatus, recordLocation } = useGPS()
@@ -69,12 +70,14 @@ export function CaptureScreen() {
     if (blob) {
       setCapturedBlob(blob)
       setPhase('preview')
+      setPhotoCapturedThisSession(true)
     }
   }
 
   const handleRetake = () => {
     setCapturedBlob(null)
     setPhase('viewfinder')
+    setPhotoCapturedThisSession(false)
   }
 
   const handleLooksGood = async () => {
@@ -113,6 +116,7 @@ export function CaptureScreen() {
       setTimeout(() => {
         setSuccessMessage(null)
         setPhase('viewfinder')
+        setPhotoCapturedThisSession(false)
       }, 1500)
     } finally {
       setIsSaving(false)
@@ -240,13 +244,18 @@ export function CaptureScreen() {
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
           <button
             type="button"
             onClick={recordLocation}
             disabled={gpsStatus === 'loading'}
-            className="min-h-[56px] border-2 border-govuk-border font-bold flex items-center justify-center gap-2"
+            className={`min-h-[56px] border-2 font-bold flex items-center justify-center gap-2 ${
+              gpsStatus === 'success'
+                ? 'bg-govuk-green border-govuk-green text-white'
+                : 'bg-white border-govuk-border text-govuk-text'
+            }`}
           >
+            <span className="text-xl font-bold shrink-0" aria-hidden>1.</span>
             <span aria-hidden>📍</span>
             Record Location
           </button>
@@ -254,8 +263,13 @@ export function CaptureScreen() {
             type="button"
             onClick={handleTakePhoto}
             disabled={!stream}
-            className="min-h-[56px] bg-tmt-teal text-white font-bold flex items-center justify-center gap-2"
+            className={`min-h-[56px] border-2 font-bold flex items-center justify-center gap-2 ${
+              photoCapturedThisSession
+                ? 'bg-govuk-green border-govuk-green text-white'
+                : 'bg-white border-govuk-border text-govuk-text'
+            }`}
           >
+            <span className="text-xl font-bold shrink-0" aria-hidden>2.</span>
             <span aria-hidden>📷</span>
             Take Photo
           </button>
