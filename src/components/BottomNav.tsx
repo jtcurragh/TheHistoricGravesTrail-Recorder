@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 
 const navItems = [
   { to: '/', icon: 'home', label: 'Trails' },
+  { to: '/capture', icon: 'camera', label: 'Capture' },
   { to: '/trail', icon: 'grid', label: 'Trail' },
   { to: '/export', icon: 'upload', label: 'Export' },
 ]

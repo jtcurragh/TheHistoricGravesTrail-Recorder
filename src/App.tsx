@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { TrailProvider } from './context/TrailProvider'
 import { SetupGate } from './components/SetupGate'
 import { HomeScreen } from './screens/HomeScreen'
+import { CaptureScreen } from './screens/CaptureScreen'
 import { TrailScreen } from './screens/TrailScreen'
 import { ExportScreen } from './screens/ExportScreen'
 
@@ -11,6 +12,7 @@ const router = createBrowserRouter([
     element: <SetupGate />,
     children: [
       { index: true, element: <HomeScreen /> },
+      { path: 'capture', element: <CaptureScreen /> },
       { path: 'trail', element: <TrailScreen /> },
       { path: 'export', element: <ExportScreen /> },
     ],
