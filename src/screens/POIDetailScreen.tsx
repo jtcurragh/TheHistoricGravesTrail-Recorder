@@ -238,15 +238,14 @@ export function POIDetailScreen() {
         <button
           type="submit"
           disabled={saving}
-          className="min-h-[56px] w-full bg-govuk-green text-white font-bold text-lg disabled:opacity-50"
+          className={`min-h-[56px] w-full border-2 font-bold text-lg disabled:opacity-50 ${
+            saved
+              ? 'bg-govuk-green border-govuk-green text-white'
+              : 'bg-white border-govuk-border text-govuk-text'
+          }`}
         >
-          {saving ? 'Saving...' : 'Save'}
+          {saving ? 'Saving...' : saved ? 'Saved' : 'Save'}
         </button>
-        {saved && (
-          <p className="text-govuk-green font-bold" role="status">
-            Saved
-          </p>
-        )}
       </form>
 
       <p className="mt-4 text-govuk-muted text-sm">

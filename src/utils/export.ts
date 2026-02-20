@@ -122,7 +122,7 @@ export async function exportTrailsToZip(trails: Trail[]): Promise<Blob> {
     zip.file(`${groupCode}_${suffix}.csv`, csvRows.join('\n'))
 
     const storiesTemplate = buildStoriesTemplate(sortedPois, trailLabel)
-    zip.file(`${suffix}_stories.txt`, storiesTemplate)
+    zip.file(`${groupCode}_${suffix}_stories.txt`, storiesTemplate)
 
     const hasAnyGps = sortedPois.some(
       (p) => p.latitude != null && p.longitude != null
