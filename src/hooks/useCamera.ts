@@ -1,11 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 
+const MAX_CAPTURE_DIMENSION = 1920
+
 interface UseCameraReturn {
   videoRef: React.RefObject<HTMLVideoElement | null>
   isReady: boolean
   error: string | null
   stopCamera: () => void
-  captureFrame: () => Blob | null
+  captureFrame: () => Promise<Blob | null>
   /** Starts camera if no stream, or reattaches existing stream. Call when entering live view. */
   ensureCameraRunning: () => Promise<void>
 }
@@ -82,42 +84,42 @@ export function useCamera(): UseCameraReturn {
     }
   }, [reattachStream, startCamera])
 
-  const captureFrame = useCallback((): Blob | null => {
-    const video = videoRef.current
-    if (!video || !isReady) return null
-
-    if (!canvasRef.current) {
-      canvasRef.current = document.createElement('canvas')
-    }
-    const canvas = canvasRef.current
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return null
-    ctx.drawImage(video, 0, 0)
-
-    let blob: Blob | null = null
-    canvas.toBlob(
-      (b) => {
-        blob = b
-      },
-      'image/jpeg',
-      0.92,
-    )
-    if (!blob) {
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.92)
-      const base64 = dataUrl.split(',')[1]
-      if (!base64) return null
-      const raw = atob(base64)
-      const arr = new Uint8Array(raw.length)
-      for (let i = 0; i < raw.length; i++) {
-        arr[i] = raw.charCodeAt(i)
+  const captureFrame = useCallback((): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+      const video = videoRef.current
+      if (!video || !isReady) {
+        resolve(null)
+        return
       }
-      blob = new Blob([arr], { type: 'image/jpeg' })
-    }
 
-    return blob
+      if (!canvasRef.current) {
+        canvasRef.current = document.createElement('canvas')
+      }
+      const canvas = canvasRef.current
+
+      let w = video.videoWidth
+      let h = video.videoHeight
+      if (w > MAX_CAPTURE_DIMENSION || h > MAX_CAPTURE_DIMENSION) {
+        const scale = MAX_CAPTURE_DIMENSION / Math.max(w, h)
+        w = Math.round(w * scale)
+        h = Math.round(h * scale)
+      }
+      canvas.width = w
+      canvas.height = h
+
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        resolve(null)
+        return
+      }
+      ctx.drawImage(video, 0, 0, w, h)
+
+      canvas.toBlob(
+        (blob) => resolve(blob ?? null),
+        'image/jpeg',
+        0.85,
+      )
+    })
   }, [isReady])
 
   useEffect(() => {

@@ -68,8 +68,8 @@ export function CaptureScreen() {
     setCaptureState('live')
   }
 
-  function handleCapture() {
-    const blob = captureFrame()
+  async function handleCapture() {
+    const blob = await captureFrame()
     if (!blob) return
     setCapturedBlob(blob)
     setPreviewUrl(URL.createObjectURL(blob))
@@ -100,7 +100,12 @@ export function CaptureScreen() {
         photoBlob = await embedGpsInJpeg(capturedBlob, latitude, longitude)
       }
 
-      const thumbnailBlob = await generateThumbnail(photoBlob)
+      let thumbnailBlob: Blob
+      try {
+        thumbnailBlob = await generateThumbnail(photoBlob)
+      } catch {
+        thumbnailBlob = photoBlob
+      }
       const sequence = trail.nextSequence
       const poiId = generatePOIId(trail.groupCode, trail.trailType, sequence)
       const filename = generateFilename(poiId)
