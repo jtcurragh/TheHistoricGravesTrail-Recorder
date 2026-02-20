@@ -211,37 +211,11 @@ export function CaptureScreen() {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 z-10 p-4 pb-[calc(1rem+72px)] bg-gradient-to-t from-black/85 via-black/50 to-transparent space-y-2">
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={recordLocation}
-              disabled={gpsStatus === 'loading'}
-              className={`flex-1 min-h-[52px] border-2 font-bold rounded-lg flex items-center justify-center gap-2 text-base ${
-                gpsStatus === 'success'
-                  ? 'bg-govuk-green border-govuk-green text-white'
-                  : 'bg-white/95 border-white/60 text-govuk-text'
-              }`}
-            >
-              <span aria-hidden>📍</span>
-              1. Record Location
-            </button>
-            <button
-              type="button"
-              disabled
-              className="flex-1 min-h-[52px] bg-govuk-green border-govuk-green text-white font-bold rounded-lg flex items-center justify-center gap-2 text-base"
-            >
-              <span aria-hidden>📷</span>
-              2. Take Photo
-            </button>
-          </div>
-          <p className="text-white/90 text-sm text-center">
-            {gpsStatus === 'idle' && 'Tap Record Location for GPS'}
-            {gpsStatus === 'loading' && 'Getting location...'}
-            {gpsStatus === 'success' && `GPS ±${accuracy ? Math.round(accuracy) : '?'}m`}
-            {gpsStatus === 'error' && 'Location unavailable'}
+        {gpsStatus === 'success' && (
+          <p className="absolute bottom-20 left-0 right-0 z-10 text-white/80 text-sm text-center">
+            GPS ±{accuracy ? Math.round(accuracy) : '?'}m
           </p>
-        </div>
+        )}
       </div>
     )
   }
