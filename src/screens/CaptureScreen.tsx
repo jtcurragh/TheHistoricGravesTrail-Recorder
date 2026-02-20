@@ -159,6 +159,144 @@ export function CaptureScreen() {
     )
   }
 
+  /* Full-screen live view with overlay controls */
+  if (captureState === 'live') {
+    return (
+      <div className="fixed inset-0 flex flex-col bg-black pb-[72px]">
+        <div className="absolute inset-0">
+          <video
+            ref={videoRef}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${isReady ? 'opacity-100' : 'opacity-0'}`}
+            playsInline
+            muted
+            autoPlay
+            aria-label="Camera live view"
+          />
+          {isReady && (
+            <>
+              <div
+                className="absolute inset-[8%] border-2 border-dashed border-white/50 rounded pointer-events-none"
+                aria-hidden
+              />
+              <button
+                type="button"
+                onClick={handleCapture}
+                disabled={!isReady}
+                className="absolute bottom-24 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-white border-4 border-govuk-text flex items-center justify-center shadow-lg disabled:opacity-50"
+                aria-label="Capture photo"
+              >
+                <span className="w-16 h-16 rounded-full bg-tmt-teal" aria-hidden />
+              </button>
+            </>
+          )}
+          {!isReady && !cameraError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black">
+              <p className="text-white text-lg">Starting camera...</p>
+            </div>
+          )}
+          {cameraError && (
+            <p className="absolute inset-0 flex items-center justify-center text-white text-lg p-4 text-center">
+              Camera unavailable: {cameraError}
+            </p>
+          )}
+        </div>
+
+        <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/70 to-transparent px-4 pt-4 pb-3">
+          <p className="text-white font-bold">Capture — {trail.displayName}</p>
+          <div className="flex justify-between items-center mt-1 text-white/90 text-sm">
+            <span>NEXT {nextId}</span>
+            <span className="px-2 py-0.5 bg-white/20 rounded text-xs">
+              {poiCount} of {MAX_POIS}
+            </span>
+          </div>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 z-10 p-4 pb-[calc(1rem+72px)] bg-gradient-to-t from-black/85 via-black/50 to-transparent space-y-2">
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={recordLocation}
+              disabled={gpsStatus === 'loading'}
+              className={`flex-1 min-h-[52px] border-2 font-bold rounded-lg flex items-center justify-center gap-2 text-base ${
+                gpsStatus === 'success'
+                  ? 'bg-govuk-green border-govuk-green text-white'
+                  : 'bg-white/95 border-white/60 text-govuk-text'
+              }`}
+            >
+              <span aria-hidden>📍</span>
+              1. Record Location
+            </button>
+            <button
+              type="button"
+              disabled
+              className="flex-1 min-h-[52px] bg-govuk-green border-govuk-green text-white font-bold rounded-lg flex items-center justify-center gap-2 text-base"
+            >
+              <span aria-hidden>📷</span>
+              2. Take Photo
+            </button>
+          </div>
+          <p className="text-white/90 text-sm text-center">
+            {gpsStatus === 'idle' && 'Tap Record Location for GPS'}
+            {gpsStatus === 'loading' && 'Getting location...'}
+            {gpsStatus === 'success' && `GPS ±${accuracy ? Math.round(accuracy) : '?'}m`}
+            {gpsStatus === 'error' && 'Location unavailable'}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  /* Preview: photo + Retake/Looks Good in fixed bar, no scroll */
+  if (captureState === 'preview' && previewUrl) {
+    return (
+      <div className="flex flex-col min-h-dvh pb-24">
+        {successMessage && (
+          <div
+            className="bg-tmt-teal text-white text-center text-lg font-bold py-3 px-4 shrink-0"
+            role="status"
+            aria-live="polite"
+          >
+            {successMessage}
+          </div>
+        )}
+        <div className="flex-1 min-h-0 flex flex-col bg-black">
+          <div className="flex-1 min-h-0 overflow-hidden flex items-center justify-center">
+            <img
+              src={previewUrl}
+              alt="Captured heritage site preview"
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+          <div className="shrink-0 p-4 bg-white border-t-2 border-govuk-border">
+            <p className="text-govuk-text font-bold text-center mb-3 text-base">
+              Is the site clearly visible?
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleRetake}
+                className="flex-1 min-h-[56px] bg-white text-govuk-red border-2 border-govuk-red text-lg font-bold rounded-lg"
+                aria-label="Retake photo"
+              >
+                Retake
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                disabled={saving}
+                className="flex-1 min-h-[56px] bg-tmt-teal text-white text-lg font-bold rounded-lg disabled:opacity-50"
+                aria-label="Use this photo"
+              >
+                {saving ? 'Saving...' : 'Use Photo'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  /* Idle: tap to start camera */
   return (
     <div className="flex flex-col min-h-dvh pb-24">
       <main className="flex-1 flex flex-col">
@@ -172,143 +310,59 @@ export function CaptureScreen() {
           </div>
         )}
 
-        <div className="relative bg-black flex-1 min-h-[300px] flex items-center justify-center">
-          {captureState === 'idle' ? (
-            <div className="text-white text-center p-6">
-              <span className="text-6xl mb-4 block" aria-hidden>📷</span>
-              <p className="text-xl font-bold mb-2">Tap 2. Take Photo below to start camera</p>
-              <p className="text-base opacity-80">
-                Frame the heritage site in the live view, then tap the shutter button to capture
-              </p>
-            </div>
-          ) : captureState === 'live' ? (
-            <>
-              <video
-                ref={videoRef}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${isReady ? 'opacity-100' : 'opacity-0'}`}
-                playsInline
-                muted
-                autoPlay
-                aria-label="Camera live view"
-              />
-              {isReady ? (
-                <>
-                  <div
-                    className="absolute inset-8 border-2 border-dashed border-white/60 rounded pointer-events-none"
-                    aria-hidden
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCapture}
-                    disabled={!isReady}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-white border-4 border-govuk-text flex items-center justify-center shadow-lg disabled:opacity-50"
-                    aria-label="Capture photo"
-                  >
-                    <span className="w-16 h-16 rounded-full bg-tmt-teal" aria-hidden />
-                  </button>
-                </>
-              ) : !cameraError ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-black">
-                  <p className="text-white text-lg">Starting camera...</p>
-                </div>
-              ) : null}
-              {cameraError && (
-                <p className="text-white text-center text-lg p-4">
-                  Camera unavailable: {cameraError}
-                </p>
-              )}
-            </>
-          ) : (
-            <>
-              {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Captured heritage site preview"
-                  className="w-full h-full object-cover"
-                />
-              )}
-              <div
-                className="absolute inset-8 border-2 border-dashed border-white/60 rounded pointer-events-none"
-                aria-hidden
-              />
-              <div className="absolute bottom-4 left-4 right-4 text-center">
-                <p className="text-white text-lg font-bold bg-black/50 rounded py-2 px-3 mb-3">
-                  Is the site clearly visible in the photo?
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={handleRetake}
-                    className="flex-1 min-h-[56px] bg-white text-govuk-red border-2 border-govuk-red text-lg font-bold rounded"
-                    aria-label="Retake photo"
-                  >
-                    Retake
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleConfirm}
-                    disabled={saving}
-                    className="flex-1 min-h-[56px] bg-tmt-teal text-white text-lg font-bold rounded disabled:opacity-50"
-                    aria-label="Confirm photo looks good"
-                  >
-                    {saving ? 'Saving...' : 'Looks Good'}
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
+        <div className="flex-1 flex flex-col items-center justify-center bg-govuk-text p-6">
+          <span className="text-6xl mb-4 block" aria-hidden>📷</span>
+          <p className="text-white text-xl font-bold mb-2 text-center">
+            Tap 2. Take Photo below to start camera
+          </p>
+          <p className="text-white/80 text-base text-center">
+            Frame the heritage site in the live view, then tap the shutter to capture
+          </p>
         </div>
 
-        {(captureState === 'idle' || captureState === 'live') && (
-          <div className="px-4 py-4 bg-white">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xl font-bold text-govuk-text">NEXT {nextId}</p>
-              <span className="bg-govuk-background text-govuk-text text-sm font-semibold px-3 py-1 rounded-full">
-                {poiCount} of {MAX_POIS} recorded
-              </span>
-            </div>
-
-            <div className="flex gap-3 mb-3">
-              <button
-                type="button"
-                onClick={recordLocation}
-                disabled={gpsStatus === 'loading'}
-                className={`flex-1 min-h-[56px] border-2 text-lg font-bold rounded flex items-center justify-center gap-2 disabled:opacity-50 ${
-                  gpsStatus === 'success'
-                    ? 'bg-govuk-green border-govuk-green text-white'
-                    : 'bg-white border-govuk-border text-govuk-text'
-                }`}
-                aria-label="1. Record GPS location"
-              >
-                <span aria-hidden>📍</span>
-                1. Record Location
-              </button>
-              <button
-                type="button"
-                onClick={captureState === 'idle' ? handleStartCamera : undefined}
-                disabled={captureState === 'live'}
-                className={`flex-1 min-h-[56px] border-2 text-lg font-bold rounded flex items-center justify-center gap-2 ${
-                  captureState === 'live'
-                    ? 'bg-govuk-green border-govuk-green text-white'
-                    : 'bg-white border-govuk-border text-govuk-text'
-                }`}
-                aria-label={captureState === 'idle' ? '2. Take Photo – start camera' : '2. Take Photo – camera active'}
-              >
-                <span aria-hidden>📷</span>
-                2. Take Photo
-              </button>
-            </div>
-
-            <p className="text-base text-govuk-text text-center" aria-live="polite">
-              {gpsStatus === 'idle' && 'No GPS — tap Record Location'}
-              {gpsStatus === 'loading' && 'Getting location...'}
-              {gpsStatus === 'success' &&
-                `GPS recorded (±${accuracy ? Math.round(accuracy) : '?'}m)`}
-              {gpsStatus === 'error' &&
-                'Location unavailable — photos will be saved without GPS.'}
-            </p>
+        <div className="px-4 py-4 bg-white shrink-0">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xl font-bold text-govuk-text">NEXT {nextId}</p>
+            <span className="bg-govuk-background text-govuk-text text-sm font-semibold px-3 py-1 rounded-full">
+              {poiCount} of {MAX_POIS} recorded
+            </span>
           </div>
-        )}
+
+          <div className="flex gap-3 mb-3">
+            <button
+              type="button"
+              onClick={recordLocation}
+              disabled={gpsStatus === 'loading'}
+              className={`flex-1 min-h-[56px] border-2 text-lg font-bold rounded flex items-center justify-center gap-2 disabled:opacity-50 ${
+                gpsStatus === 'success'
+                  ? 'bg-govuk-green border-govuk-green text-white'
+                  : 'bg-white border-govuk-border text-govuk-text'
+              }`}
+              aria-label="1. Record GPS location"
+            >
+              <span aria-hidden>📍</span>
+              1. Record Location
+            </button>
+            <button
+              type="button"
+              onClick={handleStartCamera}
+              className="flex-1 min-h-[56px] border-2 border-govuk-border text-govuk-text bg-white text-lg font-bold rounded flex items-center justify-center gap-2"
+              aria-label="2. Take Photo – start camera"
+            >
+              <span aria-hidden>📷</span>
+              2. Take Photo
+            </button>
+          </div>
+
+          <p className="text-base text-govuk-text text-center" aria-live="polite">
+            {gpsStatus === 'idle' && 'No GPS — tap Record Location'}
+            {gpsStatus === 'loading' && 'Getting location...'}
+            {gpsStatus === 'success' &&
+              `GPS recorded (±${accuracy ? Math.round(accuracy) : '?'}m)`}
+            {gpsStatus === 'error' &&
+              'Location unavailable — photos will be saved without GPS.'}
+          </p>
+        </div>
       </main>
     </div>
   )
