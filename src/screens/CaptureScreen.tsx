@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTrail } from '../hooks/useTrail'
+import { useHideBottomNav } from '../context/HideBottomNavContext'
 import { useCamera } from '../hooks/useCamera'
 import { useGPS } from '../hooks/useGPS'
 import { getTrailById } from '../db/trails'
@@ -49,11 +50,19 @@ export function CaptureScreen() {
     return () => stopCamera()
   }, [stopCamera, loadTrailState])
 
+  const { setHide: setHideBottomNav } = useHideBottomNav()
+
   useEffect(() => {
     if (captureState === 'live') {
       void ensureCameraRunning()
     }
   }, [captureState, ensureCameraRunning])
+
+  useEffect(() => {
+    const hide = captureState === 'live' || captureState === 'preview'
+    setHideBottomNav(hide)
+    return () => setHideBottomNav(false)
+  }, [captureState, setHideBottomNav])
 
   function handleStartCamera() {
     setCaptureState('live')
@@ -65,6 +74,11 @@ export function CaptureScreen() {
     setCapturedBlob(blob)
     setPreviewUrl(URL.createObjectURL(blob))
     setCaptureState('preview')
+  }
+
+  function handleCancelLive() {
+    stopCamera()
+    setCaptureState('idle')
   }
 
   function handleRetake() {
@@ -159,10 +173,10 @@ export function CaptureScreen() {
     )
   }
 
-  /* Full-screen live view with overlay controls */
+  /* Full-screen live view with overlay controls (nav hidden) */
   if (captureState === 'live') {
     return (
-      <div className="fixed inset-0 flex flex-col bg-black pb-[72px]">
+      <div className="fixed inset-0 flex flex-col bg-black">
         <div className="absolute inset-0">
           <video
             ref={videoRef}
@@ -182,7 +196,7 @@ export function CaptureScreen() {
                 type="button"
                 onClick={handleCapture}
                 disabled={!isReady}
-                className="absolute bottom-24 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-white border-4 border-govuk-text flex items-center justify-center shadow-lg disabled:opacity-50"
+                className="absolute bottom-12 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-white border-4 border-govuk-text flex items-center justify-center shadow-lg disabled:opacity-50"
                 aria-label="Capture photo"
               >
                 <span className="w-16 h-16 rounded-full bg-tmt-teal" aria-hidden />
@@ -202,7 +216,18 @@ export function CaptureScreen() {
         </div>
 
         <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/70 to-transparent px-4 pt-4 pb-3">
-          <p className="text-white font-bold">Capture — {trail.displayName}</p>
+          <div className="flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={handleCancelLive}
+              className="text-white font-bold py-1 -ml-1"
+              aria-label="Cancel and return"
+            >
+              ← Cancel
+            </button>
+            <p className="text-white font-bold truncate flex-1 text-center">Capture — {trail.displayName}</p>
+            <span className="w-14 shrink-0" aria-hidden />
+          </div>
           <div className="flex justify-between items-center mt-1 text-white/90 text-sm">
             <span>NEXT {nextId}</span>
             <span className="px-2 py-0.5 bg-white/20 rounded text-xs">
@@ -212,7 +237,7 @@ export function CaptureScreen() {
         </div>
 
         {gpsStatus === 'success' && (
-          <p className="absolute bottom-20 left-0 right-0 z-10 text-white/80 text-sm text-center">
+          <p className="absolute bottom-16 left-0 right-0 z-10 text-white/80 text-sm text-center">
             GPS ±{accuracy ? Math.round(accuracy) : '?'}m
           </p>
         )}
@@ -220,10 +245,10 @@ export function CaptureScreen() {
     )
   }
 
-  /* Preview: photo + Retake/Looks Good in fixed bar, no scroll */
+  /* Preview: photo + Retake/Use Photo in fixed bar, no scroll (nav hidden) */
   if (captureState === 'preview' && previewUrl) {
     return (
-      <div className="flex flex-col min-h-dvh pb-24">
+      <div className="flex flex-col h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)]">
         {successMessage && (
           <div
             className="bg-tmt-teal text-white text-center text-lg font-bold py-3 px-4 shrink-0"
