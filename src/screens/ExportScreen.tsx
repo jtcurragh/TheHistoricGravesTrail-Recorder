@@ -6,6 +6,7 @@ import { getPOIsByTrailId } from '../db/pois'
 import { getBrochureSetup } from '../db/brochureSetup'
 import { db } from '../db/database'
 import { exportTrailsToZip, downloadBlob } from '../utils/export'
+import { generateBrochurePdf } from '../utils/pdfExport'
 import type { UserProfile, Trail } from '../types'
 
 function clearAllData(): void {
@@ -30,6 +31,9 @@ export function ExportScreen() {
   const [validatedPoiCount, setValidatedPoiCount] = useState(0)
   const [exporting, setExporting] = useState(false)
   const [exportSuccess, setExportSuccess] = useState(false)
+  const [pdfGenerating, setPdfGenerating] = useState(false)
+  const [pdfSuccess, setPdfSuccess] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   useEffect(() => {
@@ -78,6 +82,34 @@ export function ExportScreen() {
     }
     loadBrochureState()
   }, [brochureTrailId])
+
+  const handleGeneratePdf = async () => {
+    if (!brochureTrailId || !brochureSetupComplete || validatedPoiCount < 8) return
+    const trail = brochureTrailId === graveyardTrail?.id ? graveyardTrail : parishTrail
+    if (!trail) return
+    setPdfGenerating(true)
+    setPdfError(null)
+    setPdfSuccess(false)
+    try {
+      const [setup, pois] = await Promise.all([
+        getBrochureSetup(brochureTrailId),
+        getPOIsByTrailId(brochureTrailId, { includeBlobs: true }),
+      ])
+      if (!setup) throw new Error('Brochure setup not found')
+      const pdf = await generateBrochurePdf(trail, setup, pois)
+      const filename = `${trail.groupCode}-${trail.trailType}-digital-brochure.pdf`
+      downloadBlob(pdf, filename)
+      setPdfSuccess(true)
+      setTimeout(() => setPdfSuccess(false), 3000)
+    } catch (err) {
+      console.error('PDF generation failed:', err)
+      setPdfError(
+        'PDF generation failed — please try again. If the problem persists, use the ZIP export instead.'
+      )
+    } finally {
+      setPdfGenerating(false)
+    }
+  }
 
   const handleExport = async () => {
     if (!profile) return
@@ -237,7 +269,12 @@ export function ExportScreen() {
             </p>
             <button
               type="button"
-              disabled={!brochureSetupComplete || validatedPoiCount < 8}
+              onClick={handleGeneratePdf}
+              disabled={
+                !brochureSetupComplete ||
+                validatedPoiCount < 8 ||
+                pdfGenerating
+              }
               aria-label={
                 !brochureSetupComplete || validatedPoiCount < 8
                   ? 'Complete brochure setup and validate at least 8 POIs to enable'
@@ -245,8 +282,22 @@ export function ExportScreen() {
               }
               className="min-h-[56px] w-full px-6 bg-tmt-teal text-white font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Generate Digital Brochure (PDF)
+              {pdfGenerating
+                ? 'Generating PDF...'
+                : pdfSuccess
+                  ? 'PDF downloaded successfully'
+                  : 'Generate Digital Brochure (PDF)'}
             </button>
+            {pdfGenerating && (
+              <p className="mt-2 text-govuk-muted" role="status" aria-live="polite">
+                Generating PDF...
+              </p>
+            )}
+            {pdfError && (
+              <p className="mt-2 text-govuk-red font-bold" role="alert">
+                {pdfError}
+              </p>
+            )}
             {(!brochureSetupComplete || validatedPoiCount < 8) && (
               <p className="mt-2 text-govuk-muted text-sm">
                 Complete brochure setup and validate at least 8 POIs to enable
