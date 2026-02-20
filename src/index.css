@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+/* TMT design tokens — GOV.UK principles with brand colours */
+@theme {
+  --color-tmt-teal: #3a9b8e;
+  --color-tmt-navy: #1a2a2a;
+  --color-tmt-focus: #ffdd00;
+  --color-govuk-red: #d4351c;
+  --color-govuk-green: #00703c;
+  --color-govuk-text: #0b0c0c;
+  --color-govuk-muted: #505a5f;
+  --color-govuk-border: #0b0c0c;
+  --color-govuk-background: #f3f2f1;
+}
+
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #0b0c0c;
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus state — 3px yellow outline, ALL interactive elements */
+*:focus-visible {
+  outline: 3px solid #ffdd00;
+  outline-offset: 2px;
+}
