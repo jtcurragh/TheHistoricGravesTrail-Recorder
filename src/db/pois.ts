@@ -11,36 +11,50 @@ import { generatePOIId } from '../utils/idGeneration'
 const DEFAULT_CATEGORY: POICategory = 'Other'
 const DEFAULT_CONDITION: POICondition = 'Good'
 
+/** Converts ArrayBuffer (new format) or Blob (legacy) to Blob for app use. */
+function toBlob(value: ArrayBuffer | Blob): Blob {
+  if (value instanceof Blob) return value
+  return new Blob([value])
+}
+
 export async function getPOIById(
   id: string,
   options?: { includeBlobs?: boolean }
 ): Promise<POIRecord | null> {
-  const poi = await db.pois.get(id)
-  if (!poi) return null
+  const raw = await db.pois.get(id)
+  if (!raw) return null
 
   if (options?.includeBlobs === false) {
-    const { photoBlob: _p, thumbnailBlob: _t, ...rest } = poi
+    const { photoBlob: _p, thumbnailBlob: _t, ...rest } = raw
     void _p
     void _t
     return { ...rest, photoBlob: undefined, thumbnailBlob: undefined } as unknown as POIRecord
   }
-  return poi
+  return {
+    ...raw,
+    photoBlob: toBlob(raw.photoBlob as ArrayBuffer | Blob),
+    thumbnailBlob: toBlob(raw.thumbnailBlob as ArrayBuffer | Blob),
+  } as POIRecord
 }
 
 export async function getPOIsByTrailId(
   trailId: string,
   options?: { includeBlobs?: boolean }
 ): Promise<POIRecord[]> {
-  const pois = await db.pois.where('trailId').equals(trailId).toArray()
+  const rawList = await db.pois.where('trailId').equals(trailId).toArray()
 
   if (options?.includeBlobs === false) {
-    return pois.map(({ photoBlob: _p, thumbnailBlob: _t, ...rest }) => {
+    return rawList.map(({ photoBlob: _p, thumbnailBlob: _t, ...rest }) => {
       void _p
       void _t
       return { ...rest, photoBlob: undefined, thumbnailBlob: undefined }
     }) as unknown as POIRecord[]
   }
-  return pois
+  return rawList.map((raw) => ({
+    ...raw,
+    photoBlob: toBlob(raw.photoBlob as ArrayBuffer | Blob),
+    thumbnailBlob: toBlob(raw.thumbnailBlob as ArrayBuffer | Blob),
+  })) as POIRecord[]
 }
 
 export async function createPOI(input: CreatePOIInput): Promise<POIRecord> {
@@ -73,7 +87,16 @@ export async function createPOI(input: CreatePOIInput): Promise<POIRecord> {
     completed: !!(input.siteName && input.description),
   }
 
-  await db.pois.add(poi)
+  const [photoBuf, thumbBuf] = await Promise.all([
+    input.photoBlob.arrayBuffer(),
+    input.thumbnailBlob.arrayBuffer(),
+  ])
+  const recordForDb = {
+    ...poi,
+    photoBlob: photoBuf,
+    thumbnailBlob: thumbBuf,
+  }
+  await db.pois.add(recordForDb)
   return poi
 }
 

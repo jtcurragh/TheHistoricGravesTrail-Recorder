@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 
+const MAX_CAPTURE_DIMENSION = 1200
+
 function getMaxCaptureDimension(): number {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  return isIOS ? 1280 : 1920
+  return MAX_CAPTURE_DIMENSION
 }
 
 interface UseCameraReturn {
@@ -34,12 +35,13 @@ export function useCamera(): UseCameraReturn {
     try {
       setError(null)
       let stream: MediaStream
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: isIOS
-            ? { facingMode: 'environment' }
-            : { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+          video: {
+            facingMode: 'environment',
+            width: { ideal: MAX_CAPTURE_DIMENSION },
+            height: { ideal: MAX_CAPTURE_DIMENSION },
+          },
           audio: false,
         })
       } catch {
