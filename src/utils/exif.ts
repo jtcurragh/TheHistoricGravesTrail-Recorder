@@ -15,36 +15,46 @@ function degToDmsRational(degFloat: number): [[number, number], [number, number]
 
 /**
  * Embed GPS coordinates into a JPEG Blob. Returns new Blob with EXIF.
+ * On failure, returns original blob unchanged (no GPS in EXIF).
  */
 export async function embedGpsInJpeg(
   jpegBlob: Blob,
   latitude: number,
   longitude: number
 ): Promise<Blob> {
-  const arrayBuffer = await jpegBlob.arrayBuffer()
-  const bytes = new Uint8Array(arrayBuffer)
-  const binary = String.fromCharCode(...bytes)
+  try {
+    const arrayBuffer = await jpegBlob.arrayBuffer()
+    const bytes = new Uint8Array(arrayBuffer)
+    const chunkSize = 8192
+    let binary = ''
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, i + chunkSize)
+      binary += String.fromCharCode.apply(null, chunk as unknown as number[])
+    }
 
-  if (!binary.startsWith('\xff\xd8')) {
-    throw new Error('Not a valid JPEG')
+    if (!binary.startsWith('\xff\xd8')) {
+      return jpegBlob
+    }
+
+    const exifObj = piexif.load(binary)
+    if (!exifObj.GPS) {
+      exifObj.GPS = {}
+    }
+
+    exifObj.GPS[piexif.GPSIFD.GPSLatitudeRef] = latitude >= 0 ? 'N' : 'S'
+    exifObj.GPS[piexif.GPSIFD.GPSLatitude] = degToDmsRational(latitude)
+    exifObj.GPS[piexif.GPSIFD.GPSLongitudeRef] = longitude >= 0 ? 'E' : 'W'
+    exifObj.GPS[piexif.GPSIFD.GPSLongitude] = degToDmsRational(longitude)
+
+    const exifBytes = piexif.dump(exifObj)
+    const inserted = piexif.insert(exifBytes, binary)
+
+    const resultBytes = new Uint8Array(inserted.length)
+    for (let i = 0; i < inserted.length; i++) {
+      resultBytes[i] = inserted.charCodeAt(i)
+    }
+    return new Blob([resultBytes], { type: 'image/jpeg' })
+  } catch {
+    return jpegBlob
   }
-
-  const exifObj = piexif.load(binary)
-  if (!exifObj.GPS) {
-    exifObj.GPS = {}
-  }
-
-  exifObj.GPS[piexif.GPSIFD.GPSLatitudeRef] = latitude >= 0 ? 'N' : 'S'
-  exifObj.GPS[piexif.GPSIFD.GPSLatitude] = degToDmsRational(latitude)
-  exifObj.GPS[piexif.GPSIFD.GPSLongitudeRef] = longitude >= 0 ? 'E' : 'W'
-  exifObj.GPS[piexif.GPSIFD.GPSLongitude] = degToDmsRational(longitude)
-
-  const exifBytes = piexif.dump(exifObj)
-  const inserted = piexif.insert(exifBytes, binary)
-
-  const resultBytes = new Uint8Array(inserted.length)
-  for (let i = 0; i < inserted.length; i++) {
-    resultBytes[i] = inserted.charCodeAt(i)
-  }
-  return new Blob([resultBytes], { type: 'image/jpeg' })
 }
