@@ -313,10 +313,10 @@ export function CaptureScreen() {
         <div className="flex-1 flex flex-col items-center justify-center bg-govuk-text p-6">
           <span className="text-6xl mb-4 block" aria-hidden>📷</span>
           <p className="text-white text-xl font-bold mb-2 text-center">
-            Tap 2. Take Photo below to start camera
+            Tap 1 to record location each time
           </p>
           <p className="text-white/80 text-base text-center">
-            Frame the heritage site in the live view, then tap the shutter to capture
+            Then tap 2 for photo
           </p>
         </div>
 
