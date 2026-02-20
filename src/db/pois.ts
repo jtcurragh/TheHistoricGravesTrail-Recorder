@@ -119,3 +119,24 @@ export async function updatePOI(
 export async function deletePOI(id: string): Promise<void> {
   await db.pois.delete(id)
 }
+
+export async function reorderPOI(
+  trailId: string,
+  poiId: string,
+  direction: 'up' | 'down'
+): Promise<void> {
+  const pois = await db.pois.where('trailId').equals(trailId).toArray()
+  const sorted = pois.sort((a, b) => (a.sequence as number) - (b.sequence as number))
+  const idx = sorted.findIndex((p) => p.id === poiId)
+  if (idx < 0) throw new Error(`POI not found: ${poiId}`)
+  const newIdx = direction === 'up' ? idx - 1 : idx + 1
+  if (newIdx < 0 || newIdx >= sorted.length) return
+  const reordered = [...sorted]
+  const [moved] = reordered.splice(idx, 1)
+  reordered.splice(newIdx, 0, moved)
+  await db.transaction('rw', db.pois, async () => {
+    for (let i = 0; i < reordered.length; i++) {
+      await db.pois.update(reordered[i].id, { sequence: i + 1 })
+    }
+  })
+}

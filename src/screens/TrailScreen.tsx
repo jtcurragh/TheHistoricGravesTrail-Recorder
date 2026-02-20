@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTrail } from '../hooks/useTrail'
 import { getTrailById } from '../db/trails'
-import { getPOIsByTrailId } from '../db/pois'
+import { getPOIsByTrailId, reorderPOI } from '../db/pois'
 import type { Trail } from '../types'
 import type { POIRecord } from '../types'
 
@@ -15,8 +15,8 @@ function ThumbnailImage({ blob, alt }: { blob: Blob; alt: string }) {
     queueMicrotask(() => setSrc(url))
     return () => URL.revokeObjectURL(url)
   }, [blob])
-  if (!src) return <div className="w-full h-full bg-govuk-background animate-pulse" />
-  return <img src={src} alt={alt} className="w-full h-full object-cover" />
+  if (!src) return <div className="w-20 h-20 shrink-0 bg-govuk-background animate-pulse" />
+  return <img src={src} alt={alt} className="w-20 h-20 shrink-0 object-cover" />
 }
 
 export function TrailScreen() {
@@ -25,16 +25,32 @@ export function TrailScreen() {
   const [trail, setTrail] = useState<Trail | null>(null)
   const [pois, setPois] = useState<POIRecord[]>([])
 
-  useEffect(() => {
+  const loadTrailState = useCallback(async () => {
     if (!activeTrailId) return
-    Promise.all([
+    const [t, p] = await Promise.all([
       getTrailById(activeTrailId),
       getPOIsByTrailId(activeTrailId, { includeBlobs: true }),
-    ]).then(([t, p]) => {
-      setTrail(t ?? null)
-      setPois(p ?? [])
-    })
+    ])
+    setTrail(t ?? null)
+    setPois(p ?? [])
   }, [activeTrailId])
+
+  useEffect(() => {
+    void loadTrailState()
+  }, [loadTrailState])
+
+  const handleReorder = useCallback(
+    async (poiId: string, direction: 'up' | 'down') => {
+      if (!activeTrailId) return
+      try {
+        await reorderPOI(activeTrailId, poiId, direction)
+        await loadTrailState()
+      } catch (err) {
+        console.error('Failed to reorder:', err)
+      }
+    },
+    [activeTrailId, loadTrailState]
+  )
 
   if (!activeTrailId) {
     return (
@@ -100,30 +116,69 @@ export function TrailScreen() {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {pois
+      <ul className="space-y-2" aria-label="POIs in this trail">
+        {[...pois]
           .sort((a, b) => a.sequence - b.sequence)
-          .map((poi) => (
-            <Link
-              key={poi.id}
-              to={`/trail/poi/${poi.id}`}
-              className="block aspect-square bg-govuk-background rounded overflow-hidden border border-govuk-border focus:outline-none focus:ring-2 focus:ring-tmt-focus focus:ring-offset-2"
-              aria-label={`POI ${poi.sequence}: ${poi.siteName || poi.filename}`}
-            >
-              <div className="relative w-full h-full">
-                <ThumbnailImage
-                  blob={poi.thumbnailBlob}
-                  alt={poi.siteName || poi.filename}
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-1 py-0.5">
-                  <span className="text-white text-xs font-mono">
-                    {poi.sequence}. {poi.filename}
-                  </span>
+          .map((poi, idx, arr) => {
+            const canMoveUp = idx > 0
+            const canMoveDown = idx < arr.length - 1
+            return (
+              <li key={poi.id}>
+                <div
+                  className="flex items-center gap-3 py-3 px-4 bg-white border-2 border-govuk-border hover:border-tmt-teal focus-within:border-tmt-teal focus-within:ring-2 focus-within:ring-tmt-focus"
+                  role="group"
+                >
+                  <Link
+                    to={`/trail/poi/${poi.id}`}
+                    className="flex min-w-0 flex-1 items-center gap-3 focus:outline-none focus:ring-2 focus:ring-tmt-focus focus:ring-offset-2"
+                    aria-label={`POI ${poi.sequence}: ${poi.siteName || poi.filename}`}
+                  >
+                    <ThumbnailImage
+                      blob={poi.thumbnailBlob}
+                      alt={poi.siteName || poi.filename}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <span className="font-mono text-sm text-govuk-muted">
+                        {poi.sequence}.{' '}
+                      </span>
+                      <span className="font-bold text-govuk-text truncate block">
+                        {poi.siteName || poi.filename}
+                      </span>
+                    </div>
+                  </Link>
+                  <div className="flex shrink-0 gap-1" role="toolbar" aria-label="Reorder">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        void handleReorder(poi.id, 'up')
+                      }}
+                      disabled={!canMoveUp}
+                      aria-label="Move up"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center border-2 border-govuk-border bg-white text-govuk-text disabled:opacity-40 disabled:cursor-not-allowed hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        void handleReorder(poi.id, 'down')
+                      }}
+                      disabled={!canMoveDown}
+                      aria-label="Move down"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center border-2 border-govuk-border bg-white text-govuk-text disabled:opacity-40 disabled:cursor-not-allowed hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                    >
+                      ↓
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-      </div>
+              </li>
+            )
+          })}
+      </ul>
     </main>
   )
 }
