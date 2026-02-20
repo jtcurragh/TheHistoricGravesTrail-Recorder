@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { UserSetupScreen } from '../screens/UserSetupScreen'
+import { AppLayout } from './AppLayout'
 import { isUserSetupComplete } from '../utils/storage'
 
 export function SetupGate() {
@@ -18,5 +19,5 @@ export function SetupGate() {
     )
   }
 
-  return <Outlet />
+  return <AppLayout />
 }
