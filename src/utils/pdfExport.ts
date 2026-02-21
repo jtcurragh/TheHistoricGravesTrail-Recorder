@@ -129,7 +129,7 @@ export async function generateBrochurePdf(
     color: NEAR_BLACK,
   })
 
-  let logoY = A6_HEIGHT - 80
+  let logoY = A6_HEIGHT - 110
   const logoSize = 60
   const logosPerRow = 2
   for (let i = 0; i < setup.funderLogos.length; i++) {
@@ -308,7 +308,7 @@ export async function generateBrochurePdf(
 
     // Story text section (more space for text)
     const storyStartY = dividerY - 20
-    const storyEndY = 100 // Leave room for QR code and URL at bottom
+    const storyEndY = 135 // Leave room for QR code (starts at y=115, is 50pt tall, top edge at 165)
     const bodyText = poi.story || ''
     const maxLen = 800 // Increased from 600
     const bodyChunk = bodyText.length > maxLen
@@ -335,7 +335,7 @@ export async function generateBrochurePdf(
     }
 
     // Thin divider line above QR section
-    const divider2Y = 95
+    const divider2Y = 130
     poiPage.drawRectangle({
       x: 20,
       y: divider2Y,
@@ -344,13 +344,13 @@ export async function generateBrochurePdf(
       color: rgb(0.7, 0.7, 0.7),
     })
 
-    // QR code centered at bottom
+    // QR code centered at bottom (smaller size to fit better)
     const qrUrl = poi.url?.trim() || PLACEHOLDER_URL
     const qrDataUrl = await generateQrDataUrl(qrUrl)
     const qrImg = await doc.embedPng(qrDataUrl)
-    const qrSize = 70
+    const qrSize = 50
     const qrX = (A6_WIDTH - qrSize) / 2
-    const qrY = 60
+    const qrY = 65
     
     poiPage.drawImage(qrImg, {
       x: qrX,
