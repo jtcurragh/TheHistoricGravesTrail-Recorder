@@ -259,105 +259,136 @@ export async function generateBrochurePdf(
   for (let i = 0; i < validatedPois.length; i++) {
     const poi = validatedPois[i]
     const poiPage = doc.addPage([A6_WIDTH, A6_HEIGHT])
-    const headerH = A6_HEIGHT * 0.25
-    poiPage.drawRectangle({
-      x: 0,
-      y: A6_HEIGHT - headerH,
-      width: A6_WIDTH,
-      height: headerH,
-      color: TEAL,
-    })
-    const headerText = `${poi.sequence}. ${(poi.siteName || poi.filename).toUpperCase()}`
-    const headerSize = headerText.length > 40 ? 10 : 14
-    poiPage.drawText(headerText.substring(0, 60), {
-      x: 15,
-      y: A6_HEIGHT - headerH + 15,
-      size: headerSize,
-      font: helveticaBold,
-      color: WHITE,
-    })
-
-    const blockH = (A6_HEIGHT - headerH) * 0.45
-    const blockY = A6_HEIGHT - headerH - blockH
-    const halfW = (A6_WIDTH - 30) / 2
-    const qrUrl = poi.url?.trim() || PLACEHOLDER_URL
-    const qrDataUrl = await generateQrDataUrl(qrUrl)
-    const qrImg = await doc.embedPng(qrDataUrl)
-    const qrSize = Math.min(halfW - 10, blockH - 40, 80)
-    poiPage.drawImage(qrImg, {
-      x: 15,
-      y: blockY + blockH - qrSize - 5,
-      width: qrSize,
-      height: qrSize,
-    })
-    poiPage.drawRectangle({
-      x: 15,
-      y: blockY + 5,
-      width: qrSize,
-      height: 18,
-      color: NEAR_BLACK,
-    })
-    poiPage.drawText('Website', {
-      x: 15 + (qrSize - helvetica.widthOfTextAtSize('Website', 9)) / 2,
-      y: blockY + 8,
-      size: 9,
-      font: helvetica,
-      color: WHITE,
-    })
-
+    
+    // Hero photo at top (~40% of page height)
     const photoBlob = poi.thumbnailBlob
     const photoBytes = await blobToUint8Array(photoBlob)
     const photoImg = isPng(photoBlob)
       ? await doc.embedPng(photoBytes)
       : await doc.embedJpg(photoBytes)
+    
+    const photoHeight = A6_HEIGHT * 0.4
     const photoScale = Math.min(
-      (halfW - 10) / photoImg.width,
-      (blockH - 10) / photoImg.height
+      A6_WIDTH / photoImg.width,
+      photoHeight / photoImg.height
     )
+    const photoW = photoImg.width * photoScale
+    const photoH = photoImg.height * photoScale
+    const photoX = (A6_WIDTH - photoW) / 2
+    const photoY = A6_HEIGHT - photoH
+    
     poiPage.drawImage(photoImg, {
-      x: 15 + halfW + 5,
-      y: blockY + blockH - photoImg.height * photoScale - 5,
-      width: photoImg.width * photoScale,
-      height: photoImg.height * photoScale,
+      x: photoX,
+      y: photoY,
+      width: photoW,
+      height: photoH,
     })
 
-    const bodyY = blockY - 10
+    // Title section below photo
+    const titleY = photoY - 25
+    const headerText = `${poi.sequence}. ${(poi.siteName || poi.filename).toUpperCase()}`
+    const titleSize = headerText.length > 40 ? 12 : 14
+    poiPage.drawText(headerText.substring(0, 60), {
+      x: 20,
+      y: titleY,
+      size: titleSize,
+      font: helveticaBold,
+      color: NEAR_BLACK,
+    })
+
+    // Thin divider line below title
+    const dividerY = titleY - 10
+    poiPage.drawRectangle({
+      x: 20,
+      y: dividerY,
+      width: A6_WIDTH - 40,
+      height: 0.5,
+      color: rgb(0.7, 0.7, 0.7),
+    })
+
+    // Story text section (more space for text)
+    const storyStartY = dividerY - 20
+    const storyEndY = 140 // Leave room for QR code and URL at bottom
     const bodyText = poi.story || ''
-    const maxLen = 600
+    const maxLen = 800 // Increased from 600
     const bodyChunk = bodyText.length > maxLen
       ? bodyText.substring(0, maxLen) + '...'
       : bodyText
     const bodyWords = bodyChunk.split(/\s+/)
     let bodyLine = ''
-    let by = bodyY
+    let by = storyStartY
     for (const word of bodyWords) {
       const test = bodyLine ? `${bodyLine} ${word}` : word
-      if (helvetica.widthOfTextAtSize(test, 10) > A6_WIDTH - 40) {
-        if (bodyLine && by > 50) {
-          poiPage.drawText(bodyLine, { x: 15, y: by, size: 10, font: helvetica, color: NEAR_BLACK })
-          by -= 12
+      if (helvetica.widthOfTextAtSize(test, 11) > A6_WIDTH - 40) {
+        if (bodyLine && by > storyEndY) {
+          poiPage.drawText(bodyLine, { x: 20, y: by, size: 11, font: helvetica, color: NEAR_BLACK })
+          by -= 14
         }
         bodyLine = word
       } else {
         bodyLine = test
       }
     }
-    if (bodyLine && by > 50) {
-      poiPage.drawText(bodyLine, { x: 15, y: by, size: 10, font: helvetica, color: NEAR_BLACK })
-      by -= 12
+    if (bodyLine && by > storyEndY) {
+      poiPage.drawText(bodyLine, { x: 20, y: by, size: 11, font: helvetica, color: NEAR_BLACK })
+      by -= 14
     }
 
-    const urlDisplay = poi.url && poi.url.length > 30 ? 'Visit website' : (poi.url || 'Visit website')
+    // Thin divider line above QR section
+    const divider2Y = 130
     poiPage.drawRectangle({
-      x: A6_WIDTH - 95,
-      y: 15,
-      width: 80,
-      height: 22,
+      x: 20,
+      y: divider2Y,
+      width: A6_WIDTH - 40,
+      height: 0.5,
+      color: rgb(0.7, 0.7, 0.7),
+    })
+
+    // QR code centered at bottom
+    const qrUrl = poi.url?.trim() || PLACEHOLDER_URL
+    const qrDataUrl = await generateQrDataUrl(qrUrl)
+    const qrImg = await doc.embedPng(qrDataUrl)
+    const qrSize = 70
+    const qrX = (A6_WIDTH - qrSize) / 2
+    const qrY = 60
+    
+    poiPage.drawImage(qrImg, {
+      x: qrX,
+      y: qrY,
+      width: qrSize,
+      height: qrSize,
+    })
+    
+    // "Scan QR Code" label below QR
+    const qrLabel = 'Scan QR Code'
+    const qrLabelWidth = helvetica.widthOfTextAtSize(qrLabel, 8)
+    poiPage.drawText(qrLabel, {
+      x: (A6_WIDTH - qrLabelWidth) / 2,
+      y: qrY - 10,
+      size: 8,
+      font: helvetica,
+      color: rgb(0.4, 0.4, 0.4),
+    })
+
+    // Red URL box below QR label
+    const urlDisplay = poi.url && poi.url.length > 30 ? 'Visit website' : (poi.url || 'Visit website')
+    const urlBoxWidth = 100
+    const urlBoxHeight = 22
+    const urlBoxX = (A6_WIDTH - urlBoxWidth) / 2
+    const urlBoxY = 25
+    
+    poiPage.drawRectangle({
+      x: urlBoxX,
+      y: urlBoxY,
+      width: urlBoxWidth,
+      height: urlBoxHeight,
       color: RED_URL,
     })
-    poiPage.drawText(urlDisplay.substring(0, 12), {
-      x: A6_WIDTH - 90,
-      y: 20,
+    
+    const urlTextWidth = helvetica.widthOfTextAtSize(urlDisplay.substring(0, 15), 9)
+    poiPage.drawText(urlDisplay.substring(0, 15), {
+      x: urlBoxX + (urlBoxWidth - urlTextWidth) / 2,
+      y: urlBoxY + 7,
       size: 9,
       font: helvetica,
       color: WHITE,
