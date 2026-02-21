@@ -104,6 +104,16 @@ export function TrailScreen() {
       <p className="text-lg text-govuk-text mb-3">
         {poiCount} of {MAX_POIS} POIs recorded — {completedCount} completed
       </p>
+      <div className="mb-4 flex items-center gap-4 text-sm text-govuk-muted">
+        <div className="flex items-center gap-2">
+          <span className="text-govuk-green font-bold">✓</span>
+          <span>Validated</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[#f59e0b] font-bold">○</span>
+          <span>Needs validation</span>
+        </div>
+      </div>
       <div
         className="h-2 bg-govuk-background mb-6"
         role="progressbar"
@@ -124,25 +134,40 @@ export function TrailScreen() {
           .map((poi, idx, arr) => {
             const canMoveUp = idx > 0
             const canMoveDown = idx < arr.length - 1
+            const borderColor = poi.completed
+              ? 'border-l-govuk-green'
+              : 'border-l-[#f59e0b]'
+            const statusIcon = poi.completed ? '✓' : '○'
+            const statusColor = poi.completed
+              ? 'text-govuk-green'
+              : 'text-[#f59e0b]'
             return (
               <li key={poi.id}>
                 <div
-                  className="flex items-center gap-3 py-3 px-4 bg-white border-2 border-govuk-border hover:border-tmt-teal focus-within:border-tmt-teal focus-within:ring-2 focus-within:ring-tmt-focus"
+                  className={`flex items-center gap-3 py-3 px-4 bg-white border-2 border-govuk-border border-l-4 ${borderColor} hover:border-tmt-teal focus-within:border-tmt-teal focus-within:ring-2 focus-within:ring-tmt-focus`}
                   role="group"
                 >
                   <Link
                     to={`/trail/poi/${poi.id}`}
                     className="flex min-w-0 flex-1 items-center gap-3 focus:outline-none focus:ring-2 focus:ring-tmt-focus focus:ring-offset-2"
-                    aria-label={`POI ${poi.sequence}: ${poi.siteName || poi.filename}`}
+                    aria-label={`POI ${poi.sequence}: ${poi.siteName || poi.filename}${poi.completed ? ' - validated' : ' - needs validation'}`}
                   >
                     <ThumbnailImage
                       blob={poi.thumbnailBlob}
                       alt={poi.siteName || poi.filename}
                     />
                     <div className="min-w-0 flex-1">
-                      <span className="font-mono text-sm text-govuk-muted">
-                        {poi.sequence}.{' '}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm text-govuk-muted">
+                          {poi.sequence}.{' '}
+                        </span>
+                        <span
+                          className={`text-sm font-bold ${statusColor}`}
+                          aria-label={poi.completed ? 'Validated' : 'Needs validation'}
+                        >
+                          {statusIcon}
+                        </span>
+                      </div>
                       <span className="font-bold text-govuk-text truncate block">
                         {poi.siteName || poi.filename}
                       </span>
