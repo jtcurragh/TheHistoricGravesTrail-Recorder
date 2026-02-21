@@ -84,7 +84,7 @@ export async function createPOI(input: CreatePOIInput): Promise<POIRecord> {
     url: input.url ?? '',
     condition: input.condition ?? DEFAULT_CONDITION,
     notes: input.notes ?? '',
-    completed: !!(input.siteName && input.description),
+    completed: !!(input.siteName && input.story),
   }
 
   const [photoBuf, thumbBuf] = await Promise.all([
@@ -108,9 +108,9 @@ export async function updatePOI(
   if (!existing) throw new Error(`POI not found: ${id}`)
 
   const completed =
-    'siteName' in updates || 'description' in updates
+    'siteName' in updates || 'story' in updates
       ? !!(updates.siteName ?? existing.siteName) &&
-        !!(updates.description ?? existing.description)
+        !!(updates.story ?? existing.story)
       : existing.completed
 
   await db.pois.update(id, { ...updates, completed })

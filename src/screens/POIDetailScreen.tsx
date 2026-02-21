@@ -33,8 +33,8 @@ export function POIDetailScreen() {
   const [poi, setPoi] = useState<POIRecord | null>(null)
   const [siteName, setSiteName] = useState('')
   const [category, setCategory] = useState<POICategory>('Other')
-  const [description, setDescription] = useState('')
   const [story, setStory] = useState('')
+  const [url, setUrl] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -48,8 +48,8 @@ export function POIDetailScreen() {
     if (poi) {
       setSiteName(poi.siteName)
       setCategory(poi.category)
-      setDescription(poi.description)
       setStory(poi.story)
+      setUrl(poi.url)
       setNotes(poi.notes)
     }
   }, [poi])
@@ -90,8 +90,8 @@ export function POIDetailScreen() {
       await updatePOI(poi.id, {
         siteName,
         category,
-        description,
         story,
+        url,
         notes,
       })
       setSaved(true)
@@ -169,7 +169,7 @@ export function POIDetailScreen() {
             htmlFor="siteName"
             className="block text-lg font-bold text-govuk-text mb-2"
           >
-            Site name (title)
+            Site name (title) <span className="text-govuk-red">*</span>
           </label>
           <input
             id="siteName"
@@ -186,7 +186,7 @@ export function POIDetailScreen() {
             htmlFor="category"
             className="block text-lg font-bold text-govuk-text mb-2"
           >
-            Category
+            Category <span className="text-govuk-red">*</span>
           </label>
           <select
             id="category"
@@ -204,27 +204,10 @@ export function POIDetailScreen() {
 
         <div>
           <label
-            htmlFor="description"
-            className="block text-lg font-bold text-govuk-text mb-2"
-          >
-            Brief description
-          </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="One or two sentences about this place"
-            rows={3}
-            className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
-          />
-        </div>
-
-        <div>
-          <label
             htmlFor="story"
             className="block text-lg font-bold text-govuk-text mb-2"
           >
-            Story (100–200 words)
+            Story (100–200 words) <span className="text-govuk-red">*</span>
           </label>
           <textarea
             id="story"
@@ -238,6 +221,26 @@ export function POIDetailScreen() {
 
         <div>
           <label
+            htmlFor="url"
+            className="block text-lg font-bold text-govuk-text mb-2"
+          >
+            Website URL (for QR code)
+          </label>
+          <input
+            id="url"
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com"
+            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+          />
+          <p className="mt-1 text-sm text-govuk-muted">
+            Optional — a QR code will be generated for the brochure
+          </p>
+        </div>
+
+        <div>
+          <label
             htmlFor="notes"
             className="block text-lg font-bold text-govuk-text mb-2"
           >
@@ -247,7 +250,7 @@ export function POIDetailScreen() {
             id="notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Any other observations"
+            placeholder="Any other observations (for your reference only)"
             rows={2}
             className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
           />
@@ -267,7 +270,7 @@ export function POIDetailScreen() {
       </form>
 
       <p className="mt-4 text-govuk-muted text-sm">
-        You can also write your story in Word and add it when you export.
+        <span className="text-govuk-red">*</span> Required fields for brochure. You can also write your story in Word and add it when you export.
       </p>
     </main>
   )

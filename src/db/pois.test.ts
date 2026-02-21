@@ -62,7 +62,7 @@ describe('pois', () => {
     expect(pois[0].id).toBe('clonfert-g-001')
   })
 
-  it('updates POI and sets completed when siteName and description filled', async () => {
+  it('updates POI and sets completed when siteName and story filled', async () => {
     const poi = await createPOI({
       trailId: 'clonfert-graveyard',
       groupCode: 'clonfert',
@@ -79,7 +79,7 @@ describe('pois', () => {
 
     await updatePOI(poi.id, {
       siteName: "Murphy's Gate",
-      description: 'Historic gate at cemetery entrance.',
+      story: 'Historic gate at cemetery entrance with wrought iron details dating from the 1890s.',
     })
 
     const updated = await getPOIById(poi.id, { includeBlobs: false })

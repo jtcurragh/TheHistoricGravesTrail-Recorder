@@ -322,7 +322,7 @@ export async function generateBrochurePdf(
     })
 
     const bodyY = blockY - 10
-    const bodyText = `${poi.description || ''} ${poi.story || ''}`.trim()
+    const bodyText = poi.story || ''
     const maxLen = 600
     const bodyChunk = bodyText.length > maxLen
       ? bodyText.substring(0, maxLen) + '...'
