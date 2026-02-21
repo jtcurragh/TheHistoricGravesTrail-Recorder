@@ -308,7 +308,7 @@ export async function generateBrochurePdf(
 
     // Story text section (more space for text)
     const storyStartY = dividerY - 20
-    const storyEndY = 140 // Leave room for QR code and URL at bottom
+    const storyEndY = 100 // Leave room for QR code and URL at bottom
     const bodyText = poi.story || ''
     const maxLen = 800 // Increased from 600
     const bodyChunk = bodyText.length > maxLen
@@ -335,7 +335,7 @@ export async function generateBrochurePdf(
     }
 
     // Thin divider line above QR section
-    const divider2Y = 130
+    const divider2Y = 95
     poiPage.drawRectangle({
       x: 20,
       y: divider2Y,
