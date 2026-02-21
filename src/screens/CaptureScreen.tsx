@@ -9,7 +9,7 @@ import { createPOI } from '../db/pois'
 import { incrementTrailSequence } from '../db/trails'
 import { generatePOIId, generateFilename } from '../utils/idGeneration'
 import { generateThumbnail } from '../utils/thumbnail'
-import { embedGpsInJpeg } from '../utils/exif'
+import { embedGpsInJpeg, extractGpsFromJpeg } from '../utils/exif'
 import type { Trail } from '../types'
 
 const MAX_POIS = 12
@@ -36,6 +36,8 @@ export function CaptureScreen() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const savingRef = useRef(false)
+  const [gpsSource, setGpsSource] = useState<'device' | 'exif' | 'none'>('none')
+  const [exifGps, setExifGps] = useState<{ latitude: number; longitude: number; accuracy: number | null } | null>(null)
 
   const loadTrailState = useCallback(async () => {
     if (!activeTrailId) return
@@ -66,6 +68,30 @@ export function CaptureScreen() {
 
   function handleStartCamera() {
     setCaptureState('live')
+    setGpsSource(gpsStatus === 'success' ? 'device' : 'none')
+    setExifGps(null)
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !file.type.startsWith('image/')) return
+
+    // Try to extract GPS from EXIF
+    const gpsData = await extractGpsFromJpeg(file)
+    if (gpsData) {
+      setExifGps(gpsData)
+      setGpsSource('exif')
+    } else {
+      setExifGps(null)
+      setGpsSource('none')
+    }
+
+    setCapturedBlob(file)
+    setPreviewUrl(URL.createObjectURL(file))
+    setCaptureState('preview')
+    
+    // Reset the input so the same file can be selected again
+    e.target.value = ''
   }
 
   async function handleCapture() {
@@ -74,6 +100,8 @@ export function CaptureScreen() {
     setCapturedBlob(blob)
     setPreviewUrl(URL.createObjectURL(blob))
     setCaptureState('preview')
+    setGpsSource(gpsStatus === 'success' ? 'device' : 'none')
+    setExifGps(null)
   }
 
   function handleCancelLive() {
@@ -95,10 +123,21 @@ export function CaptureScreen() {
     savingRef.current = true
     setSaving(true)
     try {
+      // Determine which GPS to use
+      let finalLat = latitude
+      let finalLon = longitude
+      let finalAccuracy = accuracy
+
+      if (gpsSource === 'exif' && exifGps) {
+        finalLat = exifGps.latitude
+        finalLon = exifGps.longitude
+        finalAccuracy = exifGps.accuracy
+      }
+
       let photoBlob = capturedBlob
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-      if (latitude !== null && longitude !== null && !isIOS) {
-        photoBlob = await embedGpsInJpeg(capturedBlob, latitude, longitude)
+      if (finalLat !== null && finalLon !== null && !isIOS && gpsSource === 'device') {
+        photoBlob = await embedGpsInJpeg(capturedBlob, finalLat, finalLon)
       }
 
       let thumbnailBlob: Blob
@@ -120,9 +159,9 @@ export function CaptureScreen() {
         filename,
         photoBlob,
         thumbnailBlob,
-        latitude,
-        longitude,
-        accuracy,
+        latitude: finalLat,
+        longitude: finalLon,
+        accuracy: finalAccuracy,
         capturedAt: new Date().toISOString(),
       })
       await incrementTrailSequence(trail.id)
@@ -134,6 +173,8 @@ export function CaptureScreen() {
       setPreviewUrl('')
       stopCamera()
       setCaptureState('idle')
+      setGpsSource('none')
+      setExifGps(null)
 
       setTimeout(() => setSuccessMessage(null), 1500)
       await loadTrailState()
@@ -255,6 +296,14 @@ export function CaptureScreen() {
 
   /* Preview: photo + Retake/Use Photo in fixed bar, no scroll (nav hidden) */
   if (captureState === 'preview' && previewUrl) {
+    const hasGpsData = (gpsSource === 'device' && gpsStatus === 'success') || (gpsSource === 'exif' && exifGps)
+    let gpsMessage = 'No location data'
+    if (gpsSource === 'device' && gpsStatus === 'success') {
+      gpsMessage = `GPS from device (±${accuracy ? Math.round(accuracy) : '?'}m)`
+    } else if (gpsSource === 'exif' && exifGps) {
+      gpsMessage = 'GPS from photo EXIF'
+    }
+
     return (
       <div className="flex flex-col h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)]">
         {successMessage && (
@@ -275,8 +324,11 @@ export function CaptureScreen() {
             />
           </div>
           <div className="shrink-0 p-4 bg-white border-t-2 border-govuk-border">
-            <p className="text-govuk-text font-bold text-center mb-3 text-base">
+            <p className="text-govuk-text font-bold text-center mb-2 text-base">
               Is the site clearly visible?
+            </p>
+            <p className={`text-sm text-center mb-3 ${hasGpsData ? 'text-govuk-green' : 'text-[#b45309]'}`}>
+              {gpsMessage}
             </p>
             <div className="flex gap-3">
               <button
@@ -359,6 +411,24 @@ export function CaptureScreen() {
               <span aria-hidden>📷</span>
               2. Take Photo
             </button>
+          </div>
+
+          <div className="mb-3">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="photo-upload"
+              aria-label="Choose photo from gallery"
+            />
+            <label
+              htmlFor="photo-upload"
+              className="block w-full min-h-[56px] border-2 border-govuk-border text-govuk-text bg-white text-lg font-bold rounded flex items-center justify-center gap-2 cursor-pointer hover:bg-govuk-background"
+            >
+              <span aria-hidden>🖼️</span>
+              Choose from Gallery
+            </label>
           </div>
 
           <p className="text-base text-govuk-text text-center" aria-live="polite">
