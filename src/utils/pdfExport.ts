@@ -492,20 +492,6 @@ export async function generateBrochurePdf(
     console.log('[PDF] No map blob - skipping map embed')
   }
 
-  // Note about GPS data in ZIP export
-  if (setup.mapBlob) {
-    mapPage.drawText(
-      'Full GPS coordinates included in ZIP export',
-      {
-        x: 20,
-        y: 30,
-        size: 8,
-        font: helvetica,
-        color: rgb(0.5, 0.5, 0.5),
-      }
-    )
-  }
-
   const pdfBytes = await doc.save()
   return new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
 }
