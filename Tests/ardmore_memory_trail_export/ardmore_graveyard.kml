@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Ardmore Graveyard Trail</name>
+  <Placemark>
+    <name>1. ardmore-g-001.jpg</name>
+    <description>ardmore-g-001.jpg</description>
+    <Point>
+      <coordinates>-7.715140328364493,51.96873193394496,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>2. ardmore-g-002.jpg</name>
+    <description>ardmore-g-002.jpg</description>
+    <Point>
+      <coordinates>-7.715140328364513,51.96873193394494,0</coordinates>
+    </Point>
+  </Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Ardmore Parish Trail</name>
+  <Placemark>
+    <name>1. ardmore-p-001.jpg</name>
+    <description>Tierneys head</description>
+    <Point>
+      <coordinates>-7.715140328364418,51.96873193394499,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>2. ardmore-p-002.jpg</name>
+    <description>ardmore-p-002.jpg</description>
+    <Point>
+      <coordinates>-7.715140328364459,51.968731933944966,0</coordinates>
+    </Point>
+  </Placemark>
+  </Document>
+</kml>

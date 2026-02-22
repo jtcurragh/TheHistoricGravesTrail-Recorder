@@ -36,10 +36,15 @@ export async function fixImageOrientation(blob: Blob): Promise<Blob> {
     // ImageIFD.Orientation = 274 (0x0112)
     const orientation = exifObj['0th']?.[274] as number | undefined
 
+    console.log('[EXIF] Orientation detected:', orientation)
+
     // Orientation 1 = normal, undefined = no rotation needed
     if (typeof orientation !== 'number' || orientation === 1) {
+      console.log('[EXIF] No rotation needed')
       return blob
     }
+
+    console.log('[EXIF] Applying rotation for orientation:', orientation)
 
     // Create image and canvas to rotate
     const img = new Image()

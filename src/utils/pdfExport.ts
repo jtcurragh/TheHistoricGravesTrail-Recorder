@@ -93,18 +93,57 @@ export async function generateBrochurePdf(
     color: WHITE,
   })
 
-  const titleSize = setup.coverPhotoBlob ? 22 : 28
-  const titleWidth = helveticaBold.widthOfTextAtSize(
-    setup.coverTitle.toUpperCase(),
-    titleSize
-  )
-  page1.drawText(setup.coverTitle.toUpperCase(), {
-    x: (A6_WIDTH - titleWidth) / 2,
-    y: setup.coverPhotoBlob ? A6_HEIGHT - (A6_HEIGHT / 3) / 2 - titleSize / 2 : A6_HEIGHT / 2 - titleSize / 2,
-    size: titleSize,
-    font: helveticaBold,
-    color: WHITE,
-  })
+  // Title with wrapping if too long
+  const titleSize = setup.coverPhotoBlob ? 20 : 24
+  const titleText = setup.coverTitle.toUpperCase()
+  const maxWidth = A6_WIDTH - 40 // 20px margin on each side
+  const titleWidth = helveticaBold.widthOfTextAtSize(titleText, titleSize)
+  
+  if (titleWidth <= maxWidth) {
+    // Single line - fits nicely
+    page1.drawText(titleText, {
+      x: (A6_WIDTH - titleWidth) / 2,
+      y: setup.coverPhotoBlob ? A6_HEIGHT - (A6_HEIGHT / 3) / 2 - titleSize / 2 : A6_HEIGHT / 2,
+      size: titleSize,
+      font: helveticaBold,
+      color: WHITE,
+    })
+  } else {
+    // Multi-line - wrap text
+    const words = titleText.split(' ')
+    const lines: string[] = []
+    let currentLine = ''
+    
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word
+      const testWidth = helveticaBold.widthOfTextAtSize(testLine, titleSize)
+      
+      if (testWidth <= maxWidth) {
+        currentLine = testLine
+      } else {
+        if (currentLine) lines.push(currentLine)
+        currentLine = word
+      }
+    }
+    if (currentLine) lines.push(currentLine)
+    
+    const lineHeight = titleSize * 1.2
+    const totalHeight = lines.length * lineHeight
+    const startY = setup.coverPhotoBlob 
+      ? A6_HEIGHT - (A6_HEIGHT / 3) / 2 + totalHeight / 2
+      : A6_HEIGHT / 2 + totalHeight / 2
+    
+    lines.forEach((line, i) => {
+      const lineWidth = helveticaBold.widthOfTextAtSize(line, titleSize)
+      page1.drawText(line, {
+        x: (A6_WIDTH - lineWidth) / 2,
+        y: startY - (i * lineHeight),
+        size: titleSize,
+        font: helveticaBold,
+        color: WHITE,
+      })
+    })
+  }
 
   const barHeight = 30
   page1.drawRectangle({
