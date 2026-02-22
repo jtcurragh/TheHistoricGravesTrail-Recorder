@@ -32,23 +32,33 @@ export async function createPlaceholderImage(
 
 /**
  * Sample Irish heritage stories
+ * POIs 1-4: 100 words each
+ * POIs 5-8: 50 words each
  */
 const sampleStories = [
-  'This Bronze Age burnt mound dates to approximately 2000 BC and represents one of the earliest traces of human activity in this area. Archaeological surveys have identified heat-shattered stones and charcoal-rich soil indicating intensive cooking activities. Local tradition suggests this was a seasonal gathering place for extended family groups.',
+  // 100 words - Bronze Age Burnt Mound
+  'This Bronze Age burnt mound dates to approximately 2000 BC and represents one of the earliest traces of human activity in this area. Archaeological surveys have identified heat-shattered stones and charcoal-rich soil indicating intensive cooking activities. The site likely functioned as a communal gathering place where water was heated using hot stones dropped into wooden troughs. This cooking method was common across Bronze Age Ireland. Local tradition suggests this was a seasonal meeting point for extended family groups who would gather here during important occasions. The mound itself accumulated over centuries of repeated use, creating the distinctive horseshoe shape visible today. Such sites provide invaluable insights into prehistoric daily life and social practices.',
   
-  'The medieval parish church ruins visible here date to the 13th century, though documentary evidence suggests an earlier wooden structure on this site. The west gable features remarkable stone carvings that have been documented by the National Monuments Service. Local historians have traced continuous use of this site for worship spanning over 800 years.',
+  // 100 words - Medieval Parish Church
+  'The medieval parish church ruins visible here date to the 13th century, though documentary evidence suggests an earlier wooden structure occupied this site. The west gable features remarkable stone carvings that have been documented by the National Monuments Service, including fine examples of Gothic window tracery. Local historians have traced continuous use of this site for worship spanning over 800 years, making it one of the most significant ecclesiastical sites in the region. The church served a large rural parish until the construction of a new church in the village during the 1850s. The graveyard surrounding the ruins remains in active use and contains headstones dating from the 1600s onwards, providing a rich genealogical resource.',
   
-  'This holy well has been a place of pilgrimage since early Christian times. The stone surround dates to the late 1700s, though the well itself is much older. Pattern days were traditionally held here on the feast of the patron saint, attracting pilgrims from across the region. The water was believed to have curative properties.',
+  // 100 words - Holy Well
+  'This holy well has been a place of pilgrimage since early Christian times, possibly as early as the 6th century. The stone surround dates to the late 1700s when the site was formally renovated, though the well itself is considerably older. Pattern days were traditionally held here on the feast of the patron saint each August, attracting pilgrims from across the region who would walk barefoot around the well while reciting prayers. The water was believed to have curative properties, particularly for eye ailments and skin conditions. Local folklore preserves numerous accounts of miraculous healings attributed to the well. Though the pattern days have ceased, the site remains a place of quiet reflection and prayer.',
   
-  'These wrought iron gates were commissioned by the local landlord family in the 1880s. The craftsmanship displays typical Victorian attention to detail with decorative scrollwork and the family crest prominently displayed. Similar gates can be found at other estate entrances throughout the county, though few remain in such good condition.',
+  // 100 words - Victorian Estate Gates
+  'These magnificent wrought iron gates were commissioned by the local landlord family in the 1880s during the height of Victorian prosperity. The exceptional craftsmanship displays typical Victorian attention to decorative detail, with elaborate scrollwork patterns and the family crest prominently displayed at the center. The gates were forged by a renowned Dublin ironworks firm whose work can be found at several grand estates throughout Ireland. Similar gates once stood at other estate entrances throughout the county, though few remain in such remarkably good condition. The estate itself was divided and sold during land reform in the early 20th century, but these gates survive as a testament to the skilled craftspeople of that era.',
   
-  'The stone bridge crossing this stream dates to the early 1800s and formed part of the new road network established during that period. Built using local limestone, the single-arch design has proven remarkably durable. The bridge played a crucial role in connecting remote farming communities to the nearest market town.',
+  // 50 words - Stone Bridge
+  'The stone bridge crossing this stream dates to the early 1800s and formed part of the new road network established during that period. Built using local limestone, the single-arch design has proven remarkably durable. The bridge connected remote farming communities to the market town.',
   
-  'This vernacular thatched cottage represents a once-common building type that has now become rare. The thick stone walls and small windows reflect practical responses to the Irish climate. Oral history tells us this house was continuously occupied by the same family for five generations until the 1970s.',
+  // 50 words - Vernacular Cottage
+  'This vernacular thatched cottage represents a once-common building type that has now become rare. The thick stone walls and small windows reflect practical responses to the Irish climate. This house was continuously occupied by the same family for five generations until the 1970s.',
   
-  'The mass rock concealed in this sheltered location served the local Catholic community during the Penal Laws era of the 1700s. When public Catholic worship was forbidden, Mass was celebrated outdoors at hidden locations like this. The natural rock formation provided both an altar and some protection from the elements.',
+  // 50 words - Penal Mass Rock
+  'The mass rock concealed in this sheltered location served the local Catholic community during the Penal Laws era of the 1700s. When public Catholic worship was forbidden, Mass was celebrated outdoors at hidden locations. The rock formation provided both altar and protection.',
   
-  'This lime kiln is one of several built across the parish in the 1800s to produce quicklime for agricultural improvement. Limestone was burned at high temperatures for several days, then the resulting lime was spread on fields to reduce soil acidity. The decline of this practice has left these industrial monuments scattered across the landscape.',
+  // 50 words - Lime Kiln
+  'This lime kiln is one of several built across the parish in the 1800s to produce quicklime for agricultural improvement. Limestone was burned at high temperatures for several days, then the resulting lime was spread on fields to reduce soil acidity.',
 ]
 
 /**
