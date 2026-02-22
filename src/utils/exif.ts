@@ -1,5 +1,12 @@
 import piexif from 'piexifjs'
 
+// Extended type for EXIF data with orientation
+type ExifDictWithOrientation = ReturnType<typeof piexif.load> & {
+  '0th'?: {
+    [key: number]: number | string | undefined
+  }
+}
+
 /**
  * Fix image orientation based on EXIF data
  * Many phones store portrait photos as landscape with an orientation flag
@@ -25,11 +32,12 @@ export async function fixImageOrientation(blob: Blob): Promise<Blob> {
       return blob
     }
 
-    const exifObj = piexif.load(binary)
-    const orientation = exifObj['0th']?.[piexif.ImageIFD.Orientation]
+    const exifObj = piexif.load(binary) as ExifDictWithOrientation
+    // ImageIFD.Orientation = 274 (0x0112)
+    const orientation = exifObj['0th']?.[274] as number | undefined
 
     // Orientation 1 = normal, undefined = no rotation needed
-    if (!orientation || orientation === 1) {
+    if (typeof orientation !== 'number' || orientation === 1) {
       return blob
     }
 
