@@ -1,6 +1,102 @@
 import piexif from 'piexifjs'
 
 /**
+ * Fix image orientation based on EXIF data
+ * Many phones store portrait photos as landscape with an orientation flag
+ * This function rotates the image to display correctly
+ */
+export async function fixImageOrientation(blob: Blob): Promise<Blob> {
+  try {
+    // Only process JPEG images
+    if (!blob.type.startsWith('image/jpeg') && !blob.type.startsWith('image/jpg')) {
+      return blob
+    }
+
+    const arrayBuffer = await blob.arrayBuffer()
+    const bytes = new Uint8Array(arrayBuffer)
+    const chunkSize = 8192
+    let binary = ''
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, i + chunkSize)
+      binary += String.fromCharCode.apply(null, chunk as unknown as number[])
+    }
+
+    if (!binary.startsWith('\xff\xd8')) {
+      return blob
+    }
+
+    const exifObj = piexif.load(binary)
+    const orientation = exifObj['0th']?.[piexif.ImageIFD.Orientation]
+
+    // Orientation 1 = normal, undefined = no rotation needed
+    if (!orientation || orientation === 1) {
+      return blob
+    }
+
+    // Create image and canvas to rotate
+    const img = new Image()
+    const url = URL.createObjectURL(blob)
+    
+    await new Promise((resolve, reject) => {
+      img.onload = resolve
+      img.onerror = reject
+      img.src = url
+    })
+
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')!
+
+    // Set canvas dimensions based on orientation
+    if (orientation >= 5 && orientation <= 8) {
+      // Orientations 5-8 swap width/height
+      canvas.width = img.height
+      canvas.height = img.width
+    } else {
+      canvas.width = img.width
+      canvas.height = img.height
+    }
+
+    // Apply rotation/flip based on EXIF orientation
+    switch (orientation) {
+      case 2:
+        ctx.transform(-1, 0, 0, 1, img.width, 0)
+        break
+      case 3:
+        ctx.transform(-1, 0, 0, -1, img.width, img.height)
+        break
+      case 4:
+        ctx.transform(1, 0, 0, -1, 0, img.height)
+        break
+      case 5:
+        ctx.transform(0, 1, 1, 0, 0, 0)
+        break
+      case 6:
+        ctx.transform(0, 1, -1, 0, img.height, 0)
+        break
+      case 7:
+        ctx.transform(0, -1, -1, 0, img.height, img.width)
+        break
+      case 8:
+        ctx.transform(0, -1, 1, 0, 0, img.width)
+        break
+    }
+
+    ctx.drawImage(img, 0, 0)
+    URL.revokeObjectURL(url)
+
+    // Convert canvas to blob
+    return new Promise((resolve) => {
+      canvas.toBlob((rotatedBlob) => {
+        resolve(rotatedBlob || blob)
+      }, 'image/jpeg', 0.95)
+    })
+  } catch (error) {
+    console.error('Failed to fix image orientation:', error)
+    return blob
+  }
+}
+
+/**
  * Convert decimal degrees to DMS rational format for EXIF GPS
  */
 function degToDmsRational(degFloat: number): [[number, number], [number, number], [number, number]] {

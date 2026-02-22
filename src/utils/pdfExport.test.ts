@@ -87,22 +87,24 @@ describe('pdfExport', () => {
     expect(pdf.size).toBeGreaterThan(100)
   })
 
-  it('throws when cover photo is missing', async () => {
+  it('generates PDF with text-only cover when photo is missing', async () => {
     const setup: Omit<BrochureSetup, 'coverPhotoBlob'> & { coverPhotoBlob: null } = {
       id: 'test',
       trailId: 'test',
-      coverTitle: 'Test',
+      coverTitle: 'Test Heritage Trail',
       coverPhotoBlob: null,
-      groupName: 'Test',
-      creditsText: '',
-      introText: 'Intro',
+      groupName: 'Test Community',
+      creditsText: 'Credits text',
+      introText: 'Introduction text about the trail',
       funderLogos: [],
       mapBlob: null,
       updatedAt: '2025-02-20T12:00:00Z',
     }
     const trail = { id: 'test', groupCode: 't', trailType: 'graveyard' as const, displayName: 'T', createdAt: '', nextSequence: 1 }
-    await expect(
-      generateBrochurePdf(trail, setup as BrochureSetup, [])
-    ).rejects.toThrow('Cover photo is required')
+    
+    const pdf = await generateBrochurePdf(trail, setup as BrochureSetup, [])
+    expect(pdf).toBeInstanceOf(Blob)
+    expect(pdf.type).toBe('application/pdf')
+    expect(pdf.size).toBeGreaterThan(100)
   })
 })

@@ -5,6 +5,7 @@ import { getUserProfile } from '../db/userProfile'
 import { getTrailById } from '../db/trails'
 import { getPOIsByTrailId } from '../db/pois'
 import { generateStaticMap } from '../utils/mapbox'
+import { fixImageOrientation } from '../utils/exif'
 import type { BrochureSetup } from '../types'
 
 function CoverPhotoPreview({ blob }: { blob: Blob }) {
@@ -109,9 +110,13 @@ export function BrochureSetupScreen() {
     void loadData()
   }, [loadData])
 
-  const handleCoverPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file?.type.startsWith('image/')) setCoverPhotoBlob(file)
+    if (file?.type.startsWith('image/')) {
+      // Fix orientation before saving
+      const fixed = await fixImageOrientation(file)
+      setCoverPhotoBlob(fixed)
+    }
     e.target.value = ''
   }
 
@@ -134,7 +139,7 @@ export function BrochureSetupScreen() {
     if (!coverTitle.trim()) newErrors.coverTitle = 'Cover title is required'
     if (!groupName.trim()) newErrors.groupName = 'Community group name is required'
     if (!introText.trim()) newErrors.introText = 'Introduction is required'
-    if (!coverPhotoBlob) newErrors.coverPhoto = 'Cover photo is required'
+    // Cover photo is now optional
     setErrors(newErrors)
     if (Object.keys(newErrors).length > 0) return
 
@@ -302,8 +307,11 @@ export function BrochureSetupScreen() {
 
         <div>
           <label className="block text-lg font-bold text-govuk-text mb-2">
-            Cover Photo <span className="text-govuk-red">*</span>
+            Cover Photo (optional)
           </label>
+          <p className="text-sm text-govuk-muted mb-2">
+            Upload a photo or leave blank for text-only cover
+          </p>
           {errors.coverPhoto && (
             <p className="text-govuk-red font-bold mb-2" role="alert">
               {errors.coverPhoto}

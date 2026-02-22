@@ -44,38 +44,46 @@ export async function generateBrochurePdf(
     .sort((a, b) => a.sequence - b.sequence)
     .slice(0, 8)
 
-  if (!setup.coverPhotoBlob) {
-    throw new Error('Cover photo is required')
-  }
-
-  const coverImage = await embedImage(doc, setup.coverPhotoBlob)
   const page1 = doc.addPage([A6_WIDTH, A6_HEIGHT])
 
-  const imgScale = Math.max(
-    A6_WIDTH / coverImage.width,
-    A6_HEIGHT / coverImage.height
-  )
-  const imgW = coverImage.width * imgScale
-  const imgH = coverImage.height * imgScale
-  const imgX = (A6_WIDTH - imgW) / 2
-  const imgY = A6_HEIGHT - imgH
+  // If cover photo exists, use it; otherwise create text-only cover
+  if (setup.coverPhotoBlob) {
+    const coverImage = await embedImage(doc, setup.coverPhotoBlob)
+    const imgScale = Math.max(
+      A6_WIDTH / coverImage.width,
+      A6_HEIGHT / coverImage.height
+    )
+    const imgW = coverImage.width * imgScale
+    const imgH = coverImage.height * imgScale
+    const imgX = (A6_WIDTH - imgW) / 2
+    const imgY = A6_HEIGHT - imgH
 
-  page1.drawImage(coverImage, {
-    x: imgX,
-    y: imgY,
-    width: imgW,
-    height: imgH,
-  })
+    page1.drawImage(coverImage, {
+      x: imgX,
+      y: imgY,
+      width: imgW,
+      height: imgH,
+    })
 
-  const overlayHeight = A6_HEIGHT / 3
-  page1.drawRectangle({
-    x: 0,
-    y: A6_HEIGHT - overlayHeight,
-    width: A6_WIDTH,
-    height: overlayHeight,
-    color: TEAL,
-    opacity: 0.7,
-  })
+    const overlayHeight = A6_HEIGHT / 3
+    page1.drawRectangle({
+      x: 0,
+      y: A6_HEIGHT - overlayHeight,
+      width: A6_WIDTH,
+      height: overlayHeight,
+      color: TEAL,
+      opacity: 0.7,
+    })
+  } else {
+    // Text-only cover with solid teal background
+    page1.drawRectangle({
+      x: 0,
+      y: 0,
+      width: A6_WIDTH,
+      height: A6_HEIGHT,
+      color: TEAL,
+    })
+  }
 
   page1.drawText('The Memory Trail', {
     x: 20,
@@ -85,14 +93,14 @@ export async function generateBrochurePdf(
     color: WHITE,
   })
 
-  const titleSize = 22
+  const titleSize = setup.coverPhotoBlob ? 22 : 28
   const titleWidth = helveticaBold.widthOfTextAtSize(
     setup.coverTitle.toUpperCase(),
     titleSize
   )
   page1.drawText(setup.coverTitle.toUpperCase(), {
     x: (A6_WIDTH - titleWidth) / 2,
-    y: A6_HEIGHT - overlayHeight / 2 - titleSize / 2,
+    y: setup.coverPhotoBlob ? A6_HEIGHT - (A6_HEIGHT / 3) / 2 - titleSize / 2 : A6_HEIGHT / 2 - titleSize / 2,
     size: titleSize,
     font: helveticaBold,
     color: WHITE,
@@ -104,7 +112,7 @@ export async function generateBrochurePdf(
     y: 0,
     width: A6_WIDTH,
     height: barHeight,
-    color: TEAL,
+    color: setup.coverPhotoBlob ? TEAL : rgb(0.2, 0.6, 0.55),
   })
   const groupWidth = helveticaBold.widthOfTextAtSize(
     setup.groupName.toUpperCase(),
