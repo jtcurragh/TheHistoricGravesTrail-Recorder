@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { getBrochureSetup, saveBrochureSetup } from '../db/brochureSetup'
 import { getUserProfile } from '../db/userProfile'
 import { getTrailById } from '../db/trails'
+import { getPOIsByTrailId } from '../db/pois'
+import { generateStaticMap } from '../utils/mapbox'
 import type { BrochureSetup } from '../types'
 
 function CoverPhotoPreview({ blob }: { blob: Blob }) {
@@ -138,6 +140,10 @@ export function BrochureSetupScreen() {
 
     setSaving(true)
     try {
+      // Fetch POIs and generate map
+      const pois = await getPOIsByTrailId(trailId, { includeBlobs: false })
+      const mapBlob = await generateStaticMap(pois)
+      
       const setup: BrochureSetup = {
         id: trailId,
         trailId,
@@ -147,7 +153,7 @@ export function BrochureSetupScreen() {
         creditsText: creditsText.trim(),
         introText: introText.trim(),
         funderLogos,
-        mapBlob: null,
+        mapBlob,
         updatedAt: new Date().toISOString(),
       }
       await saveBrochureSetup(setup)
