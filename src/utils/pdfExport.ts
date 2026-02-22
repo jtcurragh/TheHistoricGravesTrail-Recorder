@@ -75,11 +75,11 @@ export async function generateBrochurePdf(
       opacity: 0.7,
     })
 
-    // "The Memory Trail" branding at top for photo covers
+    // "The Memory Trail" branding at top for photo covers (moved higher to avoid title clash)
     page1.drawText('The Memory Trail', {
       x: 20,
-      y: A6_HEIGHT - 30,
-      size: 10,
+      y: A6_HEIGHT - 20,
+      size: 9,
       font: helvetica,
       color: WHITE,
     })
@@ -111,15 +111,19 @@ export async function generateBrochurePdf(
   const maxWidth = A6_WIDTH - 40 // 20px margin on each side
   const titleWidth = helveticaBold.widthOfTextAtSize(titleText, titleSize)
   
+  let titleBottomY: number // Track where title ends for subtitle placement
+  
   if (titleWidth <= maxWidth) {
     // Single line - fits nicely
+    const titleY = setup.coverPhotoBlob ? A6_HEIGHT - (A6_HEIGHT / 3) / 2 - titleSize / 2 : A6_HEIGHT / 2
     page1.drawText(titleText, {
       x: (A6_WIDTH - titleWidth) / 2,
-      y: setup.coverPhotoBlob ? A6_HEIGHT - (A6_HEIGHT / 3) / 2 - titleSize / 2 : A6_HEIGHT / 2,
+      y: titleY,
       size: titleSize,
       font: helveticaBold,
       color: WHITE,
     })
+    titleBottomY = titleY
   } else {
     // Multi-line - wrap text
     const words = titleText.split(' ')
@@ -155,7 +159,20 @@ export async function generateBrochurePdf(
         color: WHITE,
       })
     })
+    titleBottomY = startY - ((lines.length - 1) * lineHeight)
   }
+
+  // Subtitle below main title
+  const subtitleText = 'National Historic Graveyard Trail 2026'
+  const subtitleSize = 11
+  const subtitleWidth = helvetica.widthOfTextAtSize(subtitleText, subtitleSize)
+  page1.drawText(subtitleText, {
+    x: (A6_WIDTH - subtitleWidth) / 2,
+    y: titleBottomY - 20,
+    size: subtitleSize,
+    font: helvetica,
+    color: WHITE,
+  })
 
   const barHeight = 30
   page1.drawRectangle({
