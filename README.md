@@ -1,4 +1,4 @@
-# The Memory Trail PWA
+# Historic Graves Trail PWA
 
 Community heritage trail recording app for the SECreTour EU-funded project. A web-first Progressive Web App for volunteer contributors to capture and curate Points of Interest (POIs) for local heritage trails in Ireland.
 

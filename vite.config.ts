@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'The Memory Trail',
-        short_name: 'Memory Trail',
-        description: 'Community heritage trail recording app',
+        name: 'Historic Graves Trail',
+        short_name: 'HG Trail',
+        description: 'Recording heritage trail Points of Interest for Historic Graves',
         theme_color: '#1a2a2a',
         background_color: '#ffffff',
         display: 'standalone',

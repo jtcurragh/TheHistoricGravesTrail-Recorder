@@ -42,7 +42,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
         <p className="text-lg text-govuk-muted mb-10">
           Recording our shared heritage
         </p>
-        {/* TODO: Insert Historic Graves logo — awaiting asset */}
+        {/* TODO: Replace with Historic Graves logo SVG — awaiting asset */}
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-6">

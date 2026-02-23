@@ -75,8 +75,8 @@ export async function generateBrochurePdf(
       opacity: 0.7,
     })
 
-    // "The Memory Trail" branding at top for photo covers (moved higher to avoid title clash)
-    page1.drawText('The Memory Trail', {
+    // Historic Graves Trail branding at top for photo covers (moved higher to avoid title clash)
+    page1.drawText('Historic Graves Trail', {
       x: 20,
       y: A6_HEIGHT - 20,
       size: 9,
@@ -93,8 +93,8 @@ export async function generateBrochurePdf(
       color: TEAL,
     })
 
-    // "The Memory Trail" branding at bottom for text-only covers (avoid title clash)
-    const brandingText = 'The Memory Trail'
+    // Historic Graves Trail branding at bottom for text-only covers (avoid title clash)
+    const brandingText = 'Historic Graves Trail'
     const brandingWidth = helvetica.widthOfTextAtSize(brandingText, 9)
     page1.drawText(brandingText, {
       x: (A6_WIDTH - brandingWidth) / 2,

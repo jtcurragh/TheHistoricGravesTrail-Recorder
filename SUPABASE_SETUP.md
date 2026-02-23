@@ -1,4 +1,4 @@
-# Supabase Setup for The Memory Trail PWA
+# Supabase Setup for Historic Graves Trail PWA
 
 ## 1. Run migrations
 

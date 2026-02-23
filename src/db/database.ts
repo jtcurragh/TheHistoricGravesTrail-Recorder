@@ -2,7 +2,7 @@ import Dexie, { type Table } from 'dexie'
 import type { UserProfile, Trail, POIRecord, BrochureSetup } from '../types'
 
 const DB_NAME =
-  import.meta.env?.MODE === 'test' ? 'tmt-recorder-test' : 'tmt-recorder'
+  import.meta.env?.MODE === 'test' ? 'hgt-recorder-test' : 'hgt-recorder'
 
 export interface SyncQueueItem {
   id: string
@@ -15,7 +15,7 @@ export interface SyncQueueItem {
   attempts: number
 }
 
-class TMTDatabase extends Dexie {
+class HGTDatabase extends Dexie {
   userProfile!: Table<UserProfile, string>
   trails!: Table<Trail, string>
   pois!: Table<POIRecord, string>
@@ -41,4 +41,4 @@ class TMTDatabase extends Dexie {
   }
 }
 
-export const db = new TMTDatabase()
+export const db = new HGTDatabase()

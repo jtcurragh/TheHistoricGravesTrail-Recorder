@@ -8,8 +8,8 @@ describe('App', () => {
     localStorage.setItem('userEmail', 'test@example.com')
   })
 
-  it('renders The Memory Trail heading when welcome complete', () => {
+  it('renders Historic Graves Trail heading when welcome complete', () => {
     render(<App />)
-    expect(screen.getByText(/the memory trail/i)).toBeInTheDocument()
+    expect(screen.getByText(/historic graves trail/i)).toBeInTheDocument()
   })
 })

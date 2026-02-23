@@ -1,4 +1,4 @@
--- The Memory Trail PWA - Initial Supabase Schema
+-- Historic Graves Trail PWA - Initial Supabase Schema
 -- Run this in Supabase Dashboard → SQL Editor
 --
 -- If a previous run failed on user_profile, drop it first:
