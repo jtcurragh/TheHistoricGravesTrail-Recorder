@@ -195,22 +195,61 @@ export async function generateBrochurePdf(
   })
 
   const page2 = doc.addPage([A6_WIDTH, A6_HEIGHT])
+
+  const introHeaderHeight = 30
+  page2.drawRectangle({
+    x: 0,
+    y: A6_HEIGHT - introHeaderHeight,
+    width: A6_WIDTH,
+    height: introHeaderHeight,
+    color: TEAL,
+  })
+  page2.drawText('INTRODUCTION', {
+    x: 20,
+    y: A6_HEIGHT - introHeaderHeight + 8,
+    size: 12,
+    font: helveticaBold,
+    color: WHITE,
+  })
+
+  const introWords = setup.introText.trim().split(/\s+/).filter(Boolean).slice(0, 50)
+  let introY = A6_HEIGHT - introHeaderHeight - 25
+  let line = ''
+  const textMaxWidth = A6_WIDTH - 40
+  for (const word of introWords) {
+    const test = line ? `${line} ${word}` : word
+    if (helvetica.widthOfTextAtSize(test, 10) > textMaxWidth) {
+      if (line && introY > 200) {
+        page2.drawText(line, { x: 20, y: introY, size: 10, font: helvetica, color: NEAR_BLACK })
+        introY -= 12
+      }
+      line = word
+    } else {
+      line = test
+    }
+  }
+  if (line && introY > 200) {
+    page2.drawText(line, { x: 20, y: introY, size: 10, font: helvetica, color: NEAR_BLACK })
+    introY -= 12
+  }
+
+  const fundedHeaderY = introY - 25
   page2.drawText('FUNDED AND SUPPORTED BY', {
-    x: A6_WIDTH / 2 - helveticaBold.widthOfTextAtSize('FUNDED AND SUPPORTED BY', 14) / 2,
-    y: A6_HEIGHT - 40,
-    size: 14,
+    x: A6_WIDTH / 2 - helveticaBold.widthOfTextAtSize('FUNDED AND SUPPORTED BY', 11) / 2,
+    y: fundedHeaderY,
+    size: 11,
     font: helveticaBold,
     color: NEAR_BLACK,
   })
 
-  let logoY = A6_HEIGHT - 110
-  const logoSize = 60
+  let logoY = fundedHeaderY - 15
+  const logoSize = 45
   const logosPerRow = 2
   for (let i = 0; i < setup.funderLogos.length; i++) {
     const col = i % logosPerRow
     const row = Math.floor(i / logosPerRow)
-    const x = (A6_WIDTH - logosPerRow * (logoSize + 20)) / 2 + col * (logoSize + 20)
-    const y = logoY - row * (logoSize + 20)
+    const x = (A6_WIDTH - logosPerRow * (logoSize + 15)) / 2 + col * (logoSize + 15)
+    const y = logoY - row * (logoSize + 15)
     try {
       const logoBytes = await blobToUint8Array(setup.funderLogos[i])
       const logoImg = isPng(setup.funderLogos[i])
@@ -227,54 +266,49 @@ export async function generateBrochurePdf(
       /* Skip logo if embedding fails (e.g. invalid image) */
     }
   }
-  logoY -= setup.funderLogos.length > 0 ? Math.ceil(setup.funderLogos.length / logosPerRow) * (logoSize + 30) : 0
+  logoY -= setup.funderLogos.length > 0 ? Math.ceil(setup.funderLogos.length / logosPerRow) * (logoSize + 20) : 0
+
+  const creditsWords = setup.creditsText.trim().split(/\s+/).filter(Boolean).slice(0, 40)
+  let creditsY = logoY - 20
+  line = ''
+  for (const word of creditsWords) {
+    const test = line ? `${line} ${word}` : word
+    if (helvetica.widthOfTextAtSize(test, 9) > textMaxWidth) {
+      if (line && creditsY > 70) {
+        const lw = helvetica.widthOfTextAtSize(line, 9)
+        page2.drawText(line, {
+          x: (A6_WIDTH - lw) / 2,
+          y: creditsY,
+          size: 9,
+          font: helvetica,
+          color: NEAR_BLACK,
+        })
+        creditsY -= 11
+      }
+      line = word
+    } else {
+      line = test
+    }
+  }
+  if (line && creditsY > 70) {
+    const lw = helvetica.widthOfTextAtSize(line, 9)
+    page2.drawText(line, {
+      x: (A6_WIDTH - lw) / 2,
+      y: creditsY,
+      size: 9,
+      font: helvetica,
+      color: NEAR_BLACK,
+    })
+    creditsY -= 11
+  }
 
   page2.drawText(setup.groupName, {
-    x: A6_WIDTH / 2 - helveticaBold.widthOfTextAtSize(setup.groupName, 12) / 2,
-    y: logoY - 30,
-    size: 12,
+    x: A6_WIDTH / 2 - helveticaBold.widthOfTextAtSize(setup.groupName, 10) / 2,
+    y: creditsY - 15,
+    size: 10,
     font: helveticaBold,
     color: NEAR_BLACK,
   })
-
-  const creditsLines = setup.creditsText.split('\n').filter(Boolean)
-  let creditsY = logoY - 60
-  for (const line of creditsLines) {
-    if (creditsY < 80) break
-    const maxWidth = A6_WIDTH - 40
-    const words = line.split(/\s+/)
-    let currentLine = ''
-    for (const word of words) {
-      const test = currentLine ? `${currentLine} ${word}` : word
-      if (helvetica.widthOfTextAtSize(test, 10) > maxWidth) {
-        if (currentLine) {
-          const lw = helvetica.widthOfTextAtSize(currentLine, 10)
-          page2.drawText(currentLine, {
-            x: (A6_WIDTH - lw) / 2,
-            y: creditsY,
-            size: 10,
-            font: helvetica,
-            color: NEAR_BLACK,
-          })
-          creditsY -= 14
-        }
-        currentLine = word
-      } else {
-        currentLine = test
-      }
-    }
-    if (currentLine && creditsY > 80) {
-      const lw = helvetica.widthOfTextAtSize(currentLine, 10)
-      page2.drawText(currentLine, {
-        x: (A6_WIDTH - lw) / 2,
-        y: creditsY,
-        size: 10,
-        font: helvetica,
-        color: NEAR_BLACK,
-      })
-      creditsY -= 14
-    }
-  }
 
   page2.drawText('Content licensed under CC BY-NC-ND', {
     x: A6_WIDTH / 2 - helvetica.widthOfTextAtSize('Content licensed under CC BY-NC-ND', 8) / 2,
@@ -282,52 +316,6 @@ export async function generateBrochurePdf(
     size: 8,
     font: helvetica,
     color: rgb(0.5, 0.5, 0.5),
-  })
-
-  const page3 = doc.addPage([A6_WIDTH, A6_HEIGHT])
-  const introHeaderHeight = 35
-  page3.drawRectangle({
-    x: 0,
-    y: A6_HEIGHT - introHeaderHeight,
-    width: A6_WIDTH,
-    height: introHeaderHeight,
-    color: TEAL,
-  })
-  page3.drawText('INTRODUCTION', {
-    x: 20,
-    y: A6_HEIGHT - introHeaderHeight + 10,
-    size: 14,
-    font: helveticaBold,
-    color: WHITE,
-  })
-
-  const introY = A6_HEIGHT - introHeaderHeight - 30
-  const introChunk = setup.introText.substring(0, 800)
-  const introWords = introChunk.split(/\s+/)
-  let line = ''
-  let y = introY
-  for (const word of introWords) {
-    const test = line ? `${line} ${word}` : word
-    if (helvetica.widthOfTextAtSize(test, 11) > A6_WIDTH - 40) {
-      if (line && y > 60) {
-        page3.drawText(line, { x: 20, y, size: 11, font: helvetica, color: NEAR_BLACK })
-        y -= 14
-      }
-      line = word
-    } else {
-      line = test
-    }
-  }
-  if (line && y > 60) {
-    page3.drawText(line, { x: 20, y, size: 11, font: helvetica, color: NEAR_BLACK })
-    y -= 14
-  }
-  page3.drawText(setup.groupName, {
-    x: 20,
-    y: 30,
-    size: 9,
-    font: helvetica,
-    color: NEAR_BLACK,
   })
 
   for (let i = 0; i < validatedPois.length; i++) {

@@ -366,12 +366,15 @@ export function BrochureSetupScreen() {
             value={introText}
             onChange={(e) => setIntroText(e.target.value)}
             rows={5}
-            placeholder="3–5 sentences about the trail and community"
+            placeholder="3–5 sentences about the trail and community (max 50 words)"
             aria-required
             aria-invalid={!!errors.introText}
             aria-describedby={errors.introText ? 'introText-error' : undefined}
             className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
           />
+          <p className="mt-1 text-sm text-govuk-muted">
+            {introText.trim().split(/\s+/).filter(Boolean).length} / 50 words
+          </p>
         </div>
 
         <div>
@@ -386,9 +389,12 @@ export function BrochureSetupScreen() {
             value={creditsText}
             onChange={(e) => setCreditsText(e.target.value)}
             rows={4}
-            placeholder="Who wrote the content, local historians, researchers acknowledged"
+            placeholder="Funded by, supported by, acknowledgements (max 40 words)"
             className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
           />
+          <p className="mt-1 text-sm text-govuk-muted">
+            {creditsText.trim().split(/\s+/).filter(Boolean).length} / 40 words
+          </p>
         </div>
 
         <div>
