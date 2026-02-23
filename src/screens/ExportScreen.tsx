@@ -17,14 +17,13 @@ async function clearAllData(): Promise<void> {
   localStorage.removeItem('welcomeComplete')
   localStorage.removeItem('userEmail')
   localStorage.removeItem('activeTrailId')
-  await Promise.all([
-    db.userProfile.clear(),
-    db.trails.clear(),
-    db.pois.clear(),
-    db.brochureSetup.clear(),
-    db.syncQueue.clear(),
-  ])
-  window.location.reload()
+  try {
+    await db.delete()
+    // Brief delay so IndexedDB has time to flush before page unload
+    await new Promise((r) => setTimeout(r, 100))
+  } finally {
+    window.location.reload()
+  }
 }
 
 export function ExportScreen() {
@@ -43,6 +42,7 @@ export function ExportScreen() {
   const [pdfSuccess, setPdfSuccess] = useState(false)
   const [pdfError, setPdfError] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [clearing, setClearing] = useState(false)
   const [demoGenerating, setDemoGenerating] = useState(false)
 
   const { isImporting, importResult, conflictPending, triggerImport, resolveConflict, resetImport } = useImport()
@@ -420,20 +420,27 @@ export function ExportScreen() {
             <div className="flex gap-4">
               <button
                 type="button"
-                onClick={() => setShowClearConfirm(false)}
-                className="flex-1 min-h-[48px] border-2 border-govuk-border font-bold"
+                onClick={() => !clearing && setShowClearConfirm(false)}
+                disabled={clearing}
+                className="flex-1 min-h-[48px] border-2 border-govuk-border font-bold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setShowClearConfirm(false)
-                  void clearAllData()
+                onClick={async () => {
+                  setClearing(true)
+                  try {
+                    await clearAllData()
+                  } catch (err) {
+                    console.error('Clear failed:', err)
+                    setClearing(false)
+                  }
                 }}
-                className="flex-1 min-h-[48px] bg-govuk-red text-white font-bold"
+                disabled={clearing}
+                className="flex-1 min-h-[48px] bg-govuk-red text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Clear all
+                {clearing ? 'Clearing…' : 'Clear all'}
               </button>
             </div>
           </div>

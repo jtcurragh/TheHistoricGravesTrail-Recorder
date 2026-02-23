@@ -51,17 +51,17 @@ describe('WelcomeScreen', () => {
     expect(screen.getByPlaceholderText(/your email address/i)).toBeInTheDocument()
   })
 
-  it('disables Start Recording button when fields are empty', () => {
+  it('disables Start recording Trails button when fields are empty', () => {
     render(
       <MemoryRouter>
         <WelcomeScreen onComplete={() => {}} />
       </MemoryRouter>
     )
-    const button = screen.getByRole('button', { name: /start recording/i })
+    const button = screen.getByRole('button', { name: /start recording trails/i })
     expect(button).toBeDisabled()
   })
 
-  it('enables Start Recording when both fields are filled', async () => {
+  it('enables Start recording Trails when both fields are filled', async () => {
     const user = userEvent.setup()
     render(
       <MemoryRouter>
@@ -70,7 +70,7 @@ describe('WelcomeScreen', () => {
     )
     await user.type(screen.getByPlaceholderText(/your first and last name/i), 'Sheila')
     await user.type(screen.getByPlaceholderText(/your email address/i), 'sheila@example.com')
-    const button = screen.getByRole('button', { name: /start recording/i })
+    const button = screen.getByRole('button', { name: /start recording trails/i })
     expect(button).toBeEnabled()
   })
 
@@ -97,7 +97,7 @@ describe('WelcomeScreen', () => {
 
     await user.type(screen.getByPlaceholderText(/your first and last name/i), 'Sheila')
     await user.type(screen.getByPlaceholderText(/your email address/i), 'sheila@example.com')
-    await user.click(screen.getByRole('button', { name: /start recording/i }))
+    await user.click(screen.getByRole('button', { name: /start recording trails/i }))
 
     await waitFor(() => {
       expect(welcomeService.processWelcome).toHaveBeenCalledWith('Sheila', 'sheila@example.com')

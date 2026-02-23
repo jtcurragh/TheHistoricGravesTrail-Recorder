@@ -82,9 +82,9 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
             type="submit"
             disabled={!canSubmit}
             className="w-full min-h-[56px] bg-tmt-teal text-white text-lg font-bold px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Start Recording"
+            aria-label="Start recording Trails"
           >
-            Start Recording
+            Start recording Trails
           </button>
         </form>
       </div>
