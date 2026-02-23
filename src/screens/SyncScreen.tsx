@@ -3,11 +3,34 @@ import { formatSyncDate } from '../utils/formatSyncDate'
 import { features } from '../config/features'
 import { supabase } from '../lib/supabase'
 
+function formatPendingMessage(stats: {
+  poiCount: number
+  trailCount: number
+  brochureSetupCount: number
+}): string {
+  const parts: string[] = []
+  if (stats.poiCount > 0)
+    parts.push(
+      `${stats.poiCount} POI${stats.poiCount !== 1 ? 's' : ''}`
+    )
+  if (stats.trailCount > 0)
+    parts.push(
+      `${stats.trailCount} trail${stats.trailCount !== 1 ? 's' : ''}`
+    )
+  if (stats.brochureSetupCount > 0)
+    parts.push(
+      `${stats.brochureSetupCount} brochure setup${stats.brochureSetupCount !== 1 ? 's' : ''}`
+    )
+  if (parts.length === 0) return '0 items'
+  return parts.join(', ')
+}
+
 export function SyncScreen() {
   const {
     isSyncing,
     lastSyncedAt,
     pendingCount,
+    pendingEntityStats,
     syncError,
     syncedStats,
     triggerManualSync,
@@ -90,8 +113,7 @@ export function SyncScreen() {
                 Saving when you have a connection
               </p>
               <p className="text-lg text-govuk-text mt-2">
-                {pendingCount} item{pendingCount !== 1 ? 's' : ''} waiting to
-                save
+                {formatPendingMessage(pendingEntityStats)} waiting to save
               </p>
               <p className="text-govuk-muted text-sm mt-4">
                 Your work is saved on this device. It will save automatically
@@ -118,13 +140,18 @@ export function SyncScreen() {
               <p className="text-xl font-bold text-govuk-red">
                 Sync problem
               </p>
+              {syncError && (
+                <p className="text-govuk-text mt-2 font-mono text-sm break-words">
+                  {syncError}
+                </p>
+              )}
               {lastSyncedAt && (
                 <p className="text-lg text-govuk-text mt-2">
                   Last successful save: {formatSyncDate(lastSyncedAt)}
                 </p>
               )}
               <p className="text-govuk-text mt-1">
-                {pendingCount} item{pendingCount !== 1 ? 's' : ''} waiting
+                {formatPendingMessage(pendingEntityStats)} waiting
               </p>
               <p className="text-govuk-muted text-sm mt-4">
                 Don&apos;t worry — your work is safe on this device. Try again

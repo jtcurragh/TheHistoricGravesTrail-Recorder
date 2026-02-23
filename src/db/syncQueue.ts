@@ -27,6 +27,32 @@ export async function getPendingSyncCount(): Promise<number> {
   return all.filter((i) => i.syncedAt == null || i.syncedAt === '').length
 }
 
+export interface PendingEntityStats {
+  poiCount: number
+  trailCount: number
+  brochureSetupCount: number
+}
+
+export async function getPendingEntityStats(): Promise<PendingEntityStats> {
+  const pending = await db.syncQueue
+    .filter((i) => i.syncedAt == null || i.syncedAt === '')
+    .toArray()
+  const poiIds = new Set<string>()
+  const trailIds = new Set<string>()
+  const brochureSetupIds = new Set<string>()
+  for (const item of pending) {
+    if (item.entityType === 'poi') poiIds.add(item.entityId)
+    else if (item.entityType === 'trail') trailIds.add(item.entityId)
+    else if (item.entityType === 'brochure_setup')
+      brochureSetupIds.add(item.entityId)
+  }
+  return {
+    poiCount: poiIds.size,
+    trailCount: trailIds.size,
+    brochureSetupCount: brochureSetupIds.size,
+  }
+}
+
 export async function getLastSyncedAt(): Promise<string | null> {
   const all = await db.syncQueue.toArray()
   const synced = all
