@@ -20,6 +20,9 @@ class TMTDatabase extends Dexie {
     this.version(2).stores({
       brochureSetup: 'id',
     })
+    this.version(3).stores({
+      // No schema changes, just acknowledging POI type expansion for audit fields
+    })
   }
 }
 

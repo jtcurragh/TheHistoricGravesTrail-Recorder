@@ -8,6 +8,9 @@ import { db } from '../db/database'
 import { exportTrailsToZip, downloadBlob } from '../utils/export'
 import { generateBrochurePdf } from '../utils/pdfExport'
 import { generateDemoBrochureSetup, generateDemoPOIs, generateDemoTrail } from '../utils/demoData'
+import { ImportButton } from '../components/ImportButton'
+import { ImportResultModal } from '../components/ImportResultModal'
+import { useImport } from '../hooks/useImport'
 import type { UserProfile, Trail } from '../types'
 
 function clearAllData(): void {
@@ -38,30 +41,33 @@ export function ExportScreen() {
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [demoGenerating, setDemoGenerating] = useState(false)
 
-  useEffect(() => {
-    async function load() {
-      const p = await getUserProfile()
-      setProfile(p)
-      if (!p) return
+  const { isImporting, importResult, conflictPending, triggerImport, resolveConflict, resetImport } = useImport()
 
-      const trails = await getTrailsByGroupCode(p.groupCode)
-      const graveyard = trails.find((t) => t.trailType === 'graveyard')
-      const parish = trails.find((t) => t.trailType === 'parish')
+  const reloadData = async () => {
+    const p = await getUserProfile()
+    setProfile(p)
+    if (!p) return
 
-      setGraveyardTrail(graveyard ?? null)
-      setParishTrail(parish ?? null)
-      setBrochureTrailId((prev) => prev ?? graveyard?.id ?? parish?.id ?? null)
+    const trails = await getTrailsByGroupCode(p.groupCode)
+    const graveyard = trails.find((t) => t.trailType === 'graveyard')
+    const parish = trails.find((t) => t.trailType === 'parish')
 
-      if (graveyard) {
-        const pois = await getPOIsByTrailId(graveyard.id, { includeBlobs: false })
-        setGraveyardCount(pois.length)
-      }
-      if (parish) {
-        const pois = await getPOIsByTrailId(parish.id, { includeBlobs: false })
-        setParishCount(pois.length)
-      }
+    setGraveyardTrail(graveyard ?? null)
+    setParishTrail(parish ?? null)
+    setBrochureTrailId((prev) => prev ?? graveyard?.id ?? parish?.id ?? null)
+
+    if (graveyard) {
+      const pois = await getPOIsByTrailId(graveyard.id, { includeBlobs: false })
+      setGraveyardCount(pois.length)
     }
-    load()
+    if (parish) {
+      const pois = await getPOIsByTrailId(parish.id, { includeBlobs: false })
+      setParishCount(pois.length)
+    }
+  }
+
+  useEffect(() => {
+    reloadData()
   }, [])
 
   useEffect(() => {
@@ -153,6 +159,13 @@ export function ExportScreen() {
     }
   }
 
+  const handleImportClose = () => {
+    resetImport()
+    if (importResult?.status === 'success' && importResult.poisImported > 0) {
+      void reloadData()
+    }
+  }
+
   const totalPois = graveyardCount + parishCount
   const hasData = totalPois > 0
 
@@ -170,8 +183,7 @@ export function ExportScreen() {
 
       <div className="space-y-4 mb-8">
         <p className="text-lg text-govuk-text">
-          Export your trails as a ZIP file. Email it to your coordinator, then
-          add your stories in Word and send them separately.
+          Import or export your trails as ZIP files. Import existing trails or export to share with coordinators.
         </p>
 
         <div className="bg-govuk-background p-4 rounded border border-govuk-border">
@@ -183,6 +195,12 @@ export function ExportScreen() {
             Parish trail: {parishCount} POIs
           </p>
         </div>
+
+        <ImportButton
+          isImporting={isImporting}
+          onImport={triggerImport}
+          disabled={false}
+        />
 
         <button
           type="button"
@@ -367,6 +385,13 @@ export function ExportScreen() {
           Clear all data
         </button>
       </section>
+
+      <ImportResultModal
+        result={importResult}
+        conflictPending={conflictPending}
+        onResolveConflict={resolveConflict}
+        onClose={handleImportClose}
+      />
 
       {showClearConfirm && (
         <div

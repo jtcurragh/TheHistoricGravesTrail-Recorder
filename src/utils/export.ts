@@ -26,6 +26,9 @@ function poiToCsvRow(poi: POIRecord): string {
     String(poi.sequence),
     poi.trailType,
     poi.groupCode,
+    poi.createdBy ?? '',
+    poi.lastModifiedBy ?? '',
+    poi.lastModifiedAt ?? '',
   ]
   return row.map((v) => escapeCsvValue(String(v))).join(',')
 }
@@ -47,6 +50,9 @@ function csvHeader(): string {
     'sequence',
     'trailType',
     'groupCode',
+    'createdBy',
+    'lastModifiedBy',
+    'lastModifiedAt',
   ].join(',')
 }
 
@@ -113,6 +119,19 @@ export async function exportTrailsToZip(trails: Trail[]): Promise<Blob> {
     const sortedPois = [...pois].sort((a, b) => a.sequence - b.sequence)
     const trailLabel = trail.displayName
     const suffix = trail.trailType === 'graveyard' ? 'graveyard' : 'parish'
+
+    const trailManifest = {
+      schemaVersion: '1.0',
+      trailId: trail.id,
+      groupCode: trail.groupCode,
+      trailType: trail.trailType,
+      displayName: trail.displayName,
+      createdAt: trail.createdAt,
+      nextSequence: trail.nextSequence,
+      lastModifiedAt: new Date().toISOString(),
+      poiCount: sortedPois.length,
+    }
+    zip.file(`trail_${suffix}.json`, JSON.stringify(trailManifest, null, 2))
 
     for (const poi of sortedPois) {
       zip.file(poi.filename, poi.photoBlob)

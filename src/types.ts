@@ -72,6 +72,9 @@ export interface POIRecord {
   condition: POICondition
   notes: string
   completed: boolean
+  createdBy?: string
+  lastModifiedBy?: string
+  lastModifiedAt?: string
 }
 
 export interface CreatePOIInput {
@@ -93,6 +96,9 @@ export interface CreatePOIInput {
   url?: string
   condition?: POICondition
   notes?: string
+  createdBy?: string
+  lastModifiedBy?: string
+  lastModifiedAt?: string
 }
 
 export interface UpdatePOIInput {
