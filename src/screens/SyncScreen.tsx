@@ -87,7 +87,7 @@ export function SyncScreen() {
             </span>
             <div>
               <p className="text-xl font-bold text-amber-800">
-                Saving when WiFi available
+                Saving when you have a connection
               </p>
               <p className="text-lg text-govuk-text mt-2">
                 {pendingCount} item{pendingCount !== 1 ? 's' : ''} waiting to
@@ -95,7 +95,7 @@ export function SyncScreen() {
               </p>
               <p className="text-govuk-muted text-sm mt-4">
                 Your work is saved on this device. It will save automatically
-                when you connect to WiFi.
+                when you have a connection.
               </p>
             </div>
           </div>
@@ -146,7 +146,7 @@ export function SyncScreen() {
       {!isGreen && !isAmber && !isRed && (
         <div className="p-6 bg-govuk-background border border-govuk-border rounded">
           <p className="text-lg text-govuk-text">
-            Your work will save automatically when you connect to WiFi.
+            Your work will save automatically when you have a connection.
           </p>
           <p className="text-govuk-muted text-sm mt-2">
             Nothing to save yet. Start recording to see your progress here.

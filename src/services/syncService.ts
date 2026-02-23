@@ -218,11 +218,7 @@ export type SyncResult = {
 }
 
 export async function runSync(): Promise<SyncResult> {
-  if (
-    !features.SUPABASE_SYNC_ENABLED ||
-    !supabase ||
-    !navigator.onLine
-  ) {
+  if (!features.SUPABASE_SYNC_ENABLED || !supabase) {
     return {
       success: true,
       syncedCount: 0,
