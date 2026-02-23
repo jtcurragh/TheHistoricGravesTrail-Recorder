@@ -242,31 +242,39 @@ export async function generateBrochurePdf(
     color: NEAR_BLACK,
   })
 
-  let logoY = fundedHeaderY - 15
-  const logoSize = 45
+  const logoCellSize = 55
+  const logoPadding = 12
   const logosPerRow = 2
+  const logoGridWidth = logosPerRow * (logoCellSize + logoPadding) - logoPadding
+  const logoGridStartX = (A6_WIDTH - logoGridWidth) / 2
+
+  let logoY = fundedHeaderY - 15
   for (let i = 0; i < setup.funderLogos.length; i++) {
     const col = i % logosPerRow
     const row = Math.floor(i / logosPerRow)
-    const x = (A6_WIDTH - logosPerRow * (logoSize + 15)) / 2 + col * (logoSize + 15)
-    const y = logoY - row * (logoSize + 15)
+    const cellX = logoGridStartX + col * (logoCellSize + logoPadding)
+    const cellY = logoY - row * (logoCellSize + logoPadding) - logoCellSize
     try {
       const logoBytes = await blobToUint8Array(setup.funderLogos[i])
       const logoImg = isPng(setup.funderLogos[i])
         ? await doc.embedPng(logoBytes)
         : await doc.embedJpg(logoBytes)
-      const scale = Math.min(logoSize / logoImg.width, logoSize / logoImg.height)
+      const scale = Math.min(logoCellSize / logoImg.width, logoCellSize / logoImg.height)
+      const imgW = logoImg.width * scale
+      const imgH = logoImg.height * scale
+      const centerX = cellX + (logoCellSize - imgW) / 2
+      const centerY = cellY + (logoCellSize - imgH) / 2
       page2.drawImage(logoImg, {
-        x,
-        y,
-        width: logoImg.width * scale,
-        height: logoImg.height * scale,
+        x: centerX,
+        y: centerY,
+        width: imgW,
+        height: imgH,
       })
     } catch {
       /* Skip logo if embedding fails (e.g. invalid image) */
     }
   }
-  logoY -= setup.funderLogos.length > 0 ? Math.ceil(setup.funderLogos.length / logosPerRow) * (logoSize + 20) : 0
+  logoY -= setup.funderLogos.length > 0 ? Math.ceil(setup.funderLogos.length / logosPerRow) * (logoCellSize + logoPadding) : 0
 
   const creditsWords = setup.creditsText.trim().split(/\s+/).filter(Boolean).slice(0, 40)
   let creditsY = logoY - 20
@@ -478,6 +486,40 @@ export async function generateBrochurePdf(
     }
   } else {
     console.log('[PDF] No map blob - skipping map embed')
+    const fallbackMsg = 'Map requires POIs with GPS coordinates. Record location when capturing photos to generate a map.'
+    const fallbackY = A6_HEIGHT - mapHeaderH - 80
+    const words = fallbackMsg.split(/\s+/)
+    let fallbackLine = ''
+    let fy = fallbackY
+    for (const word of words) {
+      const test = fallbackLine ? `${fallbackLine} ${word}` : word
+      if (helvetica.widthOfTextAtSize(test, 10) > A6_WIDTH - 40) {
+        if (fallbackLine && fy > 80) {
+          const lw = helvetica.widthOfTextAtSize(fallbackLine, 10)
+          mapPage.drawText(fallbackLine, {
+            x: (A6_WIDTH - lw) / 2,
+            y: fy,
+            size: 10,
+            font: helvetica,
+            color: rgb(0.5, 0.5, 0.5),
+          })
+          fy -= 14
+        }
+        fallbackLine = word
+      } else {
+        fallbackLine = test
+      }
+    }
+    if (fallbackLine && fy > 80) {
+      const lw = helvetica.widthOfTextAtSize(fallbackLine, 10)
+      mapPage.drawText(fallbackLine, {
+        x: (A6_WIDTH - lw) / 2,
+        y: fy,
+        size: 10,
+        font: helvetica,
+        color: rgb(0.5, 0.5, 0.5),
+      })
+    }
   }
 
   const pdfBytes = await doc.save()
