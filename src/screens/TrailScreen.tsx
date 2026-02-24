@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTrail } from '../hooks/useTrail'
 import { getTrailById } from '../db/trails'
-import { getPOIsByTrailId, reorderPOI } from '../db/pois'
+import { getPOIsByTrailId, reorderPOI, deletePOI } from '../db/pois'
 import type { Trail } from '../types'
 import type { POIRecord } from '../types'
 
@@ -53,6 +53,27 @@ export function TrailScreen() {
     },
     [activeTrailId, loadTrailState]
   )
+
+  const [deletePoiId, setDeletePoiId] = useState<string | null>(null)
+
+  const handleDeleteClick = useCallback((poiId: string) => {
+    setDeletePoiId(poiId)
+  }, [])
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deletePoiId) return
+    try {
+      await deletePOI(deletePoiId)
+      setDeletePoiId(null)
+      await loadTrailState()
+    } catch (err) {
+      console.error('Failed to delete POI:', err)
+    }
+  }, [deletePoiId, loadTrailState])
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeletePoiId(null)
+  }, [])
 
   if (!activeTrailId) {
     return (
@@ -173,7 +194,35 @@ export function TrailScreen() {
                       </span>
                     </div>
                   </Link>
-                  <div className="flex shrink-0 gap-1" role="toolbar" aria-label="Reorder">
+                  <div className="flex shrink-0 gap-1" role="toolbar" aria-label="POI actions">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDeleteClick(poi.id)
+                      }}
+                      aria-label={`Delete ${poi.siteName || poi.filename}`}
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-govuk-red text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden
+                      >
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                      </svg>
+                    </button>
                     <button
                       type="button"
                       onClick={(e) => {
@@ -206,6 +255,45 @@ export function TrailScreen() {
             )
           })}
       </ul>
+
+      {deletePoiId && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-dialog-title"
+          aria-describedby="delete-dialog-desc"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={handleDeleteCancel}
+        >
+          <div
+            className="bg-white p-6 max-w-md w-full shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="delete-dialog-title" className="text-xl font-bold text-govuk-text mb-2">
+              Delete {deletePoiId}?
+            </h2>
+            <p id="delete-dialog-desc" className="text-govuk-text mb-6">
+              This cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={handleDeleteCancel}
+                className="min-h-[48px] px-6 border-2 border-govuk-border bg-white text-govuk-text font-bold hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleDeleteConfirm()}
+                className="min-h-[48px] px-6 bg-govuk-red text-white font-bold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

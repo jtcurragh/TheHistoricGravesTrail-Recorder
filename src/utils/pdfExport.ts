@@ -2,7 +2,9 @@ import {
   PDFDocument,
   StandardFonts,
   rgb,
+  type PDFFont,
   type PDFImage,
+  type PDFPage,
 } from 'pdf-lib'
 import type { Trail, POIRecord, BrochureSetup } from '../types'
 
@@ -30,13 +32,13 @@ function contrastRatio(l1: number, l2: number): number {
 
 /** Draw text with subtle letter-spacing for legibility (pdf-lib has no built-in support). */
 function drawTextWithLetterSpacing(
-  page: { drawText: (text: string, opts: { x: number; y: number; size: number; font: unknown; color: unknown }) => void },
+  page: PDFPage,
   text: string,
   x: number,
   y: number,
   size: number,
-  font: { widthOfTextAtSize: (t: string, s: number) => number },
-  color: unknown,
+  font: PDFFont,
+  color: ReturnType<typeof rgb>,
   letterSpacing = 0.8,
   align: 'left' | 'center' = 'center'
 ): void {
