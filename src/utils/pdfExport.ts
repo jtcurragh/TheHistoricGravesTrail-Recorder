@@ -2,12 +2,12 @@ import {
   PDFDocument,
   StandardFonts,
   rgb,
-  degrees,
   type PDFFont,
   type PDFImage,
   type PDFPage,
 } from 'pdf-lib'
 import type { Trail, POIRecord, BrochureSetup } from '../types'
+import { fixOrientation } from './thumbnail'
 
 const A6_WIDTH = 297.64
 const A6_HEIGHT = 419.53
@@ -431,9 +431,9 @@ export async function generateBrochurePdf(
     const poiPage = doc.addPage([A6_WIDTH, A6_HEIGHT])
     
     // Hero photo at top (~40% of page height)
-    const photoBlob = poi.thumbnailBlob
-    const photoBytes = await blobToUint8Array(photoBlob)
-    const photoImg = isPng(photoBlob)
+    const orientedBlob = await fixOrientation(poi.thumbnailBlob)
+    const photoBytes = await blobToUint8Array(orientedBlob)
+    const photoImg = isPng(orientedBlob)
       ? await doc.embedPng(photoBytes)
       : await doc.embedJpg(photoBytes)
     
@@ -442,18 +442,19 @@ export async function generateBrochurePdf(
       A6_WIDTH / photoImg.width,
       photoHeight / photoImg.height
     )
-    const photoW = photoImg.width * photoScale
-    const photoH = photoImg.height * photoScale
+    const photoW = Math.min(photoImg.width * photoScale, A6_WIDTH)
+    const photoH = Math.min(photoImg.height * photoScale, photoHeight)
     const photoX = (A6_WIDTH - photoW) / 2
+    // pdf-lib origin is bottom-left: y = A6_HEIGHT - photoH places image flush to top
     const photoY = A6_HEIGHT - photoH
-    
-    const rotation = (poi.rotation as number | undefined) ?? 0
+
+    // Do not apply poi.rotation: thumbnailBlob is already correctly oriented
+    // (EXIF fixed at capture; user rotation would double-apply)
     poiPage.drawImage(photoImg, {
       x: photoX,
       y: photoY,
       width: photoW,
       height: photoH,
-      rotate: degrees(rotation),
     })
 
     // Title section below photo
