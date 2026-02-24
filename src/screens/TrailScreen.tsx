@@ -3,12 +3,20 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useTrail } from '../hooks/useTrail'
 import { getTrailById } from '../db/trails'
 import { getPOIsByTrailId, reorderPOI, deletePOI } from '../db/pois'
-import type { Trail } from '../types'
+import type { Trail, PhotoRotation } from '../types'
 import type { POIRecord } from '../types'
 
 const MAX_POIS = 12
 
-function ThumbnailImage({ blob, alt }: { blob: Blob; alt: string }) {
+function ThumbnailImage({
+  blob,
+  alt,
+  rotation = 0,
+}: {
+  blob: Blob
+  alt: string
+  rotation?: PhotoRotation
+}) {
   const [src, setSrc] = useState<string | null>(null)
   useEffect(() => {
     const url = URL.createObjectURL(blob)
@@ -16,7 +24,14 @@ function ThumbnailImage({ blob, alt }: { blob: Blob; alt: string }) {
     return () => URL.revokeObjectURL(url)
   }, [blob])
   if (!src) return <div className="w-20 h-20 shrink-0 bg-govuk-background animate-pulse" />
-  return <img src={src} alt={alt} className="w-20 h-20 shrink-0 object-cover" />
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="w-20 h-20 shrink-0 object-cover"
+      style={{ transform: `rotate(${rotation}deg)` }}
+    />
+  )
 }
 
 export function TrailScreen() {
@@ -176,6 +191,7 @@ export function TrailScreen() {
                     <ThumbnailImage
                       blob={poi.thumbnailBlob}
                       alt={poi.siteName || poi.filename}
+                      rotation={poi.rotation ?? 0}
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">

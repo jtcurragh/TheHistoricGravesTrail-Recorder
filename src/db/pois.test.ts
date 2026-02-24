@@ -87,6 +87,69 @@ describe('pois', () => {
     expect(updated?.completed).toBe(true)
   })
 
+  it('new POIs default to rotation 0', async () => {
+    const poi = await createPOI({
+      trailId: 'clonfert-graveyard',
+      groupCode: 'clonfert',
+      trailType: 'graveyard',
+      sequence: 1,
+      filename: 'clonfert-g-001.jpg',
+      photoBlob: mockBlob,
+      thumbnailBlob: mockBlob,
+      latitude: null,
+      longitude: null,
+      accuracy: null,
+      capturedAt: '2025-02-20T12:00:00Z',
+    })
+    expect(poi.rotation).toBe(0)
+    const retrieved = await getPOIById(poi.id, { includeBlobs: false })
+    expect(retrieved?.rotation).toBe(0)
+  })
+
+  it('rotation value is saved to Dexie on update', async () => {
+    const poi = await createPOI({
+      trailId: 'clonfert-graveyard',
+      groupCode: 'clonfert',
+      trailType: 'graveyard',
+      sequence: 1,
+      filename: 'clonfert-g-001.jpg',
+      photoBlob: mockBlob,
+      thumbnailBlob: mockBlob,
+      latitude: null,
+      longitude: null,
+      accuracy: null,
+      capturedAt: '2025-02-20T12:00:00Z',
+    })
+    await updatePOI(poi.id, { rotation: 90 })
+    const updated = await getPOIById(poi.id, { includeBlobs: false })
+    expect(updated?.rotation).toBe(90)
+  })
+
+  it('handles missing rotation gracefully (treat as 0)', async () => {
+    const poi = await createPOI({
+      trailId: 'clonfert-graveyard',
+      groupCode: 'clonfert',
+      trailType: 'graveyard',
+      sequence: 1,
+      filename: 'clonfert-g-001.jpg',
+      photoBlob: mockBlob,
+      thumbnailBlob: mockBlob,
+      latitude: null,
+      longitude: null,
+      accuracy: null,
+      capturedAt: '2025-02-20T12:00:00Z',
+    })
+    const existing = await db.pois.get(poi.id)
+    expect(existing).not.toBeUndefined()
+    const { rotation: _r, ...recordWithoutRotation } = existing!
+    void _r
+    await db.pois.put(recordWithoutRotation as Parameters<typeof db.pois.put>[0])
+    const raw = await db.pois.get(poi.id)
+    expect(raw?.rotation).toBeUndefined()
+    const retrieved = await getPOIById(poi.id, { includeBlobs: false })
+    expect(retrieved?.rotation).toBe(0)
+  })
+
   it('deletes POI', async () => {
     const poi = await createPOI({
       trailId: 'clonfert-graveyard',

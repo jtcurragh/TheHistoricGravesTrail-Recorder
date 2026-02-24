@@ -27,16 +27,18 @@ export async function getPOIById(
   const raw = await db.pois.get(id)
   if (!raw) return null
 
+  const rotation = (raw.rotation as number | undefined) ?? 0
   if (options?.includeBlobs === false) {
     const { photoBlob: _p, thumbnailBlob: _t, ...rest } = raw
     void _p
     void _t
-    return { ...rest, photoBlob: undefined, thumbnailBlob: undefined } as unknown as POIRecord
+    return { ...rest, photoBlob: undefined, thumbnailBlob: undefined, rotation } as unknown as POIRecord
   }
   return {
     ...raw,
     photoBlob: toBlob(raw.photoBlob as ArrayBuffer | Blob),
     thumbnailBlob: toBlob(raw.thumbnailBlob as ArrayBuffer | Blob),
+    rotation,
   } as POIRecord
 }
 
@@ -47,17 +49,23 @@ export async function getPOIsByTrailId(
   const rawList = await db.pois.where('trailId').equals(trailId).toArray()
 
   if (options?.includeBlobs === false) {
-    return rawList.map(({ photoBlob: _p, thumbnailBlob: _t, ...rest }) => {
+    return rawList.map((raw) => {
+      const { photoBlob: _p, thumbnailBlob: _t, ...rest } = raw
       void _p
       void _t
-      return { ...rest, photoBlob: undefined, thumbnailBlob: undefined }
+      const rotation = (raw.rotation as number | undefined) ?? 0
+      return { ...rest, photoBlob: undefined, thumbnailBlob: undefined, rotation }
     }) as unknown as POIRecord[]
   }
-  return rawList.map((raw) => ({
-    ...raw,
-    photoBlob: toBlob(raw.photoBlob as ArrayBuffer | Blob),
-    thumbnailBlob: toBlob(raw.thumbnailBlob as ArrayBuffer | Blob),
-  })) as POIRecord[]
+  return rawList.map((raw) => {
+    const rotation = (raw.rotation as number | undefined) ?? 0
+    return {
+      ...raw,
+      photoBlob: toBlob(raw.photoBlob as ArrayBuffer | Blob),
+      thumbnailBlob: toBlob(raw.thumbnailBlob as ArrayBuffer | Blob),
+      rotation,
+    }
+  }) as POIRecord[]
 }
 
 export async function createPOI(input: CreatePOIInput): Promise<POIRecord> {
@@ -88,6 +96,7 @@ export async function createPOI(input: CreatePOIInput): Promise<POIRecord> {
     condition: input.condition ?? DEFAULT_CONDITION,
     notes: input.notes ?? '',
     completed: !!(input.siteName && input.story),
+    rotation: 0,
   }
 
   const [photoBuf, thumbBuf] = await Promise.all([

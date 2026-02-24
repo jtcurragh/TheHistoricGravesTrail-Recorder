@@ -112,6 +112,7 @@ export async function generateDemoStaticMap(): Promise<Blob | null> {
       condition: 'Good',
       notes: '',
       completed: true,
+      rotation: 0,
     })
   }
   return generateStaticMap(demoPois)

@@ -1,9 +1,17 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getPOIById, updatePOI, getPOIsByTrailId } from '../db/pois'
-import type { POIRecord, POICategory } from '../types'
+import type { POIRecord, POICategory, PhotoRotation } from '../types'
 
-function PhotoImage({ blob, alt }: { blob: Blob; alt: string }) {
+function PhotoImage({
+  blob,
+  alt,
+  rotation = 0,
+}: {
+  blob: Blob
+  alt: string
+  rotation?: PhotoRotation
+}) {
   const [src, setSrc] = useState<string | null>(null)
   useEffect(() => {
     const url = URL.createObjectURL(blob)
@@ -16,6 +24,7 @@ function PhotoImage({ blob, alt }: { blob: Blob; alt: string }) {
       src={src}
       alt={alt}
       className="w-full max-h-48 object-contain bg-govuk-background"
+      style={{ transform: `rotate(${rotation}deg)` }}
     />
   )
 }
@@ -39,6 +48,7 @@ export function POIDetailScreen() {
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [rotation, setRotation] = useState<PhotoRotation>(0)
 
   useEffect(() => {
     if (!poiId) return
@@ -59,6 +69,7 @@ export function POIDetailScreen() {
       setStory(poi.story)
       setUrl(poi.url)
       setNotes(poi.notes)
+      setRotation(poi.rotation ?? 0)
     }
   }, [poi])
 
@@ -82,6 +93,19 @@ export function POIDetailScreen() {
       setSaving(false)
     }
   }, [poi, siteName, category, story, url, notes])
+
+  const handleRotate = useCallback(async () => {
+    if (!poi) return
+    const next: PhotoRotation[] = [0, 90, 180, 270]
+    const idx = next.indexOf(rotation)
+    const newRotation = next[(idx + 1) % 4]
+    setRotation(newRotation)
+    try {
+      await updatePOI(poi.id, { rotation: newRotation })
+    } catch (err) {
+      console.error('Failed to save rotation:', err)
+    }
+  }, [poi, rotation])
 
   const handleNavigate = useCallback(
     async (direction: 'prev' | 'next') => {
@@ -197,7 +221,37 @@ export function POIDetailScreen() {
         </div>
       )}
 
-      <PhotoImage blob={poi.photoBlob} alt={siteName || poi.filename} />
+      <div className="relative">
+        <PhotoImage
+          blob={poi.photoBlob}
+          alt={siteName || poi.filename}
+          rotation={rotation}
+        />
+        <button
+          type="button"
+          onClick={() => void handleRotate()}
+          aria-label="Rotate photo clockwise"
+          className="absolute bottom-2 right-2 min-h-[48px] min-w-[48px] flex items-center justify-center rounded-full bg-tmt-teal text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus focus:ring-offset-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M21 2v6h-6" />
+            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+            <path d="M3 22v-6h6" />
+            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+          </svg>
+        </button>
+      </div>
 
       <div className="mt-4 space-y-1 text-govuk-muted text-sm">
         <p>
