@@ -243,18 +243,18 @@ export function ExportScreen() {
         </h2>
         {brochureTrailId && (graveyardTrail || parishTrail) && (
           <>
-            <div className="mb-4 flex gap-2">
+            <div className="mb-2 flex gap-2">
               <button
                 type="button"
                 onClick={() => setBrochureTrailId(graveyardTrail?.id ?? null)}
                 aria-pressed={brochureTrailId === graveyardTrail?.id}
                 className={`min-h-[48px] px-4 font-bold border-2 ${
                   brochureTrailId === graveyardTrail?.id
-                    ? 'bg-tmt-teal border-tmt-teal text-white'
+                    ? 'bg-tmt-teal border-tmt-teal text-white ring-2 ring-tmt-teal ring-offset-2'
                     : 'bg-white border-govuk-border text-govuk-text'
                 }`}
               >
-                Graveyard Trail
+                {brochureTrailId === graveyardTrail?.id ? '✓ ' : ''}Graveyard Trail
               </button>
               <button
                 type="button"
@@ -262,13 +262,16 @@ export function ExportScreen() {
                 aria-pressed={brochureTrailId === parishTrail?.id}
                 className={`min-h-[48px] px-4 font-bold border-2 ${
                   brochureTrailId === parishTrail?.id
-                    ? 'bg-tmt-teal border-tmt-teal text-white'
+                    ? 'bg-tmt-teal border-tmt-teal text-white ring-2 ring-tmt-teal ring-offset-2'
                     : 'bg-white border-govuk-border text-govuk-text'
                 }`}
               >
-                Parish Trail
+                {brochureTrailId === parishTrail?.id ? '✓ ' : ''}Parish Trail
               </button>
             </div>
+            <p className="mb-4 text-sm font-bold text-govuk-text">
+              Selected trail: {brochureTrailId === graveyardTrail?.id ? 'Graveyard Trail' : 'Parish Trail'}
+            </p>
             {!brochureSetupComplete ? (
               <div
                 className="mb-4 pl-4 border-l-4 border-tmt-teal bg-govuk-background py-3 pr-4"

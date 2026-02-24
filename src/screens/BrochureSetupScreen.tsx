@@ -151,7 +151,6 @@ export function BrochureSetupScreen() {
 
     setSaving(true)
     try {
-      // Fetch POIs and generate map
       const pois = await getPOIsByTrailId(trailId, { includeBlobs: false })
       console.log('[BrochureSetup] Found POIs:', pois.length)
       const mapBlob = await generateStaticMap(pois)
@@ -177,7 +176,11 @@ export function BrochureSetupScreen() {
         navigate('/export')
       }, 1000)
     } catch (err) {
-      console.error('Save failed:', err)
+      console.error('[BrochureSetup] Save failed:', err)
+      if (err instanceof Error) {
+        console.error('[BrochureSetup] Error message:', err.message)
+        console.error('[BrochureSetup] Stack:', err.stack)
+      }
       setErrors({ submit: 'Failed to save. Please try again.' })
     } finally {
       setSaving(false)
