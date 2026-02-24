@@ -2,7 +2,9 @@ import {
   PDFDocument,
   StandardFonts,
   rgb,
+  type PDFFont,
   type PDFImage,
+  type PDFPage,
 } from 'pdf-lib'
 import type { Trail, POIRecord, BrochureSetup } from '../types'
 
@@ -13,9 +15,8 @@ const TEAL = rgb(58 / 255, 175 / 255, 169 / 255)
 const NEAR_BLACK = rgb(11 / 255, 12 / 255, 12 / 255)
 const WHITE = rgb(1, 1, 1)
 
-/** WCAG AA: 4.5:1 for normal text, 3:1 for large text (18pt+ or 14pt+ bold). */
+/** WCAG AA: 4.5:1 for normal text. */
 const WCAG_AA_NORMAL = 4.5
-const WCAG_AA_LARGE = 3
 
 function relativeLuminance(r: number, g: number, b: number): number {
   const [rs, gs, bs] = [r, g, b].map((c) =>
@@ -31,13 +32,13 @@ function contrastRatio(l1: number, l2: number): number {
 
 /** Draw text with subtle letter-spacing for legibility (pdf-lib has no built-in support). */
 function drawTextWithLetterSpacing(
-  page: { drawText: (text: string, opts: { x: number; y: number; size: number; font: unknown; color: unknown }) => void },
+  page: PDFPage,
   text: string,
   x: number,
   y: number,
   size: number,
-  font: { widthOfTextAtSize: (t: string, s: number) => number },
-  color: unknown,
+  font: PDFFont,
+  color: ReturnType<typeof rgb>,
   letterSpacing = 0.8,
   align: 'left' | 'center' = 'center'
 ): void {
