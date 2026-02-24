@@ -348,6 +348,7 @@ async function importTrail(
         condition: poiData.condition,
         notes: poiData.notes,
         completed: !!(poiData.siteName && poiData.story),
+        rotation: 0,
         createdBy: poiData.createdBy,
         lastModifiedBy: poiData.lastModifiedBy,
         lastModifiedAt: poiData.lastModifiedAt,

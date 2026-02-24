@@ -34,6 +34,8 @@ export type POICondition =
   | 'Poor'
   | 'At Risk'
 
+export type PhotoRotation = 0 | 90 | 180 | 270
+
 export interface UserProfile {
   id: string
   email: string
@@ -73,6 +75,7 @@ export interface POIRecord {
   condition: POICondition
   notes: string
   completed: boolean
+  rotation: PhotoRotation
   createdBy?: string
   lastModifiedBy?: string
   lastModifiedAt?: string
@@ -110,6 +113,7 @@ export interface UpdatePOIInput {
   url?: string
   condition?: POICondition
   notes?: string
+  rotation?: PhotoRotation
 }
 
 export interface BrochureSetup {

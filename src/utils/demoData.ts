@@ -150,6 +150,7 @@ export async function generateDemoPOIs(): Promise<POIRecord[]> {
       condition: 'Good',
       notes: '',
       completed: true,
+      rotation: 0,
     })
   }
 

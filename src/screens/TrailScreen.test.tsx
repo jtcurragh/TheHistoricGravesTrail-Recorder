@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { db } from '../db/database'
 import { TrailProvider } from '../context/TrailProvider'
 import { createTrail } from '../db/trails'
-import { createPOI, getPOIsByTrailId } from '../db/pois'
+import { createPOI, getPOIsByTrailId, updatePOI } from '../db/pois'
 import { TrailScreen } from './TrailScreen'
 
 const mockBlob = new Blob(['test'], { type: 'image/jpeg' })
@@ -174,5 +174,30 @@ describe('TrailScreen POI delete', () => {
     const remaining = await getPOIsByTrailId('ardmore-graveyard', { includeBlobs: false })
     expect(remaining[0].sequence).toBe(2)
     expect(remaining[0].id).toBe('ardmore-g-002')
+  })
+})
+
+describe('TrailScreen thumbnail rotation', () => {
+  beforeEach(async () => {
+    await db.delete()
+    await db.open()
+    localStorage.setItem('welcomeComplete', 'true')
+    localStorage.setItem('userEmail', 'test@example.com')
+    localStorage.setItem('activeTrailId', 'ardmore-graveyard')
+  })
+
+  it('thumbnail displays with rotation transform when POI has rotation', async () => {
+    await setupTrailWithPois()
+    await updatePOI('ardmore-g-001', { rotation: 90 })
+
+    render(<TestWrapper />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Ardmore Graveyard Trail/i)).toBeInTheDocument()
+    })
+
+    const thumbnails = document.querySelectorAll('img[alt*="ardmore-g-001"]')
+    expect(thumbnails.length).toBeGreaterThanOrEqual(1)
+    expect(thumbnails[0]).toHaveStyle({ transform: 'rotate(90deg)' })
   })
 })
