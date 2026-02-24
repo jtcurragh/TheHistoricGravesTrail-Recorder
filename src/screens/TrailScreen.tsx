@@ -165,37 +165,9 @@ export function TrailScreen() {
             return (
               <li key={poi.id}>
                 <div
-                  className={`relative flex items-center gap-3 py-3 px-4 bg-white border-2 border-govuk-border border-l-4 ${borderColor} hover:border-tmt-teal focus-within:border-tmt-teal focus-within:ring-2 focus-within:ring-tmt-focus`}
+                  className={`flex items-center gap-3 py-3 px-4 bg-white border-2 border-govuk-border border-l-4 ${borderColor} hover:border-tmt-teal focus-within:border-tmt-teal focus-within:ring-2 focus-within:ring-tmt-focus`}
                   role="group"
                 >
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleDeleteClick(poi.id)
-                    }}
-                    aria-label={`Delete POI ${poi.id}`}
-                    className="absolute top-3 right-3 min-h-[48px] min-w-[48px] flex items-center justify-center rounded-full bg-govuk-red text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus focus:ring-offset-2"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                    >
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                      <line x1="10" y1="11" x2="10" y2="17" />
-                      <line x1="14" y1="11" x2="14" y2="17" />
-                    </svg>
-                  </button>
                   <Link
                     to={`/trail/poi/${poi.id}`}
                     className="flex min-w-0 flex-1 items-center gap-3 focus:outline-none focus:ring-2 focus:ring-tmt-focus focus:ring-offset-2"
@@ -222,7 +194,35 @@ export function TrailScreen() {
                       </span>
                     </div>
                   </Link>
-                  <div className="flex shrink-0 gap-1" role="toolbar" aria-label="Reorder">
+                  <div className="flex shrink-0 gap-1" role="toolbar" aria-label="POI actions">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDeleteClick(poi.id)
+                      }}
+                      aria-label={`Delete ${poi.siteName || poi.filename}`}
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-govuk-red text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden
+                      >
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                      </svg>
+                    </button>
                     <button
                       type="button"
                       onClick={(e) => {
