@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { processWelcome } from './welcomeService'
 import { db } from '../db/database'
 import { getPOIById } from '../db/pois'
+import { getTrailsByGroupCode } from '../db/trails'
+
+const mockTrailsData = vi.hoisted(() => ({ value: [] as unknown[] }))
 
 vi.mock('../lib/supabase', () => {
   const mockProfile = {
@@ -9,14 +12,6 @@ vi.mock('../lib/supabase', () => {
     name: 'Jane',
     group_name: "Jane's recordings",
     group_code: 'jane',
-  }
-  const mockTrail = {
-    id: 'jane-graveyard',
-    group_code: 'jane',
-    trail_type: 'graveyard',
-    display_name: 'Jane Graveyard Trail',
-    created_at: new Date().toISOString(),
-    next_sequence: 2,
   }
   const mockPoi = {
     id: 'jane-g-001',
@@ -45,33 +40,37 @@ vi.mock('../lib/supabase', () => {
   }
   return {
     supabase: {
-      from: (table: string) => ({
-        select: () => ({
-          eq: (col: string, val: unknown) => {
-            void col
-            void val
-            if (table === 'user_profile') {
-              return {
-                single: () => Promise.resolve({ data: mockProfile }),
+      from: (table: string) => {
+        const fromTable = {
+          select: () => ({
+            eq: (col: string, val: unknown) => {
+              void col
+              void val
+              if (table === 'user_profile') {
+                return {
+                  single: () => Promise.resolve({ data: mockProfile }),
+                }
               }
-            }
-            if (table === 'trails') {
-              return {
-                eq: (col2: string, val2: unknown) => {
-                  if (col2 === 'archived' && val2 === false) {
-                    return Promise.resolve({ data: [mockTrail] })
-                  }
-                  return Promise.resolve({ data: [] })
-                },
+              if (table === 'trails') {
+                return {
+                  eq: (col2: string, val2: unknown) => {
+                    if (col2 === 'archived' && val2 === false) {
+                      return Promise.resolve({ data: mockTrailsData.value })
+                    }
+                    return Promise.resolve({ data: [] })
+                  },
+                }
               }
-            }
-            if (table === 'pois') {
-              return Promise.resolve({ data: [mockPoi] })
-            }
-            return Promise.resolve({ data: null })
-          },
-        }),
-      }),
+              if (table === 'pois') {
+                return Promise.resolve({ data: [mockPoi] })
+              }
+              return Promise.resolve({ data: null })
+            },
+          }),
+          upsert: table === 'user_profile' ? () => Promise.resolve({ error: null }) : undefined,
+        }
+        return fromTable
+      },
     },
   }
 })
@@ -82,6 +81,16 @@ describe('welcomeService', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
+    mockTrailsData.value = [
+      {
+        id: 'jane-graveyard',
+        group_code: 'jane',
+        trail_type: 'graveyard',
+        display_name: 'Jane Graveyard Trail',
+        created_at: new Date().toISOString(),
+        next_sequence: 2,
+      },
+    ]
     await db.delete()
     await db.open()
     globalThis.fetch = vi.fn(() =>
@@ -107,6 +116,35 @@ describe('welcomeService', () => {
     expect(Object.prototype.toString.call(raw!.thumbnailBlob)).toBe(
       '[object ArrayBuffer]'
     )
+  })
+
+  it('returning user with zero active trails returns needsReOnboarding and does not create trails', async () => {
+    mockTrailsData.value = []
+
+    const result = await processWelcome('Jane', 'jane@test.com')
+
+    expect(result.isReturningUser).toBe(true)
+    expect(result.needsReOnboarding).toBe(true)
+    expect(result.restoreMeta?.trailCount).toBe(0)
+    const trails = await db.trails.toArray()
+    expect(trails.length).toBe(0)
+  })
+
+  it('returning user with zero trails, when called with parishName, creates trails with parish names', async () => {
+    mockTrailsData.value = []
+
+    const result = await processWelcome('Jane', 'jane@test.com', {
+      parishName: 'Ardmore',
+      graveyardName: "St. Declan's",
+    })
+
+    expect(result.needsReOnboarding).toBeUndefined()
+    const trails = await getTrailsByGroupCode('ardmore')
+    expect(trails.length).toBe(2)
+    const graveyard = trails.find((t) => t.trailType === 'graveyard')
+    const parish = trails.find((t) => t.trailType === 'parish')
+    expect(graveyard?.displayName).toBe("St. Declan's Graveyard Trail")
+    expect(parish?.displayName).toBe('Ardmore Parish Trail')
   })
 
   it('restored POI can be read with getPOIById and blobs are usable', async () => {

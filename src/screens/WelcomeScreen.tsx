@@ -23,6 +23,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   const [postCompleteMessage, setPostCompleteMessage] = useState<string | null>(
     null
   )
+  const [isReOnboarding, setIsReOnboarding] = useState(false)
 
   const canContinue =
     name.trim().length > 0 &&
@@ -50,15 +51,18 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
             setRestoreProgress({ current, total }),
         })
         setStoredUserEmail(email.trim().toLowerCase())
+
+        if (result.needsReOnboarding) {
+          setIsReOnboarding(true)
+          setStep('parish')
+          return
+        }
+
         setWelcomeComplete()
 
         const meta = result.restoreMeta
         if (meta) {
-          if (meta.trailCount === 0 && meta.poiCount === 0) {
-            setPostCompleteMessage(
-              'No data found for this email address. If you used a different email on your other device, please sign in with that address instead.'
-            )
-          } else if (meta.failedPhotos.length > 0) {
+          if (meta.failedPhotos.length > 0) {
             setPostCompleteMessage(
               `Restored successfully, but ${meta.failedPhotos.length} photo${meta.failedPhotos.length !== 1 ? 's' : ''} could not be retrieved. You may need to re-photograph these POIs.`
             )
@@ -147,10 +151,14 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       <main className="min-h-screen bg-white p-6 max-w-[680px] mx-auto flex flex-col">
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-govuk-text mb-2">
-            Historic Graves Trail
+            {isReOnboarding
+              ? `Welcome back, ${name.trim() || 'there'}. Let's set up your next trail.`
+              : 'Historic Graves Trail'}
           </h1>
           <p className="text-lg text-govuk-muted mb-10">
-            Recording our shared heritage
+            {isReOnboarding
+              ? 'Enter the parish and graveyard for your new location.'
+              : 'Recording our shared heritage'}
           </p>
 
           <form onSubmit={handleCreateTrails} noValidate>

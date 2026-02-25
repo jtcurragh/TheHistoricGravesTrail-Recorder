@@ -21,6 +21,8 @@ export async function checkEmailExists(email: string): Promise<boolean> {
 export interface WelcomeResult {
   isReturningUser: boolean
   profile: UserProfile
+  /** When true, returning user has no active trails (all archived) — route to onboarding */
+  needsReOnboarding?: boolean
   restoreMeta?: {
     trailCount: number
     poiCount: number
@@ -58,6 +60,12 @@ export async function processWelcome(
     .single()
 
   if (existingProfile) {
+    if (options?.parishName?.trim() || options?.graveyardName?.trim()) {
+      return reOnboardReturningUser(existingProfile, nameTrim, emailNorm, {
+        parishName: options.parishName?.trim(),
+        graveyardName: options.graveyardName?.trim(),
+      })
+    }
     return restoreReturningUser(existingProfile, nameTrim, emailNorm, {
       onProgress: options?.onProgress,
     })
@@ -161,6 +169,70 @@ async function createNewUser(
 
 interface RestoreOptions {
   onProgress?: (current: number, total: number) => void
+}
+
+interface ReOnboardOptions {
+  parishName?: string
+  graveyardName?: string
+}
+
+async function reOnboardReturningUser(
+  supabaseProfile: {
+    email: string
+    name: string
+    group_name: string
+    group_code: string
+    graveyard_name?: string | null
+  },
+  name: string,
+  email: string,
+  options: ReOnboardOptions
+): Promise<WelcomeResult> {
+  const parish = options.parishName?.trim() || ''
+  const graveyard = options.graveyardName?.trim() || ''
+  const groupName = parish || `${name}'s recordings`
+  const groupCode = parish ? deriveGroupCode(parish) : deriveGroupCodeFromEmail(email)
+
+  const profile = await createUserProfile({
+    email,
+    name: name || supabaseProfile.name,
+    groupName,
+    groupCode,
+    graveyardName: graveyard || undefined,
+  })
+
+  if (supabase) {
+    await supabase.from('user_profile').upsert(
+      {
+        email: profile.email,
+        name: profile.name,
+        group_name: profile.groupName,
+        group_code: profile.groupCode,
+        graveyard_name: profile.graveyardName ?? null,
+      },
+      { onConflict: 'email' }
+    )
+  }
+
+  const graveyardDisplayName = graveyard
+    ? `${graveyard} Graveyard Trail`
+    : `${groupName} Graveyard Trail`
+  const parishDisplayName = parish
+    ? `${parish} Parish Trail`
+    : `${groupName} Parish Trail`
+
+  await createTrail({
+    groupCode: profile.groupCode,
+    trailType: 'graveyard',
+    displayName: graveyardDisplayName,
+  })
+  await createTrail({
+    groupCode: profile.groupCode,
+    trailType: 'parish',
+    displayName: parishDisplayName,
+  })
+
+  return { isReturningUser: false, profile }
 }
 
 async function restoreReturningUser(
@@ -278,17 +350,17 @@ async function restoreReturningUser(
       }
     }
   } else {
-    const groupName = profile.groupName || profile.name
-    await createTrail({
-      groupCode: profile.groupCode,
-      trailType: 'graveyard',
-      displayName: `${groupName} Graveyard Trail`,
-    })
-    await createTrail({
-      groupCode: profile.groupCode,
-      trailType: 'parish',
-      displayName: `${groupName} Parish Trail`,
-    })
+    return {
+      isReturningUser: true,
+      profile,
+      needsReOnboarding: true,
+      restoreMeta: {
+        trailCount: 0,
+        poiCount: 0,
+        brochureSettingsCount: 0,
+        failedPhotos: [],
+      },
+    }
   }
 
   const brochureSettingsCount = await restoreBrochureSettingsFromSupabase(

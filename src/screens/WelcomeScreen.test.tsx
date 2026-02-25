@@ -170,6 +170,133 @@ describe('WelcomeScreen', () => {
     expect(screen.queryByPlaceholderText(/parish or place name/i)).not.toBeInTheDocument()
   })
 
+  it('returning user with zero active trails is routed to onboarding', async () => {
+    const user = userEvent.setup()
+    vi.mocked(welcomeService.checkEmailExists).mockResolvedValue(true)
+    vi.mocked(welcomeService.processWelcome).mockResolvedValue({
+      isReturningUser: true,
+      needsReOnboarding: true,
+      profile: {
+        id: 'default',
+        email: 'sheila@example.com',
+        name: 'Sheila',
+        groupName: "Sheila's recordings",
+        groupCode: 'sheila',
+        createdAt: new Date().toISOString(),
+      },
+      restoreMeta: { trailCount: 0, poiCount: 0, brochureSettingsCount: 0, failedPhotos: [] },
+    })
+
+    render(
+      <MemoryRouter>
+        <WelcomeScreen onComplete={() => {}} />
+      </MemoryRouter>
+    )
+
+    await user.type(screen.getByPlaceholderText(/your first and last name/i), 'Sheila')
+    await user.type(screen.getByPlaceholderText(/your email address/i), 'sheila@example.com')
+    await user.click(screen.getByRole('button', { name: /continue/i }))
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/graveyard name/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/parish or place name/i)).toBeInTheDocument()
+    })
+    expect(screen.queryByText(/no data found/i)).not.toBeInTheDocument()
+  })
+
+  it('onboarding screen shows Welcome back for returning user with zero trails', async () => {
+    const user = userEvent.setup()
+    vi.mocked(welcomeService.checkEmailExists).mockResolvedValue(true)
+    vi.mocked(welcomeService.processWelcome).mockResolvedValue({
+      isReturningUser: true,
+      needsReOnboarding: true,
+      profile: {
+        id: 'default',
+        email: 'sheila@example.com',
+        name: 'Sheila',
+        groupName: "Sheila's recordings",
+        groupCode: 'sheila',
+        createdAt: new Date().toISOString(),
+      },
+      restoreMeta: { trailCount: 0, poiCount: 0, brochureSettingsCount: 0, failedPhotos: [] },
+    })
+
+    render(
+      <MemoryRouter>
+        <WelcomeScreen onComplete={() => {}} />
+      </MemoryRouter>
+    )
+
+    await user.type(screen.getByPlaceholderText(/your first and last name/i), 'Sheila')
+    await user.type(screen.getByPlaceholderText(/your email address/i), 'sheila@example.com')
+    await user.click(screen.getByRole('button', { name: /continue/i }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /welcome back, sheila/i })).toBeInTheDocument()
+      expect(screen.getByText(/let's set up your next trail/i)).toBeInTheDocument()
+    })
+  })
+
+  it('re-onboarding creates trails with parish name on Create My Trails', async () => {
+    const user = userEvent.setup()
+    const onComplete = vi.fn()
+    vi.mocked(welcomeService.checkEmailExists).mockResolvedValue(true)
+    vi.mocked(welcomeService.processWelcome)
+      .mockResolvedValueOnce({
+        isReturningUser: true,
+        needsReOnboarding: true,
+        profile: {
+          id: 'default',
+          email: 'sheila@example.com',
+          name: 'Sheila',
+          groupName: "Sheila's recordings",
+          groupCode: 'sheila',
+          createdAt: new Date().toISOString(),
+        },
+        restoreMeta: { trailCount: 0, poiCount: 0, brochureSettingsCount: 0, failedPhotos: [] },
+      })
+      .mockResolvedValueOnce({
+        isReturningUser: false,
+        profile: {
+          id: 'default',
+          email: 'sheila@example.com',
+          name: 'Sheila',
+          groupName: 'Ardmore',
+          groupCode: 'ardmore',
+          createdAt: new Date().toISOString(),
+        },
+      })
+
+    render(
+      <MemoryRouter>
+        <WelcomeScreen onComplete={onComplete} />
+      </MemoryRouter>
+    )
+
+    await user.type(screen.getByPlaceholderText(/your first and last name/i), 'Sheila')
+    await user.type(screen.getByPlaceholderText(/your email address/i), 'sheila@example.com')
+    await user.click(screen.getByRole('button', { name: /continue/i }))
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/graveyard name/i)).toBeInTheDocument()
+    })
+    await user.type(screen.getByPlaceholderText(/graveyard name/i), "St. Declan's")
+    await user.type(screen.getByPlaceholderText(/parish or place name/i), 'Ardmore')
+    await user.click(screen.getByRole('button', { name: /create my trails/i }))
+
+    await waitFor(() => {
+      expect(welcomeService.processWelcome).toHaveBeenLastCalledWith(
+        'Sheila',
+        'sheila@example.com',
+        expect.objectContaining({
+          graveyardName: "St. Declan's",
+          parishName: 'Ardmore',
+        })
+      )
+      expect(onComplete).toHaveBeenCalled()
+    })
+  })
+
   it('graveyard and parish fields show live preview of trail names', async () => {
     const user = userEvent.setup()
     vi.mocked(welcomeService.checkEmailExists).mockResolvedValue(false)
