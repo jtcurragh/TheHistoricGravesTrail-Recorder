@@ -47,8 +47,9 @@ vi.mock('../lib/supabase', () => {
     supabase: {
       from: (table: string) => ({
         select: () => ({
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- eq chain params
           eq: (col: string, val: unknown) => {
+            void col
+            void val
             if (table === 'user_profile') {
               return {
                 single: () => Promise.resolve({ data: mockProfile }),
