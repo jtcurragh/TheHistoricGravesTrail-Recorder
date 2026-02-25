@@ -10,6 +10,7 @@ import {
 } from 'pdf-lib'
 import type { Trail, POIRecord, BrochureSetup } from '../types'
 import { fixOrientation } from './thumbnail'
+import { fetchStaticMapForPdf } from './mapbox'
 
 const A6_WIDTH = 297.64
 const A6_HEIGHT = 419.53
@@ -58,6 +59,49 @@ function drawTextWithLetterSpacing(
 }
 
 const PLACEHOLDER_URL = 'https://thememorytrail.ie'
+
+function drawMapFallback(
+  mapPage: PDFPage,
+  mapHeaderH: number,
+  helvetica: PDFFont,
+  pageWidth: number,
+  pageHeight: number
+): void {
+  const fallbackMsg = 'Map requires POIs with GPS coordinates. Record location when capturing photos to generate a map.'
+  const fallbackY = pageHeight - mapHeaderH - 80
+  const words = fallbackMsg.split(/\s+/)
+  let fallbackLine = ''
+  let fy = fallbackY
+  for (const word of words) {
+    const test = fallbackLine ? `${fallbackLine} ${word}` : word
+    if (helvetica.widthOfTextAtSize(test, 10) > pageWidth - 40) {
+      if (fallbackLine && fy > 80) {
+        const lw = helvetica.widthOfTextAtSize(fallbackLine, 10)
+        mapPage.drawText(fallbackLine, {
+          x: (pageWidth - lw) / 2,
+          y: fy,
+          size: 10,
+          font: helvetica,
+          color: rgb(0.5, 0.5, 0.5),
+        })
+        fy -= 14
+      }
+      fallbackLine = word
+    } else {
+      fallbackLine = test
+    }
+  }
+  if (fallbackLine && fy > 80) {
+    const lw = helvetica.widthOfTextAtSize(fallbackLine, 10)
+    mapPage.drawText(fallbackLine, {
+      x: (pageWidth - lw) / 2,
+      y: fy,
+      size: 10,
+      font: helvetica,
+      color: rgb(0.5, 0.5, 0.5),
+    })
+  }
+}
 
 async function blobToUint8Array(blob: Blob): Promise<Uint8Array> {
   const buf = await blob.arrayBuffer()
@@ -569,13 +613,11 @@ export async function generateBrochurePdf(
     color: WHITE,
   })
 
-  // If map blob exists, embed it; otherwise show coordinates list
-  console.log('[PDF] Map blob in setup:', setup.mapBlob ? `${setup.mapBlob.size} bytes` : 'null')
-  if (setup.mapBlob) {
+  // Fetch map from Mapbox Static Images API at export time (reliable for PWA)
+  const mapBlob = await fetchStaticMapForPdf(pois)
+  if (mapBlob) {
     try {
-      console.log('[PDF] Attempting to embed map image...')
-      const mapImg = await embedImage(doc, setup.mapBlob)
-      console.log('[PDF] Map image embedded:', mapImg.width, 'x', mapImg.height)
+      const mapImg = await embedImage(doc, mapBlob)
       const mapAreaHeight = A6_HEIGHT - mapHeaderH - 40
       const mapScale = Math.min(
         (A6_WIDTH - 40) / mapImg.width,
@@ -592,47 +634,12 @@ export async function generateBrochurePdf(
         width: mapW,
         height: mapH,
       })
-      console.log('[PDF] Map image drawn successfully')
     } catch (err) {
       console.error('Failed to embed map image:', err)
-      // Fall through to coordinates list
+      drawMapFallback(mapPage, mapHeaderH, helvetica, A6_WIDTH, A6_HEIGHT)
     }
   } else {
-    console.log('[PDF] No map blob - skipping map embed')
-    const fallbackMsg = 'Map requires POIs with GPS coordinates. Record location when capturing photos to generate a map.'
-    const fallbackY = A6_HEIGHT - mapHeaderH - 80
-    const words = fallbackMsg.split(/\s+/)
-    let fallbackLine = ''
-    let fy = fallbackY
-    for (const word of words) {
-      const test = fallbackLine ? `${fallbackLine} ${word}` : word
-      if (helvetica.widthOfTextAtSize(test, 10) > A6_WIDTH - 40) {
-        if (fallbackLine && fy > 80) {
-          const lw = helvetica.widthOfTextAtSize(fallbackLine, 10)
-          mapPage.drawText(fallbackLine, {
-            x: (A6_WIDTH - lw) / 2,
-            y: fy,
-            size: 10,
-            font: helvetica,
-            color: rgb(0.5, 0.5, 0.5),
-          })
-          fy -= 14
-        }
-        fallbackLine = word
-      } else {
-        fallbackLine = test
-      }
-    }
-    if (fallbackLine && fy > 80) {
-      const lw = helvetica.widthOfTextAtSize(fallbackLine, 10)
-      mapPage.drawText(fallbackLine, {
-        x: (A6_WIDTH - lw) / 2,
-        y: fy,
-        size: 10,
-        font: helvetica,
-        color: rgb(0.5, 0.5, 0.5),
-      })
-    }
+    drawMapFallback(mapPage, mapHeaderH, helvetica, A6_WIDTH, A6_HEIGHT)
   }
 
   const pdfBytes = await doc.save()

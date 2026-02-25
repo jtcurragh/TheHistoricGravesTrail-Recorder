@@ -17,6 +17,22 @@ vi.mock('./thumbnail', () => ({
   }),
 }))
 
+vi.mock('./mapbox', () => {
+  const minimalPng = new Uint8Array([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+    0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+    0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xde, 0x00, 0x00, 0x00,
+    0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7, 0x63, 0xf8, 0xff, 0xff, 0x3f,
+    0x00, 0x05, 0xfe, 0x02, 0xfe, 0xdc, 0xcc, 0x59, 0xe7, 0x00, 0x00, 0x00,
+    0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+  ])
+  return {
+    fetchStaticMapForPdf: vi.fn(() =>
+      Promise.resolve(new Blob([minimalPng], { type: 'image/png' }))
+    ),
+  }
+})
+
 const minimalJpeg = new Uint8Array([
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01,
   0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0xff, 0xdb, 0x00, 0x43,
@@ -140,6 +156,58 @@ describe('pdfExport', () => {
 
     // Rotation affects the content stream; PDFs must differ when rotation differs
     expect(bytesWith).not.toEqual(bytesWithout)
+  })
+
+  it('map page contains valid image when POIs have GPS coordinates', async () => {
+    const { fetchStaticMapForPdf } = await import('./mapbox')
+    const trail = { id: 'test', groupCode: 't', trailType: 'graveyard' as const, displayName: 'T', createdAt: '', nextSequence: 2 }
+    const setup: BrochureSetup = {
+      id: 'test',
+      trailId: 'test',
+      coverTitle: 'Test Trail',
+      coverPhotoBlob: null,
+      groupName: 'Test',
+      creditsText: 'Credits',
+      introText: 'Intro',
+      funderLogos: [],
+      mapBlob: null,
+      updatedAt: new Date().toISOString(),
+    }
+    const poisWithGps = [
+      {
+        id: 'test-g-001',
+        trailId: 'test',
+        groupCode: 'test',
+        trailType: 'graveyard' as const,
+        sequence: 1,
+        filename: 'test.jpg',
+        photoBlob: mockBlob,
+        thumbnailBlob: mockBlob,
+        latitude: 53.27,
+        longitude: -8.5,
+        accuracy: 10,
+        capturedAt: new Date().toISOString(),
+        siteName: 'POI 1',
+        category: 'Other' as const,
+        description: '',
+        story: 'Story',
+        url: '',
+        condition: 'Good' as const,
+        notes: '',
+        completed: true,
+        rotation: 0 as const,
+      },
+    ]
+
+    const pdf = await generateBrochurePdf(trail, setup, poisWithGps)
+    expect(pdf).toBeInstanceOf(Blob)
+    expect(pdf.size).toBeGreaterThan(100)
+
+    expect(vi.mocked(fetchStaticMapForPdf)).toHaveBeenCalledWith(poisWithGps)
+
+    const pdfBytes = new Uint8Array(await pdf.arrayBuffer())
+    const pdfText = new TextDecoder().decode(pdfBytes)
+    expect(pdfText).toMatch(/\/Subtype\s*\/Image/)
   })
 
   it('generates PDF with text-only cover when photo is missing', async () => {
