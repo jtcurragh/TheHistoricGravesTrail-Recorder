@@ -30,7 +30,8 @@ export async function getBrochureSetup(
     (raw as { mapBlob?: ArrayBuffer | Blob | null }).mapBlob != null
       ? toBlob((raw as { mapBlob: ArrayBuffer | Blob }).mapBlob)
       : null
-  const { funderLogos: _omit, ...rest } = raw as unknown as { funderLogos?: unknown; funderText?: string; [k: string]: unknown }
+  const { funderLogos: _funderLogos, ...rest } = raw as unknown as { funderLogos?: unknown; funderText?: string; [k: string]: unknown }
+  void _funderLogos // intentionally omitted from migration
   return {
     ...rest,
     coverPhotoBlob: coverPhoto,

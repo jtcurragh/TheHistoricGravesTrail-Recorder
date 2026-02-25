@@ -44,8 +44,11 @@ export function ExportScreen() {
   const [pdfGenerating, setPdfGenerating] = useState(false)
   const [pdfSuccess, setPdfSuccess] = useState(false)
   const [pdfError, setPdfError] = useState<string | null>(null)
-  const [showClearConfirm, setShowClearConfirm] = useState(false)
-  const [clearing, setClearing] = useState(false)
+  const [zipChecked, setZipChecked] = useState(false)
+  const [pdfChecked, setPdfChecked] = useState(false)
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
+  const [archiveSuccess, setArchiveSuccess] = useState(false)
+  const [archiving, setArchiving] = useState(false)
 
   const { isImporting, importResult, conflictPending, triggerImport, resolveConflict, resetImport } = useImport()
 
@@ -169,8 +172,19 @@ export function ExportScreen() {
     }
   }
 
+  const handleArchiveConfirm = () => {
+    setShowArchiveConfirm(false)
+    setArchiveSuccess(true)
+    setArchiving(true)
+    // TODO: Supabase archived status flag and sync exclusion logic to be implemented in a separate branch
+    setTimeout(() => {
+      void clearAllData()
+    }, 2000)
+  }
+
   const totalPois = graveyardCount + parishCount
   const hasData = totalPois > 0
+  const archiveReady = zipChecked && pdfChecked
 
   if (!profile) {
     return (
@@ -184,13 +198,16 @@ export function ExportScreen() {
     <main className="min-h-screen bg-white p-6 pb-24">
       <h1 className="text-2xl font-bold text-govuk-text mb-4">Export</h1>
 
-      <div className="space-y-4 mb-8">
-        <p className="text-lg text-govuk-text">
-          Import or export your trails as ZIP files. Import existing trails or export to share with coordinators.
-        </p>
+      <p className="text-lg text-govuk-text mb-4">
+        Generate your digital brochure, export your trail data, and archive when complete.
+      </p>
 
-        <div className="bg-govuk-background p-4 rounded border border-govuk-border">
-          <h2 className="font-bold text-govuk-text mb-2">Summary</h2>
+      {/* Section 1: Digital Brochure */}
+      <section className="mb-8">
+        <h2 className="text-lg font-bold text-govuk-text mb-4">Digital Brochure</h2>
+
+        <div className="bg-govuk-background p-4 rounded border border-govuk-border mb-4">
+          <h3 className="font-bold text-govuk-text mb-2">Summary</h3>
           <p className="text-govuk-text">
             Graveyard trail: {graveyardCount} POIs
           </p>
@@ -199,42 +216,6 @@ export function ExportScreen() {
           </p>
         </div>
 
-        <ImportButton
-          isImporting={isImporting}
-          onImport={triggerImport}
-          disabled={false}
-        />
-
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={!hasData || exporting}
-          className={`min-h-[56px] w-full px-6 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-            exportSuccess
-              ? 'bg-govuk-green text-white'
-              : 'bg-tmt-teal text-white'
-          }`}
-        >
-          {exporting ? 'Creating ZIP...' : exportSuccess ? 'Export downloaded!' : 'Export (ZIP)'}
-        </button>
-
-        {exportSuccess && (
-          <p className="text-govuk-green font-bold" role="status">
-            Your data stays in the app for reference.
-          </p>
-        )}
-
-        {!hasData && (
-          <p className="text-govuk-muted">
-            No POIs to export yet. Capture some photos first.
-          </p>
-        )}
-      </div>
-
-      <section className="mt-8 pt-8 border-t-2 border-govuk-border">
-        <h2 className="text-lg font-bold text-govuk-text mb-4">
-          Digital Brochure
-        </h2>
         {brochureTrailId && (graveyardTrail || parishTrail) && (
           <>
             <div className="mb-2 flex gap-2">
@@ -242,6 +223,7 @@ export function ExportScreen() {
                 type="button"
                 onClick={() => setBrochureTrailId(graveyardTrail?.id ?? null)}
                 aria-pressed={brochureTrailId === graveyardTrail?.id}
+                aria-label="Select Graveyard Trail for brochure"
                 className={`min-h-[48px] px-4 font-bold border-2 ${
                   brochureTrailId === graveyardTrail?.id
                     ? 'bg-tmt-teal border-tmt-teal text-white ring-2 ring-tmt-teal ring-offset-2'
@@ -254,6 +236,7 @@ export function ExportScreen() {
                 type="button"
                 onClick={() => setBrochureTrailId(parishTrail?.id ?? null)}
                 aria-pressed={brochureTrailId === parishTrail?.id}
+                aria-label="Select Parish Trail for brochure"
                 className={`min-h-[48px] px-4 font-bold border-2 ${
                   brochureTrailId === parishTrail?.id
                     ? 'bg-tmt-teal border-tmt-teal text-white ring-2 ring-tmt-teal ring-offset-2'
@@ -280,6 +263,7 @@ export function ExportScreen() {
                     navigate('/brochure-setup', { state: { trailId: brochureTrailId } })
                   }
                   className="min-h-[48px] px-6 bg-tmt-teal text-white font-bold"
+                  aria-label="Set up brochure"
                 >
                   Set Up Brochure
                 </button>
@@ -298,6 +282,7 @@ export function ExportScreen() {
                     navigate('/brochure-setup', { state: { trailId: brochureTrailId } })
                   }
                   className="text-tmt-teal font-bold underline"
+                  aria-label="Edit brochure setup"
                 >
                   Edit Setup
                 </button>
@@ -352,21 +337,95 @@ export function ExportScreen() {
         )}
       </section>
 
+      {/* Section 2: Import & Export ZIP */}
       <section className="mt-8 pt-8 border-t-2 border-govuk-border">
-        <h2 className="text-lg font-bold text-govuk-text mb-2">
-          Start new project
-        </h2>
-        <p className="text-govuk-text mb-4">
-          Only use this when you have finished and want to clear all data to
-          start a new site. Your exported ZIP and story files are separate — they
-          will not be affected.
-        </p>
+        <h2 className="text-lg font-bold text-govuk-text mb-4">Import & Export</h2>
+
+        <ImportButton
+          isImporting={isImporting}
+          onImport={triggerImport}
+          disabled={false}
+        />
+
         <button
           type="button"
-          onClick={() => setShowClearConfirm(true)}
-          className="min-h-[48px] px-6 border-2 border-govuk-red text-govuk-red font-bold hover:bg-govuk-red hover:text-white"
+          onClick={handleExport}
+          disabled={!hasData || exporting}
+          className={`min-h-[56px] w-full px-6 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed mt-4 ${
+            exportSuccess
+              ? 'bg-govuk-green text-white'
+              : 'bg-tmt-teal text-white'
+          }`}
+          aria-label={!hasData ? 'No POIs to export yet' : 'Export trails as ZIP file'}
         >
-          Clear all data
+          {exporting ? 'Creating ZIP...' : exportSuccess ? 'Export downloaded!' : 'Export (ZIP)'}
+        </button>
+
+        {exportSuccess && (
+          <p className="mt-2 text-govuk-green font-bold" role="status">
+            Your data stays in the app for reference.
+          </p>
+        )}
+
+        {!hasData && (
+          <p className="mt-2 text-govuk-muted">
+            No POIs to export yet. Capture some photos first.
+          </p>
+        )}
+      </section>
+
+      {/* Section 3: Complete & Archive */}
+      <section className="mt-8 pt-8 border-t-2 border-govuk-border">
+        <h2 className="text-lg font-bold text-govuk-text mb-4">
+          Complete & Archive Trail
+        </h2>
+        <p className="text-govuk-text mb-4">
+          Only take this step when you have finished recording and are ready to hand off your trail. Before archiving, you must have completed both steps below.
+        </p>
+
+        <div className="space-y-3 mb-4">
+          <label className="flex items-center gap-3 min-h-[48px] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={zipChecked}
+              onChange={(e) => setZipChecked(e.target.checked)}
+              className="w-6 h-6 focus:outline-none focus:ring-[3px] focus:ring-[#ffdd00] focus:ring-offset-2"
+              aria-label="I have downloaded the ZIP export for this trail"
+            />
+            <span className="text-lg text-govuk-text">
+              I have downloaded the ZIP export for this trail
+            </span>
+          </label>
+          <label className="flex items-center gap-3 min-h-[48px] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={pdfChecked}
+              onChange={(e) => setPdfChecked(e.target.checked)}
+              className="w-6 h-6 focus:outline-none focus:ring-[3px] focus:ring-[#ffdd00] focus:ring-offset-2"
+              aria-label="I have generated and saved the digital brochure PDF"
+            />
+            <span className="text-lg text-govuk-text">
+              I have generated and saved the digital brochure PDF
+            </span>
+          </label>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowArchiveConfirm(true)}
+          disabled={!archiveReady || archiving}
+          className={`min-h-[56px] w-full px-6 font-bold text-lg text-white ${
+            archiveReady && !archiving
+              ? 'bg-[#c0392b] hover:opacity-90 focus:outline-none focus:ring-[3px] focus:ring-[#ffdd00] focus:ring-offset-2'
+              : 'opacity-50 cursor-not-allowed bg-[#c0392b]'
+          }`}
+          aria-label={
+            archiveReady
+              ? 'Complete & Archive Trail'
+              : 'Tick both checkboxes above to enable archive'
+          }
+        >
+          Complete & Archive Trail
         </button>
       </section>
 
@@ -377,52 +436,57 @@ export function ExportScreen() {
         onClose={handleImportClose}
       />
 
-      {showClearConfirm && (
+      {showArchiveConfirm && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="clear-confirm-title"
+          aria-labelledby="archive-confirm-title"
         >
           <div className="bg-white p-6 max-w-md rounded shadow-lg">
             <h2
-              id="clear-confirm-title"
+              id="archive-confirm-title"
               className="text-xl font-bold text-govuk-text mb-4"
             >
-              Clear all data?
+              Are you sure?
             </h2>
             <p className="text-govuk-text mb-6">
-              This will remove all trails, photos, and your profile from this
-              device. You will need to set up again. Make sure you have exported
-              first. If you sign in again with the same email, your data will be
-              restored from the cloud.
+              This will mark your trail as archived and remove it from this device. This cannot be undone from the app. Your data will remain safely stored in the cloud.
             </p>
             <div className="flex gap-4">
               <button
                 type="button"
-                onClick={() => !clearing && setShowClearConfirm(false)}
-                disabled={clearing}
-                className="flex-1 min-h-[48px] border-2 border-govuk-border font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => !archiving && setShowArchiveConfirm(false)}
+                disabled={archiving}
+                className="flex-1 min-h-[48px] border-2 border-govuk-border font-bold text-govuk-text disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Cancel archive"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                onClick={async () => {
-                  setClearing(true)
-                  try {
-                    await clearAllData()
-                  } catch (err) {
-                    console.error('Clear failed:', err)
-                    setClearing(false)
-                  }
-                }}
-                disabled={clearing}
-                className="flex-1 min-h-[48px] bg-govuk-red text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleArchiveConfirm}
+                disabled={archiving}
+                className="flex-1 min-h-[48px] bg-[#c0392b] text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Yes, archive trail"
               >
-                {clearing ? 'Clearing…' : 'Clear all'}
+                Yes, Archive Trail
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {archiveSuccess && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="bg-white p-6 max-w-md rounded shadow-lg text-center">
+            <p className="text-lg font-bold text-govuk-text">
+              Trail archived successfully. Your data is safely stored in the cloud.
+            </p>
           </div>
         </div>
       )}

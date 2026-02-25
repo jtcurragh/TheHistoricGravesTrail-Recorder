@@ -163,8 +163,9 @@ export async function exportTrailsToZip(trails: Trail[]): Promise<Blob> {
  */
 export function getExportZipFilename(
   profile: UserProfile,
-  _trails: Trail[]
+  _trails: Trail[] // reserved for future use
 ): string {
+  void _trails
   const placeSlug = profile.groupName?.trim()
     ? deriveGroupCode(profile.groupName)
     : ''
