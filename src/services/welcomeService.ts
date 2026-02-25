@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase'
 import { db } from '../db/database'
 import { createUserProfile } from '../db/userProfile'
 import { createTrail } from '../db/trails'
+import { restoreBrochureSettingsFromSupabase } from './brochureSettingsService'
 import { deriveGroupCode, deriveGroupCodeFromEmail } from '../utils/groupCode'
 import type { UserProfile, Trail, POIRecord } from '../types'
 
@@ -23,6 +24,7 @@ export interface WelcomeResult {
   restoreMeta?: {
     trailCount: number
     poiCount: number
+    brochureSettingsCount: number
     failedPhotos: string[]
   }
 }
@@ -259,12 +261,17 @@ async function restoreReturningUser(
     })
   }
 
+  const brochureSettingsCount = await restoreBrochureSettingsFromSupabase(
+    profile.email
+  )
+
   return {
     isReturningUser: true,
     profile,
     restoreMeta: {
       trailCount,
       poiCount,
+      brochureSettingsCount,
       failedPhotos,
     },
   }

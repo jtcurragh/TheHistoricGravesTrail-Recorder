@@ -1,6 +1,8 @@
 import type { BrochureSetup } from '../types'
 import { db } from './database'
 import { enqueueSync } from './syncQueue'
+import { getUserProfile } from './userProfile'
+import { saveBrochureSettingsToSupabase } from '../services/brochureSettingsService'
 import { features } from '../config/features'
 import { supabase } from '../lib/supabase'
 
@@ -59,6 +61,12 @@ export async function saveBrochureSetup(setup: BrochureSetup): Promise<void> {
     recordForDb as unknown as BrochureSetup
   )
   if (features.SUPABASE_SYNC_ENABLED && supabase) {
+    const profile = await getUserProfile()
+    if (profile?.email) {
+      void saveBrochureSettingsToSupabase(setup, profile.email).catch((err) =>
+        console.error('[brochureSetup] Supabase sync failed:', err)
+      )
+    }
     void enqueueSync('create', 'brochure_setup', id, {})
   }
 }

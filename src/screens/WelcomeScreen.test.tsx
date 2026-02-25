@@ -137,7 +137,7 @@ describe('WelcomeScreen', () => {
         groupCode: 'ardmore',
         createdAt: new Date().toISOString(),
       },
-      restoreMeta: { trailCount: 2, poiCount: 5, failedPhotos: [] },
+      restoreMeta: { trailCount: 2, poiCount: 5, brochureSettingsCount: 0, failedPhotos: [] },
     })
 
     render(
