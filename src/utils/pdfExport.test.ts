@@ -10,7 +10,11 @@ import { getPOIsByTrailId } from '../db/pois'
 import { getBrochureSetup } from '../db/brochureSetup'
 import { saveBrochureSetup } from '../db/brochureSetup'
 import { getTrailById } from '../db/trails'
-import { generateBrochurePdf, computePoiPageLayout } from './pdfExport'
+import {
+  generateBrochurePdf,
+  computePoiPageLayout,
+  getImageBlobForPdf,
+} from './pdfExport'
 
 vi.mock('./thumbnail', () => ({
   fixOrientation: vi.fn(async (blob: Blob) => {
@@ -323,5 +327,84 @@ describe('pdfExport', () => {
     expect(pdf).toBeInstanceOf(Blob)
     expect(pdf.type).toBe('application/pdf')
     expect(pdf.size).toBeGreaterThan(100)
+  })
+
+  it('uses full-resolution photoBlob for POI images, not thumbnailBlob', () => {
+    const photoBlob = new Blob(
+      [...minimalJpeg, ...new Array(5000).fill(0)],
+      { type: 'image/jpeg' }
+    )
+    const thumbnailBlob = new Blob([minimalJpeg], { type: 'image/jpeg' })
+    expect(photoBlob.size).toBeGreaterThan(thumbnailBlob.size)
+
+    const poi = {
+      id: 'test-g-001',
+      trailId: 'test',
+      groupCode: 'test',
+      trailType: 'graveyard' as const,
+      sequence: 1,
+      filename: 'test.jpg',
+      photoBlob,
+      thumbnailBlob,
+      latitude: 53.27,
+      longitude: -8.5,
+      accuracy: 10,
+      capturedAt: new Date().toISOString(),
+      siteName: 'POI 1',
+      category: 'Other' as const,
+      description: '',
+      story: 'Story',
+      url: '',
+      condition: 'Good' as const,
+      notes: '',
+      completed: true,
+      rotation: 0 as const,
+    }
+
+    const { blob, usedFallback } = getImageBlobForPdf(poi)
+
+    expect(blob).toBe(photoBlob)
+    expect(blob).not.toBe(thumbnailBlob)
+    expect(blob.size).toBe(photoBlob.size)
+    expect(usedFallback).toBe(false)
+  })
+
+  it('falls back to thumbnailBlob when photoBlob is missing', () => {
+    const thumbnailBlob = new Blob([minimalJpeg], { type: 'image/jpeg' })
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const poi = {
+      id: 'test-g-002',
+      trailId: 'test',
+      groupCode: 'test',
+      trailType: 'graveyard' as const,
+      sequence: 2,
+      filename: 'test2.jpg',
+      photoBlob: undefined as unknown as Blob,
+      thumbnailBlob,
+      latitude: 53.28,
+      longitude: -8.6,
+      accuracy: 10,
+      capturedAt: new Date().toISOString(),
+      siteName: 'POI 2',
+      category: 'Other' as const,
+      description: '',
+      story: 'Story',
+      url: '',
+      condition: 'Good' as const,
+      notes: '',
+      completed: true,
+      rotation: 0 as const,
+    }
+
+    const { blob, usedFallback } = getImageBlobForPdf(poi)
+
+    expect(blob).toBe(thumbnailBlob)
+    expect(usedFallback).toBe(true)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/\[pdfExport\].*has no photoBlob.*using thumbnail/)
+    )
+
+    consoleSpy.mockRestore()
   })
 })

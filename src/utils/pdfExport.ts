@@ -259,6 +259,28 @@ function isPng(blob: Blob): boolean {
   return blob.type === 'image/png'
 }
 
+/**
+ * Select the best image blob for PDF generation: full-resolution photoBlob
+ * when available, otherwise thumbnailBlob. Exported for testing.
+ */
+export function getImageBlobForPdf(poi: POIRecord): {
+  blob: Blob
+  usedFallback: boolean
+} {
+  if (poi.photoBlob != null && poi.photoBlob.size > 0) {
+    return { blob: poi.photoBlob, usedFallback: false }
+  }
+  if (poi.thumbnailBlob != null && poi.thumbnailBlob.size > 0) {
+    console.warn(
+      `[pdfExport] POI ${poi.id} (${poi.siteName || poi.filename}) has no photoBlob; using thumbnail for PDF`
+    )
+    return { blob: poi.thumbnailBlob, usedFallback: true }
+  }
+  throw new Error(
+    `POI ${poi.id} has neither photoBlob nor thumbnailBlob for PDF generation`
+  )
+}
+
 async function embedImage(
   doc: PDFDocument,
   blob: Blob
@@ -623,8 +645,9 @@ export async function generateBrochurePdf(
     const poi = validatedPois[i]
     const poiPage = doc.addPage([A6_WIDTH, A6_HEIGHT])
 
+    const { blob: imageBlob } = getImageBlobForPdf(poi)
     const rotation = (poi.rotation ?? 0) as 0 | 90 | 180 | 270
-    const orientedBlob = await fixImageOrientationForPdf(poi.thumbnailBlob, rotation)
+    const orientedBlob = await fixImageOrientationForPdf(imageBlob, rotation)
     const photoBytes = await blobToUint8Array(orientedBlob)
     const photoImg = isPng(orientedBlob)
       ? await doc.embedPng(photoBytes)
