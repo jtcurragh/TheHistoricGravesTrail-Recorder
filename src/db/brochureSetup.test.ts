@@ -22,9 +22,9 @@ describe('brochureSetup', () => {
       coverTitle: 'Clonfert Trails Heritage Trail',
       coverPhotoBlob: mockBlob,
       groupName: 'Clonfert Tidy Towns',
+      funderText: 'Heritage Council',
       creditsText: 'Written by local historians.',
       introText: 'Welcome to our heritage trail.',
-      funderLogos: [mockBlob],
       mapBlob: null,
       updatedAt: '2025-02-20T12:00:00Z',
     }
@@ -36,22 +36,21 @@ describe('brochureSetup', () => {
     expect(retrieved?.coverTitle).toBe('Clonfert Trails Heritage Trail')
     expect(retrieved?.groupName).toBe('Clonfert Tidy Towns')
     expect(retrieved?.introText).toBe('Welcome to our heritage trail.')
+    expect(retrieved?.funderText).toBe('Heritage Council')
     expect(retrieved?.creditsText).toBe('Written by local historians.')
     expect(retrieved?.coverPhotoBlob).toBeInstanceOf(Blob)
-    expect(retrieved?.funderLogos).toHaveLength(1)
-    expect(retrieved?.funderLogos[0]).toBeInstanceOf(Blob)
   })
 
-  it('saves setup with null cover photo and empty funder logos', async () => {
+  it('saves setup with null cover photo', async () => {
     const setup = {
       id: 'clonfert-parish',
       trailId: 'clonfert-parish',
       coverTitle: 'Parish Trail',
       coverPhotoBlob: null as Blob | null,
       groupName: 'Clonfert Tidy Towns',
+      funderText: '',
       creditsText: '',
       introText: 'Intro text.',
-      funderLogos: [] as Blob[],
       mapBlob: null,
       updatedAt: '2025-02-20T12:00:00Z',
     }
@@ -61,7 +60,6 @@ describe('brochureSetup', () => {
 
     expect(retrieved).toBeDefined()
     expect(retrieved?.coverPhotoBlob).toBeNull()
-    expect(retrieved?.funderLogos).toHaveLength(0)
   })
 
   it('overwrites existing setup on save', async () => {
@@ -71,9 +69,9 @@ describe('brochureSetup', () => {
       coverTitle: 'Original Title',
       coverPhotoBlob: mockBlob,
       groupName: 'Group',
+      funderText: '',
       creditsText: '',
       introText: 'Intro',
-      funderLogos: [] as Blob[],
       mapBlob: null,
       updatedAt: '2025-02-20T12:00:00Z',
     }

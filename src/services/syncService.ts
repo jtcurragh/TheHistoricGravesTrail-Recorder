@@ -151,7 +151,6 @@ async function processBrochureSetup(item: SyncQueueItem): Promise<void> {
     return
   }
   let coverPhotoUrl: string | null = null
-  const funderLogosUrls: string[] = []
   let mapUrl: string | null = null
 
   if (setup!.coverPhotoBlob) {
@@ -160,14 +159,6 @@ async function processBrochureSetup(item: SyncQueueItem): Promise<void> {
       'cover.jpg',
       setup!.coverPhotoBlob
     )
-  }
-  for (let i = 0; i < setup!.funderLogos.length; i++) {
-    const url = await uploadBrochureAsset(
-      setup!.trailId,
-      `funder_${i}.png`,
-      setup!.funderLogos[i]
-    )
-    funderLogosUrls.push(url)
   }
   if (setup!.mapBlob) {
     mapUrl = await uploadBrochureAsset(
@@ -184,9 +175,10 @@ async function processBrochureSetup(item: SyncQueueItem): Promise<void> {
       cover_title: setup!.coverTitle,
       cover_photo_url: coverPhotoUrl,
       group_name: setup!.groupName,
+      funder_text: setup!.funderText,
       credits_text: setup!.creditsText,
       intro_text: setup!.introText,
-      funder_logos_urls: funderLogosUrls,
+      funder_logos_urls: [],
       map_url: mapUrl,
       updated_at: setup!.updatedAt,
     },

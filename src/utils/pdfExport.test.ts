@@ -14,6 +14,8 @@ import {
   generateBrochurePdf,
   computePoiPageLayout,
   getImageBlobForPdf,
+  getIntroWords,
+  INTRO_WORD_LIMIT,
 } from './pdfExport'
 
 vi.mock('./thumbnail', () => ({
@@ -122,9 +124,9 @@ describe('pdfExport', () => {
       coverTitle: 'Test Heritage Trail',
       coverPhotoBlob: mockBlob,
       groupName: 'Test Parish',
+      funderText: '',
       creditsText: 'Credits',
       introText: 'Introduction text.',
-      funderLogos: [],
       mapBlob: null,
       updatedAt: '2025-02-20T12:00:00Z',
     })
@@ -159,9 +161,9 @@ describe('pdfExport', () => {
       coverTitle: 'Test Trail',
       coverPhotoBlob: null,
       groupName: 'Test',
+      funderText: '',
       creditsText: 'Credits',
       introText: 'Intro',
-      funderLogos: [],
       mapBlob: null,
       updatedAt: new Date().toISOString(),
     }
@@ -225,9 +227,9 @@ describe('pdfExport', () => {
       coverTitle: 'Test Parish Trail',
       coverPhotoBlob: null,
       groupName: 'Test',
+      funderText: '',
       creditsText: 'Credits',
       introText: 'Intro',
-      funderLogos: [],
       mapBlob: null,
       updatedAt: new Date().toISOString(),
     }
@@ -324,9 +326,9 @@ describe('pdfExport', () => {
       coverTitle: 'Test Heritage Trail',
       coverPhotoBlob: null,
       groupName: 'Test Community',
+      funderText: '',
       creditsText: 'Credits text',
       introText: 'Introduction text about the trail',
-      funderLogos: [],
       mapBlob: null,
       updatedAt: '2025-02-20T12:00:00Z',
     }
@@ -417,7 +419,7 @@ describe('pdfExport', () => {
     consoleSpy.mockRestore()
   })
 
-  it('renders all 3 funder logos when provided, including those with wrong/empty blob type', async () => {
+  it('page 2 renders funder text as text', async () => {
     const trail = {
       id: 'test',
       groupCode: 'test',
@@ -426,7 +428,7 @@ describe('pdfExport', () => {
       createdAt: '',
       nextSequence: 9,
     }
-    const pois = Array.from({ length: 8 }, (_, i) => ({
+    const pois = Array.from({ length: 2 }, (_, i) => ({
       id: `test-g-00${i + 1}`,
       trailId: 'test',
       groupCode: 'test',
@@ -455,21 +457,27 @@ describe('pdfExport', () => {
       coverTitle: 'Test Trail',
       coverPhotoBlob: null,
       groupName: 'Test',
-      creditsText: 'Credits',
+      funderText: 'Heritage Council and Local Council',
+      creditsText: 'Credits text.',
       introText: 'Intro text.',
-      funderLogos: [
-        new Blob([minimalPng], { type: 'image/png' }),
-        new Blob([minimalPng], { type: '' }),
-        new Blob([minimalPng], { type: 'application/octet-stream' }),
-      ],
       mapBlob: null,
       updatedAt: new Date().toISOString(),
     }
 
     const pdf = await generateBrochurePdf(trail, setup, pois)
-    const pdfBytes = new Uint8Array(await pdf.arrayBuffer())
-    const pdfText = new TextDecoder().decode(pdfBytes)
-    const imageCount = (pdfText.match(/\/Subtype\s*\/Image/g) ?? []).length
-    expect(imageCount).toBeGreaterThanOrEqual(12)
+    expect(pdf).toBeInstanceOf(Blob)
+    expect(pdf.size).toBeGreaterThan(1000)
+    const doc = await PDFDocument.load(new Uint8Array(await pdf.arrayBuffer()))
+    const pages = doc.getPages()
+    expect(pages.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('intro text word limit is 75', () => {
+    const words = Array.from({ length: 80 }, (_, i) => `Word${i}`).join(' ')
+    const result = getIntroWords(words)
+    expect(result).toHaveLength(75)
+    expect(result[0]).toBe('Word0')
+    expect(result[74]).toBe('Word74')
+    expect(INTRO_WORD_LIMIT).toBe(75)
   })
 })

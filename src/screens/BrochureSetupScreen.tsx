@@ -8,6 +8,7 @@ import { getTrailById } from '../db/trails'
 import { getPOIsByTrailId } from '../db/pois'
 import { generateStaticMap } from '../utils/mapbox'
 import { fixOrientation } from '../utils/thumbnail'
+import { INTRO_WORD_LIMIT } from '../utils/pdfExport'
 import type { BrochureSetup } from '../types'
 
 function CoverPhotoPreview({ blob }: { blob: Blob }) {
@@ -27,41 +28,6 @@ function CoverPhotoPreview({ blob }: { blob: Blob }) {
   )
 }
 
-function ImagePreview({
-  blob,
-  alt,
-  onRemove,
-}: {
-  blob: Blob
-  alt: string
-  onRemove: () => void
-}) {
-  const [src, setSrc] = useState<string | null>(null)
-  useEffect(() => {
-    const url = URL.createObjectURL(blob)
-    queueMicrotask(() => setSrc(url))
-    return () => URL.revokeObjectURL(url)
-  }, [blob])
-  if (!src) return null
-  return (
-    <div className="relative inline-block">
-      <img
-        src={src}
-        alt={alt}
-        className="w-20 h-20 object-cover border-2 border-govuk-border"
-      />
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label={`Remove ${alt}`}
-        className="absolute -top-2 -right-2 w-6 h-6 bg-govuk-red text-white rounded-full flex items-center justify-center text-sm font-bold"
-      >
-        ×
-      </button>
-    </div>
-  )
-}
-
 export function BrochureSetupScreen() {
   const { state, search } = useLocation() as {
     state?: { trailId?: string }
@@ -76,8 +42,8 @@ export function BrochureSetupScreen() {
   const [groupName, setGroupName] = useState('')
   const [coverPhotoBlob, setCoverPhotoBlob] = useState<Blob | null>(null)
   const [introText, setIntroText] = useState('')
+  const [funderText, setFunderText] = useState('')
   const [creditsText, setCreditsText] = useState('')
-  const [funderLogos, setFunderLogos] = useState<Blob[]>([])
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -103,8 +69,8 @@ export function BrochureSetupScreen() {
       setGroupName(setup.groupName)
       setCoverPhotoBlob(setup.coverPhotoBlob)
       setIntroText(setup.introText)
+      setFunderText(setup.funderText)
       setCreditsText(setup.creditsText)
-      setFunderLogos(setup.funderLogos)
     }
   }, [trailId])
 
@@ -126,18 +92,6 @@ export function BrochureSetupScreen() {
       }
     }
     e.target.value = ''
-  }
-
-  const handleFunderLogosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []).filter((f) =>
-      f.type.startsWith('image/')
-    )
-    setFunderLogos((prev) => [...prev, ...files].slice(0, 6))
-    e.target.value = ''
-  }
-
-  const removeFunderLogo = (idx: number) => {
-    setFunderLogos((prev) => prev.filter((_, i) => i !== idx))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -164,9 +118,9 @@ export function BrochureSetupScreen() {
         coverTitle: coverTitle.trim(),
         coverPhotoBlob,
         groupName: groupName.trim(),
+        funderText: funderText.trim(),
         creditsText: creditsText.trim(),
         introText: introText.trim(),
-        funderLogos,
         mapBlob,
         updatedAt: new Date().toISOString(),
       }
@@ -372,15 +326,32 @@ export function BrochureSetupScreen() {
             value={introText}
             onChange={(e) => setIntroText(e.target.value)}
             rows={5}
-            placeholder="3–5 sentences about the trail and community (max 50 words)"
+            placeholder={`3–5 sentences about the trail and community (max ${INTRO_WORD_LIMIT} words)`}
             aria-required
             aria-invalid={!!errors.introText}
             aria-describedby={errors.introText ? 'introText-error' : undefined}
             className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
           />
           <p className="mt-1 text-sm text-govuk-muted">
-            {introText.trim().split(/\s+/).filter(Boolean).length} / 50 words
+            {introText.trim().split(/\s+/).filter(Boolean).length} / {INTRO_WORD_LIMIT} words
           </p>
+        </div>
+
+        <div>
+          <label
+            htmlFor="funderText"
+            className="block text-lg font-bold text-govuk-text mb-2"
+          >
+            Funded and Supported By
+          </label>
+          <input
+            id="funderText"
+            type="text"
+            value={funderText}
+            onChange={(e) => setFunderText(e.target.value)}
+            placeholder="Sponsor names (e.g. Local Council, Heritage Council)"
+            className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+          />
         </div>
 
         <div>
@@ -401,34 +372,6 @@ export function BrochureSetupScreen() {
           <p className="mt-1 text-sm text-govuk-muted">
             {creditsText.trim().split(/\s+/).filter(Boolean).length} / 40 words
           </p>
-        </div>
-
-        <div>
-          <label className="block text-lg font-bold text-govuk-text mb-2">
-            Funder Logos (up to 6)
-          </label>
-          <input
-            id="funderLogos"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFunderLogosChange}
-            disabled={funderLogos.length >= 6}
-            aria-label="Upload funder logos"
-            className="block w-full min-h-[48px] file:min-h-[48px] file:px-4 file:py-3 file:border-2 file:border-govuk-border file:bg-white file:font-bold file:text-govuk-text file:cursor-pointer disabled:opacity-50"
-          />
-          {funderLogos.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-3">
-              {funderLogos.map((blob, idx) => (
-                <ImagePreview
-                  key={idx}
-                  blob={blob}
-                  alt={`Funder logo ${idx + 1}`}
-                  onRemove={() => removeFunderLogo(idx)}
-                />
-              ))}
-            </div>
-          )}
         </div>
 
         {errors.submit && (

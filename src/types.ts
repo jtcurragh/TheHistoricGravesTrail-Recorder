@@ -123,9 +123,9 @@ export interface BrochureSetup {
   coverTitle: string
   coverPhotoBlob: Blob | null
   groupName: string
+  funderText: string
   creditsText: string
   introText: string
-  funderLogos: Blob[]
   mapBlob: Blob | null
   updatedAt: string
 }

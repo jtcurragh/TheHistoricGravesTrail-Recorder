@@ -24,7 +24,7 @@ async function uploadBrochureAsset(
 
 /**
  * Save brochure settings to Supabase (brochure_settings table and storage).
- * Uploads cover photo and funder logos to brochure-assets bucket, then upserts row.
+ * Uploads cover photo to brochure-assets bucket, then upserts row.
  */
 export async function saveBrochureSettingsToSupabase(
   setup: BrochureSetup,
@@ -36,7 +36,6 @@ export async function saveBrochureSettingsToSupabase(
   if (!trail) return
 
   let coverPhotoUrl: string | null = null
-  const funderLogosUrls: string[] = []
 
   if (setup.coverPhotoBlob) {
     coverPhotoUrl = await uploadBrochureAsset(
@@ -44,14 +43,6 @@ export async function saveBrochureSettingsToSupabase(
       'cover.jpg',
       setup.coverPhotoBlob
     )
-  }
-  for (let i = 0; i < setup.funderLogos.length; i++) {
-    const url = await uploadBrochureAsset(
-      setup.trailId,
-      `funder_${i}.png`,
-      setup.funderLogos[i]
-    )
-    funderLogosUrls.push(url)
   }
 
   const { error } = await supabase.from('brochure_settings').upsert(
@@ -63,9 +54,10 @@ export async function saveBrochureSettingsToSupabase(
       cover_title: setup.coverTitle,
       group_name: setup.groupName,
       introduction_text: setup.introText,
-      funder_text: setup.creditsText,
+      funder_text: setup.funderText,
+      credits_text: setup.creditsText,
       cover_photo_url: coverPhotoUrl,
-      funder_logos_urls: funderLogosUrls,
+      funder_logos_urls: [],
       updated_at: setup.updatedAt,
     },
     { onConflict: 'id' }
@@ -75,7 +67,7 @@ export async function saveBrochureSettingsToSupabase(
 
 /**
  * Restore brochure settings from Supabase for a user.
- * Fetches brochure_settings, downloads cover photo and funder logos, saves to Dexie.
+ * Fetches brochure_settings, downloads cover photo, saves to Dexie.
  * Returns the number of brochure settings restored.
  */
 export async function restoreBrochureSettingsFromSupabase(
@@ -94,7 +86,6 @@ export async function restoreBrochureSettingsFromSupabase(
   let restored = 0
   for (const row of rows) {
     let coverPhotoBlob: Blob | null = null
-    const funderLogos: Blob[] = []
 
     if (row.cover_photo_url) {
       try {
@@ -105,25 +96,15 @@ export async function restoreBrochureSettingsFromSupabase(
       }
     }
 
-    const urls = (row.funder_logos_urls as string[] | null) ?? []
-    for (const url of urls) {
-      try {
-        const res = await fetch(url)
-        funderLogos.push(await res.blob())
-      } catch {
-        // skip failed logo
-      }
-    }
-
     const setup: BrochureSetup = {
       id: row.trail_id,
       trailId: row.trail_id,
       coverTitle: row.cover_title ?? '',
       coverPhotoBlob,
       groupName: row.group_name ?? '',
-      creditsText: row.funder_text ?? '',
+      funderText: row.funder_text ?? '',
+      creditsText: row.credits_text ?? '',
       introText: row.introduction_text ?? '',
-      funderLogos,
       mapBlob: null,
       updatedAt: row.updated_at ?? new Date().toISOString(),
     }

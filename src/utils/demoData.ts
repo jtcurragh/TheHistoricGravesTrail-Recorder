@@ -67,9 +67,6 @@ const sampleStories = [
 export async function generateDemoBrochureSetup(): Promise<BrochureSetup> {
   const coverPhoto = await createPlaceholderImage('DEMO TRAIL', '#3a9b8e', 800, 1200)
   
-  const logo1 = await createPlaceholderImage('LOGO 1', '#4a5568', 200, 200)
-  const logo2 = await createPlaceholderImage('LOGO 2', '#718096', 200, 200)
-
   // Generate static map for demo
   const mapBlob = await generateDemoStaticMap()
 
@@ -79,9 +76,9 @@ export async function generateDemoBrochureSetup(): Promise<BrochureSetup> {
     coverTitle: 'Sample Heritage Trail',
     coverPhotoBlob: coverPhoto,
     groupName: 'Demo Tidy Towns 2024',
-    creditsText: `This demonstration brochure has been created by Historic Graves Trail team to showcase the digital heritage trail format.\n\nAcknowledgements: Local historians, community volunteers, and heritage enthusiasts who contribute to preserving our shared heritage.\n\nFunding support provided by heritage councils and community development programmes.`,
+    funderText: 'Heritage Council, Local Council, Community Development Programme',
+    creditsText: `This demonstration brochure has been created by Historic Graves Trail team to showcase the digital heritage trail format.\n\nAcknowledgements: Local historians, community volunteers, and heritage enthusiasts who contribute to preserving our shared heritage.`,
     introText: 'Welcome to this demonstration heritage trail. This sample brochure showcases how communities can document and share their local heritage using Historic Graves Trail. Each Point of Interest represents a significant site in the local landscape, from ancient monuments to more recent historical features. Together, these sites tell the story of human activity and settlement patterns spanning thousands of years.',
-    funderLogos: [logo1, logo2],
     mapBlob,
     updatedAt: new Date().toISOString(),
   }

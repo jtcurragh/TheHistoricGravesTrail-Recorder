@@ -100,9 +100,9 @@ describe('BrochureSetupScreen', () => {
       coverTitle: 'Ardmore Heritage Trail',
       coverPhotoBlob: mockBlob,
       groupName: 'Ardmore Tidy Towns',
+      funderText: '',
       creditsText: 'Local historians.',
       introText: 'Welcome to Ardmore.',
-      funderLogos: [],
       mapBlob: null,
       updatedAt: '2025-02-20T12:00:00Z',
     })
@@ -137,6 +137,29 @@ describe('BrochureSetupScreen', () => {
     await waitFor(() => {
       expect(screen.getByText(/cover title is required/i)).toBeInTheDocument()
     })
+  })
+
+  it('intro text word limit is 75', async () => {
+    await createUserProfile({ email: 'sheila@example.com', name: 'Sheila', groupName: 'Ardmore', groupCode: 'ardmore' })
+    await createTrail({
+      groupCode: 'ardmore',
+      trailType: 'graveyard',
+      displayName: 'Ardmore Graveyard Trail',
+    })
+
+    render(<TestWrapper trailId="ardmore-graveyard" />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /brochure setup/i })).toBeInTheDocument()
+    })
+
+    expect(screen.getByText(/0 \/ 75 words/)).toBeInTheDocument()
+
+    const user = userEvent.setup()
+    const introField = screen.getByLabelText(/introduction/i)
+    await user.type(introField, 'One two three four five six seven eight nine ten.')
+
+    expect(screen.getByText(/10 \/ 75 words/)).toBeInTheDocument()
   })
 
   it('writes brochure trail id to localStorage when Save Brochure Setup is tapped', async () => {

@@ -21,9 +21,10 @@ vi.mock('../lib/supabase', () => {
     cover_title: 'Jane Heritage Trail',
     group_name: "Jane's recordings",
     introduction_text: 'Welcome to our trail.',
-    funder_text: 'Funded by local council.',
+    funder_text: 'Heritage Council',
+    credits_text: 'Funded by local council.',
     cover_photo_url: 'https://example.com/cover.jpg',
-    funder_logos_urls: ['https://example.com/funder.png'],
+    funder_logos_urls: [],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }
@@ -69,7 +70,7 @@ describe('brochureSettingsService', () => {
   })
 
   describe('saveBrochureSettingsToSupabase', () => {
-    it('uploads cover photo and funder logos to storage and upserts to brochure_settings', async () => {
+    it('uploads cover photo to storage and upserts to brochure_settings', async () => {
       await createUserProfile({
         email: 'jane@test.com',
         name: 'Jane',
@@ -87,9 +88,9 @@ describe('brochureSettingsService', () => {
         coverTitle: 'Jane Heritage Trail',
         coverPhotoBlob: mockBlob,
         groupName: "Jane's recordings",
+        funderText: 'Heritage Council',
         creditsText: 'Funded by local council.',
         introText: 'Welcome to our trail.',
-        funderLogos: [mockBlob],
         mapBlob: null,
         updatedAt: new Date().toISOString(),
       }
@@ -121,11 +122,10 @@ describe('brochureSettingsService', () => {
       expect(retrieved?.coverTitle).toBe('Jane Heritage Trail')
       expect(retrieved?.groupName).toBe("Jane's recordings")
       expect(retrieved?.introText).toBe('Welcome to our trail.')
+      expect(retrieved?.funderText).toBe('Heritage Council')
       expect(retrieved?.creditsText).toBe('Funded by local council.')
       expect(retrieved?.coverPhotoBlob).toBeInstanceOf(Blob)
       expect(retrieved?.coverPhotoBlob?.size).toBe(photoArrayBuffer.byteLength)
-      expect(retrieved?.funderLogos).toHaveLength(1)
-      expect(retrieved?.funderLogos[0]).toBeInstanceOf(Blob)
     })
 
     it('returns 0 when no brochure settings exist for user', async () => {

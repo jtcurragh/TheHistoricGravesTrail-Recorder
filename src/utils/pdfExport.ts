@@ -9,6 +9,13 @@ import {
 import type { Trail, POIRecord, BrochureSetup } from '../types'
 import { fetchStaticMapForPdf } from './mapbox'
 
+export const INTRO_WORD_LIMIT = 75
+
+/** Exported for testing. Returns up to INTRO_WORD_LIMIT words from text. */
+export function getIntroWords(text: string): string[] {
+  return text.trim().split(/\s+/).filter(Boolean).slice(0, INTRO_WORD_LIMIT)
+}
+
 /**
  * Compute POI page layout coordinates. Image is always at top; title and text
  * are positioned relative to the image bottom. Exported for testing.
@@ -268,6 +275,28 @@ function isPngFromBytes(bytes: Uint8Array): boolean {
     bytes[2] === 0x4e &&
     bytes[3] === 0x47
   )
+}
+
+function wrapText(
+  font: PDFFont,
+  text: string,
+  maxWidth: number,
+  fontSize: number
+): string[] {
+  const words = text.trim().split(/\s+/).filter(Boolean)
+  const lines: string[] = []
+  let line = ''
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word
+    if (font.widthOfTextAtSize(test, fontSize) > maxWidth) {
+      if (line) lines.push(line)
+      line = word
+    } else {
+      line = test
+    }
+  }
+  if (line) lines.push(line)
+  return lines
 }
 
 /**
@@ -538,14 +567,14 @@ export async function generateBrochurePdf(
     color: WHITE,
   })
 
-  const introWords = setup.introText.trim().split(/\s+/).filter(Boolean).slice(0, 50)
-  let introY = A6_HEIGHT - introHeaderHeight - 25
+  const introWords = getIntroWords(setup.introText)
+  let introY = A6_HEIGHT - introHeaderHeight - 20
   let line = ''
   const textMaxWidth = A6_WIDTH - 40
   for (const word of introWords) {
     const test = line ? `${line} ${word}` : word
     if (helvetica.widthOfTextAtSize(test, 10) > textMaxWidth) {
-      if (line && introY > 200) {
+      if (line && introY > 100) {
         page2.drawText(line, { x: 20, y: introY, size: 10, font: helvetica, color: NEAR_BLACK })
         introY -= 12
       }
@@ -554,110 +583,81 @@ export async function generateBrochurePdf(
       line = test
     }
   }
-  if (line && introY > 200) {
+  if (line && introY > 100) {
     page2.drawText(line, { x: 20, y: introY, size: 10, font: helvetica, color: NEAR_BLACK })
     introY -= 12
   }
 
-  const fundedHeaderY = introY - 25
-  page2.drawText('FUNDED AND SUPPORTED BY', {
-    x: A6_WIDTH / 2 - helveticaBold.widthOfTextAtSize('FUNDED AND SUPPORTED BY', 11) / 2,
-    y: fundedHeaderY,
-    size: 11,
+  const sectionPadding = 12
+  let y = introY - sectionPadding
+
+  // Divider
+  page2.drawLine({ start: { x: 20, y }, end: { x: A6_WIDTH - 20, y } })
+  y -= sectionPadding
+
+  // FUNDED AND SUPPORTED BY
+  const fundedHeader = 'FUNDED AND SUPPORTED BY'
+  page2.drawText(fundedHeader, {
+    x: A6_WIDTH / 2 - helveticaBold.widthOfTextAtSize(fundedHeader, 10) / 2,
+    y,
+    size: 10,
     font: helveticaBold,
     color: NEAR_BLACK,
   })
+  y -= 10
 
-  const logoCellSize = 55
-  const logoPadding = 12
-  const logosPerRow = 2
-  const logoGridWidth = logosPerRow * (logoCellSize + logoPadding) - logoPadding
-  const logoGridStartX = (A6_WIDTH - logoGridWidth) / 2
-
-  let logoY = fundedHeaderY - 15
-  let logosSkipped = 0
-  for (let i = 0; i < setup.funderLogos.length; i++) {
-    const col = i % logosPerRow
-    const row = Math.floor(i / logosPerRow)
-    const cellX = logoGridStartX + col * (logoCellSize + logoPadding)
-    const cellY = logoY - row * (logoCellSize + logoPadding) - logoCellSize
-    try {
-      const logoBytes = await blobToUint8Array(setup.funderLogos[i])
-      const looksLikePng =
-        isPng(setup.funderLogos[i]) || isPngFromBytes(logoBytes)
-      let logoImg: PDFImage
-      try {
-        logoImg = looksLikePng
-          ? await doc.embedPng(logoBytes)
-          : await doc.embedJpg(logoBytes)
-      } catch (firstErr) {
-        logoImg = looksLikePng
-          ? await doc.embedJpg(logoBytes)
-          : await doc.embedPng(logoBytes)
-      }
-      const scale = Math.min(logoCellSize / logoImg.width, logoCellSize / logoImg.height)
-      const imgW = logoImg.width * scale
-      const imgH = logoImg.height * scale
-      const centerX = cellX + (logoCellSize - imgW) / 2
-      const centerY = cellY + (logoCellSize - imgH) / 2
-      page2.drawImage(logoImg, {
-        x: centerX,
-        y: centerY,
-        width: imgW,
-        height: imgH,
-      })
-    } catch (err) {
-      logosSkipped++
-      console.error(
-        `[pdfExport] Funder logo ${i + 1} failed to embed (blob.type=${setup.funderLogos[i].type}):`,
-        err
-      )
+  const funderLines = setup.funderText.trim()
+    ? wrapText(helvetica, setup.funderText.trim(), textMaxWidth, 9)
+    : []
+  for (const ln of funderLines) {
+    if (y > 100) {
+      const lw = helvetica.widthOfTextAtSize(ln, 9)
+      page2.drawText(ln, { x: (A6_WIDTH - lw) / 2, y, size: 9, font: helvetica, color: NEAR_BLACK })
+      y -= 10
     }
   }
-  if (logosSkipped > 0) {
-    console.warn(
-      `[pdfExport] ${logosSkipped} of ${setup.funderLogos.length} funder logo(s) could not be embedded in the PDF`
-    )
-  }
-  logoY -= setup.funderLogos.length > 0 ? Math.ceil(setup.funderLogos.length / logosPerRow) * (logoCellSize + logoPadding) : 0
+  y -= sectionPadding
+
+  // Divider
+  page2.drawLine({ start: { x: 20, y }, end: { x: A6_WIDTH - 20, y } })
+  y -= sectionPadding
+
+  // CREDITS & ACKNOWLEDGEMENTS
+  const creditsHeader = 'CREDITS & ACKNOWLEDGEMENTS'
+  page2.drawText(creditsHeader, {
+    x: A6_WIDTH / 2 - helveticaBold.widthOfTextAtSize(creditsHeader, 10) / 2,
+    y,
+    size: 10,
+    font: helveticaBold,
+    color: NEAR_BLACK,
+  })
+  y -= 10
 
   const creditsWords = setup.creditsText.trim().split(/\s+/).filter(Boolean).slice(0, 40)
-  let creditsY = logoY - 20
   line = ''
   for (const word of creditsWords) {
     const test = line ? `${line} ${word}` : word
     if (helvetica.widthOfTextAtSize(test, 9) > textMaxWidth) {
-      if (line && creditsY > 70) {
+      if (line && y > 70) {
         const lw = helvetica.widthOfTextAtSize(line, 9)
-        page2.drawText(line, {
-          x: (A6_WIDTH - lw) / 2,
-          y: creditsY,
-          size: 9,
-          font: helvetica,
-          color: NEAR_BLACK,
-        })
-        creditsY -= 11
+        page2.drawText(line, { x: (A6_WIDTH - lw) / 2, y, size: 9, font: helvetica, color: NEAR_BLACK })
+        y -= 10
       }
       line = word
     } else {
       line = test
     }
   }
-  if (line && creditsY > 70) {
+  if (line && y > 70) {
     const lw = helvetica.widthOfTextAtSize(line, 9)
-    page2.drawText(line, {
-      x: (A6_WIDTH - lw) / 2,
-      y: creditsY,
-      size: 9,
-      font: helvetica,
-      color: NEAR_BLACK,
-    })
-    creditsY -= 11
+    page2.drawText(line, { x: (A6_WIDTH - lw) / 2, y, size: 9, font: helvetica, color: NEAR_BLACK })
+    y -= 10
   }
+  y -= sectionPadding
 
   page2.drawText(setup.groupName, {
     x: A6_WIDTH / 2 - helveticaBold.widthOfTextAtSize(setup.groupName, 10) / 2,
-    y: creditsY - 15,
+    y,
     size: 10,
     font: helveticaBold,
     color: NEAR_BLACK,

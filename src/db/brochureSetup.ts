@@ -26,16 +26,16 @@ export async function getBrochureSetup(
     raw.coverPhotoBlob != null
       ? toBlob(raw.coverPhotoBlob as ArrayBuffer | Blob)
       : null
-  const funderLogos = (raw.funderLogos as (ArrayBuffer | Blob)[]).map(toBlob)
   const mapBlob =
     (raw as { mapBlob?: ArrayBuffer | Blob | null }).mapBlob != null
       ? toBlob((raw as { mapBlob: ArrayBuffer | Blob }).mapBlob)
       : null
+  const { funderLogos: _omit, ...rest } = raw as { funderLogos?: unknown; funderText?: string; [k: string]: unknown }
   return {
-    ...raw,
+    ...rest,
     coverPhotoBlob: coverPhoto,
-    funderLogos,
     mapBlob,
+    funderText: rest.funderText ?? '',
   } as BrochureSetup
 }
 
@@ -45,16 +45,12 @@ export async function saveBrochureSetup(setup: BrochureSetup): Promise<void> {
     setup.coverPhotoBlob != null
       ? await toArrayBuffer(setup.coverPhotoBlob)
       : null
-  const funderLogosBuf = await Promise.all(
-    setup.funderLogos.map((b) => toArrayBuffer(b))
-  )
   const mapBlobBuf =
     setup.mapBlob != null ? await toArrayBuffer(setup.mapBlob) : null
   const recordForDb = {
     ...setup,
     id,
     coverPhotoBlob: coverPhotoBuf,
-    funderLogos: funderLogosBuf,
     mapBlob: mapBlobBuf,
   }
   await db.brochureSetup.put(
