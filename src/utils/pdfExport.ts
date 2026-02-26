@@ -93,7 +93,7 @@ async function drawOrientedImageToCanvas(
   let drawable: ImageBitmap | HTMLImageElement
 
   if (typeof createImageBitmap === 'function') {
-    const bitmap = await createImageBitmap(blob)
+    const bitmap = await createImageBitmap(blob, { imageOrientation: 'from-image' })
     width = bitmap.width
     height = bitmap.height
     drawable = bitmap
@@ -153,12 +153,17 @@ function loadImage(blob: Blob): Promise<HTMLImageElement> {
 }
 
 async function hasExifOrientation(blob: Blob): Promise<boolean> {
-  if (!blob.type.startsWith('image/jpeg')) return false
+  // blob.type may be '' for blobs reconstructed from Dexie ArrayBuffers
+  // Only skip if we know it's definitely not a JPEG
+  if (blob.type && !blob.type.startsWith('image/jpeg') && !blob.type.startsWith('image/jpg')) {
+    return false
+  }
   try {
-    const piexif = (await import('piexifjs')).default
     const bytes = new Uint8Array(await blob.arrayBuffer())
+    if (bytes.length < 2) return false
+    if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return false
+    const piexif = (await import('piexifjs')).default
     const binary = String.fromCharCode.apply(null, bytes as unknown as number[])
-    if (!binary.startsWith('\xff\xd8')) return false
     const exif = piexif.load(binary) as { '0th'?: { [k: number]: number } }
     const orientation = exif['0th']?.[274]
     return typeof orientation === 'number' && orientation !== 1
