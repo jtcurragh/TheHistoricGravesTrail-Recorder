@@ -92,8 +92,8 @@ export function TrailScreen() {
 
   if (!activeTrailId) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">
           No trail selected. Go to Parish to open a trail.
         </p>
       </main>
@@ -102,8 +102,8 @@ export function TrailScreen() {
 
   if (!trail) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">Loading...</p>
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">Loading...</p>
       </main>
     )
   }
@@ -114,17 +114,17 @@ export function TrailScreen() {
 
   if (poiCount === 0) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <h1 className="text-2xl font-bold text-govuk-text mb-4">
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <h1 className="text-2xl font-semibold text-[#1a2a2a] mb-4">
           {trail.displayName}
         </h1>
-        <p className="text-lg text-govuk-text mb-6">
+        <p className="text-lg text-[#0b0c0c] mb-6">
           No POIs recorded yet — go to Capture to start
         </p>
         <button
           type="button"
           onClick={() => navigate('/capture')}
-          className="min-h-[56px] px-6 bg-tmt-teal text-white font-bold text-lg"
+          className="min-h-[56px] px-6 bg-[#2d7a6e] text-white font-bold text-lg rounded-[12px]"
         >
           Go to Capture
         </button>
@@ -133,14 +133,14 @@ export function TrailScreen() {
   }
 
   return (
-    <main className="min-h-screen bg-white p-6 pb-24">
-      <h1 className="text-2xl font-bold text-govuk-text mb-2">
+    <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+      <h1 className="text-2xl font-semibold text-[#1a2a2a] mb-2">
         {trail.displayName}
       </h1>
-      <p className="text-lg text-govuk-text mb-3">
+      <p className="text-base text-[#595959] mb-3">
         {poiCount} of {MAX_POIS} POIs recorded — {completedCount} completed
       </p>
-      <div className="mb-4 flex items-center gap-4 text-sm text-govuk-muted">
+      <div className="mb-4 flex items-center gap-4 text-sm text-[#595959]">
         <div className="flex items-center gap-2">
           <span className="text-govuk-green font-bold">✓</span>
           <span>Validated</span>
@@ -150,21 +150,26 @@ export function TrailScreen() {
           <span>Needs validation</span>
         </div>
       </div>
-      <div
-        className="h-2 bg-govuk-background mb-6"
-        role="progressbar"
-        aria-valuenow={poiCount}
-        aria-valuemin={0}
-        aria-valuemax={MAX_POIS}
-        aria-label={`${poiCount} of ${MAX_POIS} POIs recorded`}
-      >
+      <div className="flex items-center gap-3 mb-6">
         <div
-          className="h-full bg-tmt-teal transition-all"
-          style={{ width: `${progressPercent}%` }}
-        />
+          className="flex-1 h-[10px] bg-[#e0e0e0] rounded-full overflow-hidden min-w-0"
+          role="progressbar"
+          aria-valuenow={poiCount}
+          aria-valuemin={0}
+          aria-valuemax={MAX_POIS}
+          aria-label={`${poiCount} of ${MAX_POIS} POIs recorded`}
+        >
+          <div
+            className="h-full bg-[#3a9b8e] rounded-full transition-all"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <span className="text-[14px] text-[#595959] shrink-0 tabular-nums">
+          {poiCount} / {MAX_POIS} POIs
+        </span>
       </div>
 
-      <ul className="space-y-2" aria-label="POIs in this trail">
+      <ul className="space-y-3" aria-label="POIs in this trail">
         {[...pois]
           .sort((a, b) => a.sequence - b.sequence)
           .map((poi, idx, arr) => {
@@ -180,7 +185,7 @@ export function TrailScreen() {
             return (
               <li key={poi.id}>
                 <div
-                  className={`flex items-center gap-3 py-3 px-4 bg-white border-2 border-govuk-border border-l-4 ${borderColor} hover:border-tmt-teal focus-within:border-tmt-teal focus-within:ring-2 focus-within:ring-tmt-focus`}
+                  className={`flex items-center gap-3 py-3 px-5 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.10)] border-0 border-l-[5px] ${borderColor === 'border-l-govuk-green' ? 'border-l-govuk-green' : 'border-l-[#f59e0b]'} hover:border-l-[#3a9b8e] focus-within:border-l-[#3a9b8e] focus-within:ring-2 focus-within:ring-tmt-focus`}
                   role="group"
                 >
                   <Link
@@ -195,7 +200,7 @@ export function TrailScreen() {
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm text-govuk-muted">
+                        <span className="font-mono text-sm text-[#595959]">
                           {poi.sequence}.{' '}
                         </span>
                         <span
@@ -205,7 +210,7 @@ export function TrailScreen() {
                           {statusIcon}
                         </span>
                       </div>
-                      <span className="font-bold text-govuk-text truncate block">
+                      <span className="font-bold text-[#0b0c0c] truncate block">
                         {poi.siteName || poi.filename}
                       </span>
                     </div>
@@ -219,7 +224,7 @@ export function TrailScreen() {
                         handleDeleteClick(poi.id)
                       }}
                       aria-label={`Delete ${poi.siteName || poi.filename}`}
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-govuk-red text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                      className="min-h-[48px] min-w-[48px] flex items-center justify-center rounded-full bg-govuk-red text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -248,7 +253,7 @@ export function TrailScreen() {
                       }}
                       disabled={!canMoveUp}
                       aria-label="Move up"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center border-2 border-govuk-border bg-white text-govuk-text disabled:opacity-40 disabled:cursor-not-allowed hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                      className="min-h-[48px] min-w-[48px] flex items-center justify-center border-2 border-[#2d7a6e] bg-white text-[#2d7a6e] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f0] focus:outline-none focus:ring-2 focus:ring-tmt-focus rounded-lg"
                     >
                       ↑
                     </button>
@@ -261,7 +266,7 @@ export function TrailScreen() {
                       }}
                       disabled={!canMoveDown}
                       aria-label="Move down"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center border-2 border-govuk-border bg-white text-govuk-text disabled:opacity-40 disabled:cursor-not-allowed hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                      className="min-h-[48px] min-w-[48px] flex items-center justify-center border-2 border-[#2d7a6e] bg-white text-[#2d7a6e] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f0] focus:outline-none focus:ring-2 focus:ring-tmt-focus rounded-lg"
                     >
                       ↓
                     </button>
@@ -282,27 +287,27 @@ export function TrailScreen() {
           onClick={handleDeleteCancel}
         >
           <div
-            className="bg-white p-6 max-w-md w-full shadow-lg"
+            className="bg-white p-5 max-w-md w-full rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.10)] border-l-[5px] border-l-[#3a9b8e]"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 id="delete-dialog-title" className="text-xl font-bold text-govuk-text mb-2">
+            <h2 id="delete-dialog-title" className="text-xl font-semibold text-[#1a2a2a] mb-2">
               Delete {deletePoiId}?
             </h2>
-            <p id="delete-dialog-desc" className="text-govuk-text mb-6">
+            <p id="delete-dialog-desc" className="text-[#0b0c0c] mb-6">
               This cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 type="button"
                 onClick={handleDeleteCancel}
-                className="min-h-[48px] px-6 border-2 border-govuk-border bg-white text-govuk-text font-bold hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                className="min-h-[48px] px-6 border-2 border-[#2d7a6e] bg-white text-[#2d7a6e] font-bold rounded-[12px] hover:bg-[#f5f5f0] focus:outline-none focus:ring-2 focus:ring-tmt-focus"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => void handleDeleteConfirm()}
-                className="min-h-[48px] px-6 bg-govuk-red text-white font-bold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+                className="min-h-[48px] px-6 bg-govuk-red text-white font-bold rounded-[12px] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus"
               >
                 Delete
               </button>

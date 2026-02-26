@@ -42,7 +42,7 @@ export function ImportButton({ isImporting, onImport, disabled = false }: Import
         type="button"
         onClick={handleButtonClick}
         disabled={disabled || isImporting}
-        className="min-h-[56px] w-full px-6 bg-tmt-teal text-white font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        className="min-h-[56px] w-full px-6 bg-[#2d7a6e] text-white font-bold text-lg rounded-[12px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isImporting ? 'Importing...' : 'Import Trail ZIP'}
       </button>

@@ -217,30 +217,30 @@ export function ExportScreen() {
 
   if (!profile) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">Loading...</p>
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">Loading...</p>
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-white p-6 pb-24">
-      <h1 className="text-2xl font-bold text-govuk-text mb-4">Export</h1>
+    <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+      <h1 className="text-2xl font-semibold text-[#1a2a2a] mb-4">Export</h1>
 
-      <p className="text-lg text-govuk-text mb-4">
+      <p className="text-lg text-[#0b0c0c] mb-4">
         Generate your digital brochure, export your trail data, and archive when complete.
       </p>
 
       {/* Section 1: Digital Brochure */}
       <section className="mb-8">
-        <h2 className="text-lg font-bold text-govuk-text mb-4">Digital Brochure</h2>
+        <h2 className="text-lg font-semibold text-[#1a2a2a] mb-4">Digital Brochure</h2>
 
-        <div className="bg-govuk-background p-4 rounded border border-govuk-border mb-4">
-          <h3 className="font-bold text-govuk-text mb-2">Summary</h3>
-          <p className="text-govuk-text">
+        <div className="bg-white p-5 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.10)] border-l-[5px] border-l-[#3a9b8e] mb-4">
+          <h3 className="font-bold text-[#1a2a2a] mb-2">Summary</h3>
+          <p className="text-[#0b0c0c]">
             Graveyard trail: {graveyardCount} POIs
           </p>
-          <p className="text-govuk-text">
+          <p className="text-[#0b0c0c]">
             Parish trail: {parishCount} POIs
           </p>
         </div>
@@ -253,10 +253,10 @@ export function ExportScreen() {
                 onClick={() => setBrochureTrailId(graveyardTrail?.id ?? null)}
                 aria-pressed={brochureTrailId === graveyardTrail?.id}
                 aria-label="Select Graveyard Trail for brochure"
-                className={`min-h-[48px] px-4 font-bold border-2 ${
+                className={`min-h-[48px] px-4 font-bold border-2 rounded-[12px] ${
                   brochureTrailId === graveyardTrail?.id
-                    ? 'bg-tmt-teal border-tmt-teal text-white ring-2 ring-tmt-teal ring-offset-2'
-                    : 'bg-white border-govuk-border text-govuk-text'
+                    ? 'bg-[#2d7a6e] border-[#2d7a6e] text-white'
+                    : 'bg-white border-[#2d7a6e] text-[#2d7a6e]'
                 }`}
               >
                 {brochureTrailId === graveyardTrail?.id ? '✓ ' : ''}Graveyard Trail
@@ -266,24 +266,24 @@ export function ExportScreen() {
                 onClick={() => setBrochureTrailId(parishTrail?.id ?? null)}
                 aria-pressed={brochureTrailId === parishTrail?.id}
                 aria-label="Select Parish Trail for brochure"
-                className={`min-h-[48px] px-4 font-bold border-2 ${
+                className={`min-h-[48px] px-4 font-bold border-2 rounded-[12px] ${
                   brochureTrailId === parishTrail?.id
-                    ? 'bg-tmt-teal border-tmt-teal text-white ring-2 ring-tmt-teal ring-offset-2'
-                    : 'bg-white border-govuk-border text-govuk-text'
+                    ? 'bg-[#2d7a6e] border-[#2d7a6e] text-white'
+                    : 'bg-white border-[#2d7a6e] text-[#2d7a6e]'
                 }`}
               >
                 {brochureTrailId === parishTrail?.id ? '✓ ' : ''}Parish Trail
               </button>
             </div>
-            <p className="mb-4 text-sm font-bold text-govuk-text">
+            <p className="mb-4 text-sm font-bold text-[#1a2a2a]">
               Selected trail: {brochureTrailId === graveyardTrail?.id ? 'Graveyard Trail' : 'Parish Trail'}
             </p>
             {!brochureSetupComplete ? (
               <div
-                className="mb-4 pl-4 border-l-4 border-tmt-teal bg-govuk-background py-3 pr-4"
+                className="mb-4 p-5 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.10)] border-l-[5px] border-l-[#3a9b8e]"
                 role="region"
               >
-                <p className="text-govuk-text mb-3">
+                <p className="text-[#0b0c0c] mb-3">
                   Brochure setup required before you can generate a PDF.
                 </p>
                 <button
@@ -291,7 +291,7 @@ export function ExportScreen() {
                   onClick={() =>
                     navigate('/brochure-setup', { state: { trailId: brochureTrailId } })
                   }
-                  className="min-h-[48px] px-6 bg-tmt-teal text-white font-bold"
+                  className="min-h-[56px] px-6 bg-[#2d7a6e] text-white font-bold text-lg rounded-[12px]"
                   aria-label="Set up brochure"
                 >
                   Set Up Brochure
@@ -310,7 +310,7 @@ export function ExportScreen() {
                   onClick={() =>
                     navigate('/brochure-setup', { state: { trailId: brochureTrailId } })
                   }
-                  className="text-tmt-teal font-bold underline"
+                  className="text-[#2d7a6e] font-bold underline"
                   aria-label="Edit brochure setup"
                 >
                   Edit Setup
@@ -339,7 +339,7 @@ export function ExportScreen() {
                   ? 'Complete brochure setup and validate at least 8 POIs to enable'
                   : 'Generate digital brochure PDF'
               }
-              className="min-h-[56px] w-full px-6 bg-tmt-teal text-white font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="min-h-[56px] w-full px-6 bg-[#2d7a6e] text-white font-bold text-lg rounded-[12px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {pdfGenerating
                 ? 'Generating PDF...'
@@ -348,7 +348,7 @@ export function ExportScreen() {
                   : 'Generate Digital Brochure (PDF)'}
             </button>
             {pdfGenerating && (
-              <p className="mt-2 text-govuk-muted" role="status" aria-live="polite">
+              <p className="mt-2 text-[#595959]" role="status" aria-live="polite">
                 Generating PDF...
               </p>
             )}
@@ -358,7 +358,7 @@ export function ExportScreen() {
               </p>
             )}
             {(!brochureSetupComplete || validatedPoiCount < 8) && (
-              <p className="mt-2 text-govuk-muted text-sm">
+              <p className="mt-2 text-[#595959] text-sm">
                 Complete brochure setup and validate at least 8 POIs to enable
               </p>
             )}
@@ -367,8 +367,8 @@ export function ExportScreen() {
       </section>
 
       {/* Section 2: Import & Export ZIP */}
-      <section className="mt-8 pt-8 border-t-2 border-govuk-border">
-        <h2 className="text-lg font-bold text-govuk-text mb-4">Import & Export</h2>
+      <section className="mt-8 pt-8 border-t border-[#e0e0e0]">
+        <h2 className="text-lg font-semibold text-[#1a2a2a] mb-4">Import & Export</h2>
 
         <ImportButton
           isImporting={isImporting}
@@ -380,10 +380,10 @@ export function ExportScreen() {
           type="button"
           onClick={handleExport}
           disabled={!hasData || exporting}
-          className={`min-h-[56px] w-full px-6 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed mt-4 ${
+          className={`min-h-[56px] w-full px-6 font-bold text-lg rounded-[12px] disabled:opacity-50 disabled:cursor-not-allowed mt-4 ${
             exportSuccess
               ? 'bg-govuk-green text-white'
-              : 'bg-tmt-teal text-white'
+              : 'bg-[#2d7a6e] text-white'
           }`}
           aria-label={!hasData ? 'No POIs to export yet' : 'Export trails as ZIP file'}
         >
@@ -397,18 +397,18 @@ export function ExportScreen() {
         )}
 
         {!hasData && (
-          <p className="mt-2 text-govuk-muted">
+          <p className="mt-2 text-[#595959]">
             No POIs to export yet. Capture some photos first.
           </p>
         )}
       </section>
 
       {/* Section 3: Complete & Archive */}
-      <section className="mt-8 pt-8 border-t-2 border-govuk-border">
-        <h2 className="text-lg font-bold text-govuk-text mb-4">
+      <section className="mt-8 pt-8 border-t border-[#e0e0e0]">
+        <h2 className="text-lg font-semibold text-[#1a2a2a] mb-4">
           Complete & Archive Trail
         </h2>
-        <p className="text-govuk-text mb-4">
+        <p className="text-[#0b0c0c] mb-4">
           Only take this step when you have finished recording and are ready to hand off your trail. Before archiving, you must have completed both steps below.
         </p>
 
@@ -421,7 +421,7 @@ export function ExportScreen() {
               className="w-6 h-6 focus:outline-none focus:ring-[3px] focus:ring-[#ffdd00] focus:ring-offset-2"
               aria-label="I have downloaded the ZIP export for this trail"
             />
-            <span className="text-lg text-govuk-text">
+            <span className="text-lg text-[#0b0c0c]">
               I have downloaded the ZIP export for this trail
             </span>
           </label>
@@ -433,7 +433,7 @@ export function ExportScreen() {
               className="w-6 h-6 focus:outline-none focus:ring-[3px] focus:ring-[#ffdd00] focus:ring-offset-2"
               aria-label="I have generated and saved the digital brochure PDF"
             />
-            <span className="text-lg text-govuk-text">
+            <span className="text-lg text-[#0b0c0c]">
               I have generated and saved the digital brochure PDF
             </span>
           </label>
@@ -500,14 +500,14 @@ export function ExportScreen() {
           aria-modal="true"
           aria-labelledby="archive-confirm-title"
         >
-          <div className="bg-white p-6 max-w-md rounded shadow-lg">
+          <div className="bg-white p-5 max-w-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.10)] border-l-[5px] border-l-[#3a9b8e]">
             <h2
               id="archive-confirm-title"
-              className="text-xl font-bold text-govuk-text mb-4"
+              className="text-xl font-semibold text-[#1a2a2a] mb-4"
             >
               Are you sure?
             </h2>
-            <p className="text-govuk-text mb-6">
+            <p className="text-[#0b0c0c] mb-6">
               This will mark your trail as archived and remove it from this device. This cannot be undone from the app. Your data will remain safely stored in the cloud.
             </p>
             <div className="flex gap-4">
@@ -515,7 +515,7 @@ export function ExportScreen() {
                 type="button"
                 onClick={() => !archiving && setShowArchiveConfirm(false)}
                 disabled={archiving}
-                className="flex-1 min-h-[48px] border-2 border-govuk-border font-bold text-govuk-text disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 min-h-[48px] border-2 border-[#2d7a6e] font-bold text-[#2d7a6e] bg-white rounded-[12px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#f5f5f0]"
                 aria-label="Cancel archive"
               >
                 Cancel

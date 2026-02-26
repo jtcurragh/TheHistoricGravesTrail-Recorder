@@ -21,7 +21,7 @@ export function BottomNav() {
           end={to === '/'}
           className={({ isActive }) =>
             `min-h-[48px] min-w-[48px] flex flex-col items-center justify-center px-4 font-medium text-lg no-underline ${
-              isActive ? 'text-tmt-teal' : 'text-govuk-muted'
+              isActive ? 'text-[#2d7a6e]' : 'text-[#595959]'
             }`
           }
           aria-label={label}

@@ -23,7 +23,7 @@ export function FormField({
     <div className="mb-6">
       <label
         htmlFor={id}
-        className="block text-lg font-bold text-govuk-text mb-2"
+        className="block text-lg font-bold text-[#1a2a2a] mb-2"
       >
         {label}
         {required && <span className="text-govuk-red"> *</span>}
@@ -47,7 +47,7 @@ export function FormField({
         aria-required={required}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
-        className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+        className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
       />
     </div>
   )

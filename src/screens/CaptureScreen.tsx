@@ -190,9 +190,9 @@ export function CaptureScreen() {
 
   if (!activeTrailId) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <h1 className="text-2xl font-bold text-govuk-text mb-4">Capture</h1>
-        <p className="text-lg text-govuk-text">
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <h1 className="text-2xl font-semibold text-[#1a2a2a] mb-4">Capture</h1>
+        <p className="text-lg text-[#0b0c0c]">
           Open a trail from Trails first to start capturing POIs.
         </p>
       </main>
@@ -201,8 +201,8 @@ export function CaptureScreen() {
 
   if (!trail) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">Loading...</p>
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">Loading...</p>
       </main>
     )
   }
@@ -212,11 +212,11 @@ export function CaptureScreen() {
 
   if (isFull) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <h1 className="text-2xl font-bold text-govuk-text mb-4">
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <h1 className="text-2xl font-semibold text-[#1a2a2a] mb-4">
           Capture — {trail.displayName}
         </h1>
-        <p className="text-lg text-govuk-text">
+        <p className="text-lg text-[#0b0c0c]">
           This trail is full. Open a POI to edit it, or export your trail.
         </p>
       </main>
@@ -246,7 +246,7 @@ export function CaptureScreen() {
                 className="absolute bottom-12 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-white border-4 border-govuk-text flex items-center justify-center shadow-lg disabled:opacity-50"
                 aria-label="Capture photo"
               >
-                <span className="w-16 h-16 rounded-full bg-tmt-teal" aria-hidden />
+                <span className="w-16 h-16 rounded-full bg-[#2d7a6e]" aria-hidden />
               </button>
             </>
           )}
@@ -306,7 +306,7 @@ export function CaptureScreen() {
       <div className="flex flex-col h-[calc(100dvh-3.5rem)] max-h-[calc(100dvh-3.5rem)]">
         {successMessage && (
           <div
-            className="bg-tmt-teal text-white text-center text-lg font-bold py-3 px-4 shrink-0"
+            className="bg-[#2d7a6e] text-white text-center text-lg font-bold py-3 px-4 shrink-0"
             role="status"
             aria-live="polite"
           >
@@ -321,8 +321,8 @@ export function CaptureScreen() {
               className="max-w-full max-h-full object-contain"
             />
           </div>
-          <div className="shrink-0 p-4 bg-white border-t-2 border-govuk-border">
-            <p className="text-govuk-text font-bold text-center mb-2 text-base">
+          <div className="shrink-0 p-4 bg-white border-t border-[#e0e0e0]">
+            <p className="text-[#1a2a2a] font-bold text-center mb-2 text-base">
               Is the site clearly visible?
             </p>
             <p className={`text-sm text-center mb-3 ${hasGpsData ? 'text-govuk-green' : 'text-[#b45309]'}`}>
@@ -332,7 +332,7 @@ export function CaptureScreen() {
               <button
                 type="button"
                 onClick={handleRetake}
-                className="flex-1 min-h-[56px] bg-white text-govuk-red border-2 border-govuk-red text-lg font-bold rounded-lg"
+                className="flex-1 min-h-[56px] bg-white text-govuk-red border-2 border-govuk-red text-lg font-bold rounded-[12px]"
                 aria-label="Retake photo"
               >
                 Retake
@@ -341,7 +341,7 @@ export function CaptureScreen() {
                 type="button"
                 onClick={handleConfirm}
                 disabled={saving}
-                className="flex-1 min-h-[56px] bg-tmt-teal text-white text-lg font-bold rounded-lg disabled:opacity-50"
+                className="flex-1 min-h-[56px] bg-[#2d7a6e] text-white text-lg font-bold rounded-[12px] disabled:opacity-50"
                 aria-label="Use this photo"
               >
                 {saving ? 'Saving...' : 'Use Photo'}
@@ -359,7 +359,7 @@ export function CaptureScreen() {
       <main className="flex-1 flex flex-col">
         {successMessage && (
           <div
-            className="bg-tmt-teal text-white text-center text-lg font-bold py-3 px-4"
+            className="bg-[#2d7a6e] text-white text-center text-lg font-bold py-3 px-4"
             role="status"
             aria-live="polite"
           >
@@ -367,7 +367,7 @@ export function CaptureScreen() {
           </div>
         )}
 
-        <div className="flex-1 flex flex-col items-center justify-center bg-govuk-text p-6">
+        <div className="flex-1 flex flex-col items-center justify-center bg-[#1a2a2a] p-6">
           <span className="text-6xl mb-4 block" aria-hidden>📷</span>
           <p className="text-white text-xl font-bold mb-2 text-center">
             Tap 1 to record location each time
@@ -377,10 +377,10 @@ export function CaptureScreen() {
           </p>
         </div>
 
-        <div className="px-4 py-4 bg-white shrink-0">
+        <div className="px-5 py-5 bg-white shrink-0 rounded-t-xl shadow-[0_-2px_8px_rgba(0,0,0,0.08)] border-t border-[#e0e0e0]">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xl font-bold text-govuk-text">NEXT {nextId}</p>
-            <span className="bg-govuk-background text-govuk-text text-sm font-semibold px-3 py-1 rounded-full">
+            <p className="text-xl font-semibold text-[#1a2a2a]">NEXT {nextId}</p>
+            <span className="bg-[#e0e0e0] text-[#0b0c0c] text-sm font-semibold px-3 py-1 rounded-full">
               {poiCount} of {MAX_POIS} recorded
             </span>
           </div>
@@ -390,10 +390,10 @@ export function CaptureScreen() {
               type="button"
               onClick={recordLocation}
               disabled={gpsStatus === 'loading'}
-              className={`flex-1 min-h-[56px] border-2 text-lg font-bold rounded flex items-center justify-center gap-2 disabled:opacity-50 ${
+              className={`flex-1 min-h-[56px] border-2 text-lg font-bold rounded-[12px] flex items-center justify-center gap-2 disabled:opacity-50 ${
                 gpsStatus === 'success'
                   ? 'bg-govuk-green border-govuk-green text-white'
-                  : 'bg-white border-govuk-border text-govuk-text'
+                  : 'bg-white border-[#2d7a6e] text-[#2d7a6e]'
               }`}
               aria-label="1. Record GPS location"
             >
@@ -403,7 +403,7 @@ export function CaptureScreen() {
             <button
               type="button"
               onClick={handleStartCamera}
-              className="flex-1 min-h-[56px] border-2 border-govuk-border text-govuk-text bg-white text-lg font-bold rounded flex items-center justify-center gap-2"
+              className="flex-1 min-h-[56px] border-2 border-[#2d7a6e] text-[#2d7a6e] bg-white text-lg font-bold rounded-[12px] flex items-center justify-center gap-2"
               aria-label="2. Take Photo – start camera"
             >
               <span aria-hidden>📷</span>
@@ -422,14 +422,14 @@ export function CaptureScreen() {
             />
             <label
               htmlFor="photo-upload"
-              className="block w-full min-h-[56px] border-2 border-govuk-border text-govuk-text bg-white text-lg font-bold rounded flex items-center justify-center gap-2 cursor-pointer hover:bg-govuk-background"
+              className="block w-full min-h-[56px] border-2 border-[#2d7a6e] text-[#2d7a6e] bg-white text-lg font-bold rounded-[12px] flex items-center justify-center gap-2 cursor-pointer hover:bg-[#f5f5f0]"
             >
               <span aria-hidden>🖼️</span>
               Choose from Gallery
             </label>
           </div>
 
-          <p className="text-base text-govuk-text text-center" aria-live="polite">
+          <p className="text-base text-[#0b0c0c] text-center" aria-live="polite">
             {gpsStatus === 'idle' && 'No GPS — tap Record Location'}
             {gpsStatus === 'loading' && 'Getting location...'}
             {gpsStatus === 'success' &&

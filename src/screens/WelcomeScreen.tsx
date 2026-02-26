@@ -115,12 +115,12 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       postCompleteMessage.includes('could not be retrieved') ||
       postCompleteMessage.includes('No data found')
     return (
-      <main className="min-h-screen bg-white p-6 max-w-[680px] mx-auto flex flex-col">
+      <main className="min-h-screen bg-[#f5f5f0] p-6 max-w-[680px] mx-auto flex flex-col">
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-govuk-text mb-2">
+          <h1 className="text-3xl font-semibold text-[#1a2a2a] mb-2">
             Historic Graves Trail
           </h1>
-          <p className="text-lg text-govuk-muted mb-10">
+          <p className="text-lg text-[#595959] mb-10">
             Recording our shared heritage
           </p>
           <div
@@ -137,7 +137,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           <button
             type="button"
             onClick={handleDismissMessage}
-            className="w-full min-h-[56px] bg-tmt-teal text-white text-lg font-bold px-4 py-3"
+            className="w-full min-h-[56px] bg-[#2d7a6e] text-white text-lg font-bold px-4 py-3 rounded-[12px]"
           >
             Continue
           </button>
@@ -148,14 +148,14 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 
   if (step === 'parish') {
     return (
-      <main className="min-h-screen bg-white p-6 max-w-[680px] mx-auto flex flex-col">
+      <main className="min-h-screen bg-[#f5f5f0] p-6 max-w-[680px] mx-auto flex flex-col">
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-govuk-text mb-2">
+          <h1 className="text-3xl font-semibold text-[#1a2a2a] mb-2">
             {isReOnboarding
               ? `Welcome back, ${name.trim() || 'there'}. Let's set up your next trail.`
               : 'Historic Graves Trail'}
           </h1>
-          <p className="text-lg text-govuk-muted mb-10">
+          <p className="text-lg text-[#595959] mb-10">
             {isReOnboarding
               ? 'Enter the parish and graveyard for your new location.'
               : 'Recording our shared heritage'}
@@ -172,7 +172,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                 value={graveyardName}
                 onChange={(e) => setGraveyardName(e.target.value)}
                 placeholder="Graveyard name (e.g. St. Declan's, Clonfert Cathedral)"
-                className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+                className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
                 autoComplete="organization"
               />
             </div>
@@ -186,14 +186,14 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                 value={parishName}
                 onChange={(e) => setParishName(e.target.value)}
                 placeholder="Parish or place name (e.g. Ardmore, Clonfert)"
-                className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+                className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
                 autoComplete="organization"
               />
             </div>
 
             {graveyardName.trim() && parishName.trim() && (
               <div className="mb-6 space-y-1" aria-live="polite">
-                <p className="text-lg text-govuk-text">
+                <p className="text-lg text-[#0b0c0c]">
                   Your trails will be: {graveyardName.trim()} Graveyard Trail and{' '}
                   {parishName.trim()} Parish Trail
                 </p>
@@ -215,7 +215,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
             <button
               type="submit"
               disabled={!canCreateTrails}
-              className="w-full min-h-[56px] bg-tmt-teal text-white text-lg font-bold px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full min-h-[56px] bg-[#2d7a6e] text-white text-lg font-bold px-4 py-3 rounded-[12px] disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Create my trails"
             >
               Create My Trails
@@ -223,7 +223,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           </form>
         </div>
 
-        <p className="mt-8 text-sm text-govuk-muted">
+        <p className="mt-8 text-sm text-[#595959]">
           Your work saves automatically. We&apos;ll never share your details.
         </p>
       </main>
@@ -231,12 +231,12 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   }
 
   return (
-    <main className="min-h-screen bg-white p-6 max-w-[680px] mx-auto flex flex-col">
+    <main className="min-h-screen bg-[#f5f5f0] p-6 max-w-[680px] mx-auto flex flex-col">
       <div className="flex-1">
-        <h1 className="text-3xl font-bold text-govuk-text mb-2">
+        <h1 className="text-3xl font-semibold text-[#1a2a2a] mb-2">
           Historic Graves Trail
         </h1>
-        <p className="text-lg text-govuk-muted mb-10">
+        <p className="text-lg text-[#595959] mb-10">
           Recording our shared heritage
         </p>
         {/* TODO: Replace with Historic Graves logo SVG — awaiting asset */}
@@ -252,7 +252,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your first and last name"
-              className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none mb-4"
+              className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none mb-4"
               autoComplete="name"
             />
             <label htmlFor="email" className="sr-only">
@@ -264,7 +264,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email address"
-              className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+              className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
               autoComplete="email"
             />
           </div>
@@ -277,7 +277,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 
           {isSubmitting && restoreProgress && (
             <p
-              className="mb-4 text-govuk-muted text-lg"
+              className="mb-4 text-[#595959] text-lg"
               role="status"
               aria-live="polite"
             >

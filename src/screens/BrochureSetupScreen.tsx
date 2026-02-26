@@ -23,7 +23,7 @@ function CoverPhotoPreview({ blob }: { blob: Blob }) {
     <img
       src={src}
       alt="Cover photo preview"
-      className="max-h-32 object-contain border-2 border-govuk-border"
+      className="max-h-32 object-contain border-2 border-[#0b0c0c]"
     />
   )
 }
@@ -146,14 +146,14 @@ export function BrochureSetupScreen() {
 
   if (!trailId) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">
           No trail selected. Go to Export and choose a trail first.
         </p>
         <button
           type="button"
           onClick={() => navigate('/export')}
-          className="mt-4 min-h-[48px] px-6 bg-tmt-teal text-white font-bold"
+          className="mt-4 min-h-[56px] px-6 bg-[#2d7a6e] text-white font-bold text-lg rounded-[12px]"
         >
           Back to Export
         </button>
@@ -163,20 +163,20 @@ export function BrochureSetupScreen() {
 
   if (!trail && !trailNotFound) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">Loading...</p>
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">Loading...</p>
       </main>
     )
   }
 
   if (trailNotFound) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">Trail not found.</p>
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">Trail not found.</p>
         <button
           type="button"
           onClick={() => navigate('/export')}
-          className="mt-4 min-h-[48px] px-6 bg-tmt-teal text-white font-bold"
+          className="mt-4 min-h-[56px] px-6 bg-[#2d7a6e] text-white font-bold text-lg rounded-[12px]"
         >
           Back to Export
         </button>
@@ -187,26 +187,26 @@ export function BrochureSetupScreen() {
   if (!trail) return null
 
   return (
-    <main className="min-h-screen bg-white p-6 pb-24">
+    <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
       <button
         type="button"
         onClick={() => navigate('/export')}
-        className="mb-4 flex items-center gap-2 text-tmt-teal font-bold text-lg"
+        className="mb-4 flex items-center gap-2 text-[#2d7a6e] font-bold text-lg"
         aria-label="Back to Export"
       >
         ← Back to Export
       </button>
 
-      <h1 className="text-2xl font-bold text-govuk-text mb-4" id="brochure-setup-heading">
+      <h1 className="text-2xl font-semibold text-[#1a2a2a] mb-4" id="brochure-setup-heading">
         Brochure Setup
       </h1>
 
       <div
-        className="mb-6 pl-4 border-l-4 border-tmt-teal bg-govuk-background py-3 pr-4"
+        className="mb-6 p-5 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.10)] border-l-[5px] border-l-[#3a9b8e]"
         role="region"
         aria-label="Notice"
       >
-        <p className="text-govuk-text">
+        <p className="text-[#0b0c0c]">
           This information will appear on the cover and credits pages of your
           digital brochure. You can update it at any time.
         </p>
@@ -216,7 +216,7 @@ export function BrochureSetupScreen() {
         <div>
           <label
             htmlFor="coverTitle"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Cover Title <span className="text-govuk-red">*</span>
           </label>
@@ -238,14 +238,14 @@ export function BrochureSetupScreen() {
             aria-required
             aria-invalid={!!errors.coverTitle}
             aria-describedby={errors.coverTitle ? 'coverTitle-error' : undefined}
-            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
           />
         </div>
 
         <div>
           <label
             htmlFor="groupName"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Community Group Name <span className="text-govuk-red">*</span>
           </label>
@@ -267,15 +267,15 @@ export function BrochureSetupScreen() {
             aria-required
             aria-invalid={!!errors.groupName}
             aria-describedby={errors.groupName ? 'groupName-error' : undefined}
-            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
           />
         </div>
 
         <div>
-          <label className="block text-lg font-bold text-govuk-text mb-2">
+          <label className="block text-lg font-bold text-[#1a2a2a] mb-2">
             Cover Photo (optional)
           </label>
-          <p className="text-sm text-govuk-muted mb-2">
+          <p className="text-sm text-[#595959] mb-2">
             Upload a photo or leave blank for text-only cover
           </p>
           {errors.coverPhoto && (
@@ -289,7 +289,7 @@ export function BrochureSetupScreen() {
             accept="image/*"
             onChange={handleCoverPhotoChange}
             aria-label="Upload cover photo"
-            className="block w-full min-h-[48px] file:min-h-[48px] file:px-4 file:py-3 file:border-2 file:border-govuk-border file:bg-white file:font-bold file:text-govuk-text file:cursor-pointer"
+            className="block w-full min-h-[48px] file:min-h-[48px] file:px-4 file:py-3 file:border-2 file:border-[#0b0c0c] file:bg-white file:font-bold file:text-[#0b0c0c] file:cursor-pointer"
           />
           {coverPhotoBlob && (
             <div className="mt-2">
@@ -308,7 +308,7 @@ export function BrochureSetupScreen() {
         <div>
           <label
             htmlFor="introText"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Introduction <span className="text-govuk-red">*</span>
           </label>
@@ -330,9 +330,9 @@ export function BrochureSetupScreen() {
             aria-required
             aria-invalid={!!errors.introText}
             aria-describedby={errors.introText ? 'introText-error' : undefined}
-            className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
+            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none resize-y"
           />
-          <p className="mt-1 text-sm text-govuk-muted">
+          <p className="mt-1 text-sm text-[#595959]">
             {introText.trim().split(/\s+/).filter(Boolean).length} / {INTRO_WORD_LIMIT} words
           </p>
         </div>
@@ -340,7 +340,7 @@ export function BrochureSetupScreen() {
         <div>
           <label
             htmlFor="funderText"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Funded and Supported By
           </label>
@@ -350,14 +350,14 @@ export function BrochureSetupScreen() {
             value={funderText}
             onChange={(e) => setFunderText(e.target.value)}
             placeholder="Sponsor names (e.g. Local Council, Heritage Council)"
-            className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
           />
         </div>
 
         <div>
           <label
             htmlFor="creditsText"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Credits &amp; Acknowledgements
           </label>
@@ -367,9 +367,9 @@ export function BrochureSetupScreen() {
             onChange={(e) => setCreditsText(e.target.value)}
             rows={4}
             placeholder="Funded by, supported by, acknowledgements (max 40 words)"
-            className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
+            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none resize-y"
           />
-          <p className="mt-1 text-sm text-govuk-muted">
+          <p className="mt-1 text-sm text-[#595959]">
             {creditsText.trim().split(/\s+/).filter(Boolean).length} / 40 words
           </p>
         </div>
@@ -383,7 +383,7 @@ export function BrochureSetupScreen() {
         <button
           type="submit"
           disabled={saving}
-          className="min-h-[56px] w-full px-6 bg-tmt-teal text-white font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="min-h-[56px] w-full px-6 bg-[#2d7a6e] text-white font-bold text-lg rounded-[12px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving...' : saved ? 'Brochure setup saved' : 'Save Brochure Setup'}
         </button>

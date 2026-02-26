@@ -52,7 +52,7 @@ export function TrailCard({
           <span className="inline-block px-3 py-1 bg-govuk-green text-white text-sm font-bold">
             Trail complete
           </span>
-          <p className="text-govuk-text">
+          <p className="text-[#0b0c0c]">
             This trail has reached its 12 POI limit.
           </p>
           <button

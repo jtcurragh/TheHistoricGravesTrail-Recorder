@@ -64,7 +64,7 @@ export function HomeScreen() {
   if (loading || !profile) {
     return (
       <main className="min-h-screen bg-[#f5f5f0] p-6">
-        <p className="text-lg text-govuk-text">Loading...</p>
+        <p className="text-lg text-[#0b0c0c]">Loading...</p>
       </main>
     )
   }

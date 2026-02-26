@@ -130,12 +130,12 @@ export function POIDetailScreen() {
 
   if (!poiId) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">Invalid POI</p>
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">Invalid POI</p>
         <button
           type="button"
           onClick={() => navigate('/trail')}
-          className="mt-4 min-h-[48px] px-6 bg-tmt-teal text-white font-bold"
+          className="mt-4 min-h-[56px] px-6 bg-[#2d7a6e] text-white font-bold text-lg rounded-lg"
         >
           Back to Trail
         </button>
@@ -145,8 +145,8 @@ export function POIDetailScreen() {
 
   if (!poi) {
     return (
-      <main className="min-h-screen bg-white p-6 pb-24">
-        <p className="text-lg text-govuk-text">Loading...</p>
+      <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+        <p className="text-lg text-[#0b0c0c]">Loading...</p>
       </main>
     )
   }
@@ -187,11 +187,11 @@ export function POIDetailScreen() {
   ]
 
   return (
-    <main className="min-h-screen bg-white p-6 pb-24">
+    <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
       <button
         type="button"
         onClick={() => navigate('/trail')}
-        className="mb-4 flex items-center gap-2 text-tmt-teal font-bold text-lg"
+        className="mb-4 flex items-center gap-2 text-[#2d7a6e] font-bold text-lg"
         aria-label="Back to trail"
       >
         ← Back to Trail
@@ -203,19 +203,19 @@ export function POIDetailScreen() {
             type="button"
             onClick={() => void handleNavigate('prev')}
             disabled={!hasPrevious || saving}
-            className="flex-1 min-h-[48px] px-4 border-2 border-govuk-border bg-white text-govuk-text font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+            className="flex-1 min-h-[48px] px-4 border-2 border-[#2d7a6e] bg-white text-[#2d7a6e] font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f0] focus:outline-none focus:ring-2 focus:ring-tmt-focus"
             aria-label="Previous POI"
           >
             ← Previous
           </button>
-          <span className="text-govuk-muted text-sm whitespace-nowrap">
+          <span className="text-[#595959] text-sm whitespace-nowrap">
             {currentIndex + 1} of {trailPois.length}
           </span>
           <button
             type="button"
             onClick={() => void handleNavigate('next')}
             disabled={!hasNext || saving}
-            className="flex-1 min-h-[48px] px-4 border-2 border-govuk-border bg-white text-govuk-text font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+            className="flex-1 min-h-[48px] px-4 border-2 border-[#2d7a6e] bg-white text-[#2d7a6e] font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f0] focus:outline-none focus:ring-2 focus:ring-tmt-focus"
             aria-label="Next POI"
           >
             Next →
@@ -233,7 +233,7 @@ export function POIDetailScreen() {
           type="button"
           onClick={() => void handleRotate()}
           aria-label="Rotate photo clockwise"
-          className="absolute bottom-2 right-2 min-h-[48px] min-w-[48px] flex items-center justify-center rounded-full bg-tmt-teal text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus focus:ring-offset-2"
+          className="absolute bottom-2 right-2 min-h-[48px] min-w-[48px] flex items-center justify-center rounded-full bg-[#2d7a6e] text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-tmt-focus focus:ring-offset-2"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -255,7 +255,7 @@ export function POIDetailScreen() {
         </button>
       </div>
 
-      <div className="mt-4 space-y-1 text-govuk-muted text-sm">
+      <div className="mt-4 space-y-1 text-[#595959] text-sm">
         <p>
           <span className="font-bold">File:</span> {poi.filename}
         </p>
@@ -277,7 +277,7 @@ export function POIDetailScreen() {
         <div>
           <label
             htmlFor="siteName"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Site name (title) <span className="text-govuk-red">*</span>
           </label>
@@ -287,14 +287,14 @@ export function POIDetailScreen() {
             value={siteName}
             onChange={(e) => setSiteName(e.target.value)}
             placeholder="e.g. O'Connell memorial cross"
-            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
           />
         </div>
 
         <div>
           <label
             id="category-label"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Category <span className="text-govuk-red">*</span>
           </label>
@@ -309,10 +309,10 @@ export function POIDetailScreen() {
                 type="button"
                 onClick={() => setCategory(c)}
                 aria-pressed={category === c}
-                className={`min-h-[48px] px-4 py-2 font-bold border-2 ${
+                className={`min-h-[48px] px-4 py-2 font-bold border-2 rounded-full ${
                   category === c
-                    ? 'bg-tmt-teal border-tmt-teal text-white'
-                    : 'bg-white border-govuk-border text-govuk-text'
+                    ? 'bg-[#2d7a6e] border-[#2d7a6e] text-white'
+                    : 'bg-white border-[#2d7a6e] text-[#2d7a6e]'
                 }`}
               >
                 {c}
@@ -324,7 +324,7 @@ export function POIDetailScreen() {
         <div>
           <label
             htmlFor="story"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Story (max 55 words) <span className="text-govuk-red">*</span>
           </label>
@@ -334,9 +334,9 @@ export function POIDetailScreen() {
             onChange={(e) => setStory(e.target.value)}
             placeholder="Add your story here (max 55 words). Or write it in Word and add it when you export."
             rows={8}
-            className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
+            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg resize-y"
           />
-          <p className="mt-1 text-sm text-govuk-muted">
+          <p className="mt-1 text-sm text-[#595959]">
             {story.trim().split(/\s+/).filter(Boolean).length} / 55 words
           </p>
         </div>
@@ -344,7 +344,7 @@ export function POIDetailScreen() {
         <div>
           <label
             htmlFor="url"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Website URL (for QR code)
           </label>
@@ -354,9 +354,9 @@ export function POIDetailScreen() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com"
-            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-govuk-border rounded-none"
+            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
           />
-          <p className="mt-1 text-sm text-govuk-muted">
+          <p className="mt-1 text-sm text-[#595959]">
             Optional — a QR code will be generated for the brochure
           </p>
         </div>
@@ -364,7 +364,7 @@ export function POIDetailScreen() {
         <div>
           <label
             htmlFor="notes"
-            className="block text-lg font-bold text-govuk-text mb-2"
+            className="block text-lg font-bold text-[#1a2a2a] mb-2"
           >
             Notes
           </label>
@@ -374,24 +374,24 @@ export function POIDetailScreen() {
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any other observations (for your reference only)"
             rows={2}
-            className="block w-full px-4 py-3 text-lg border-2 border-govuk-border rounded-none resize-y"
+            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg resize-y"
           />
         </div>
 
         <button
           type="submit"
           disabled={saving}
-          className={`min-h-[56px] w-full font-bold text-lg disabled:opacity-50 ${
+          className={`min-h-[56px] w-full font-bold text-lg rounded-lg disabled:opacity-50 ${
             saved
               ? 'bg-govuk-green text-white'
-              : 'bg-tmt-teal text-white'
+              : 'bg-[#2d7a6e] text-white'
           }`}
         >
           {saving ? 'Saving...' : saved ? 'Saved' : 'Save'}
         </button>
       </form>
 
-      <p className="mt-4 text-govuk-muted text-sm">
+      <p className="mt-4 text-[#595959] text-sm">
         <span className="text-govuk-red">*</span> Required fields for brochure. You can also write your story in Word and add it when you export.
       </p>
 
@@ -401,19 +401,19 @@ export function POIDetailScreen() {
             type="button"
             onClick={() => void handleNavigate('prev')}
             disabled={!hasPrevious || saving}
-            className="flex-1 min-h-[48px] px-4 border-2 border-govuk-border bg-white text-govuk-text font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+            className="flex-1 min-h-[48px] px-4 border-2 border-[#2d7a6e] bg-white text-[#2d7a6e] font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f0] focus:outline-none focus:ring-2 focus:ring-tmt-focus"
             aria-label="Previous POI"
           >
             ← Previous
           </button>
-          <span className="text-govuk-muted text-sm whitespace-nowrap">
+          <span className="text-[#595959] text-sm whitespace-nowrap">
             {currentIndex + 1} of {trailPois.length}
           </span>
           <button
             type="button"
             onClick={() => void handleNavigate('next')}
             disabled={!hasNext || saving}
-            className="flex-1 min-h-[48px] px-4 border-2 border-govuk-border bg-white text-govuk-text font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-govuk-background focus:outline-none focus:ring-2 focus:ring-tmt-focus"
+            className="flex-1 min-h-[48px] px-4 border-2 border-[#2d7a6e] bg-white text-[#2d7a6e] font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f0] focus:outline-none focus:ring-2 focus:ring-tmt-focus"
             aria-label="Next POI"
           >
             Next →
