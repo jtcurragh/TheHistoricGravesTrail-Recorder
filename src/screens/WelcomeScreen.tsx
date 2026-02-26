@@ -118,6 +118,12 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
     return (
       <main className="min-h-screen bg-[#f5f5f0] p-6 max-w-[680px] mx-auto flex flex-col">
         <div className="flex-1">
+          <img
+            src={logoSvg}
+            alt=""
+            className="h-24 w-24 mx-auto mb-6"
+            aria-hidden
+          />
           <h1 className="text-3xl font-semibold text-[#1a2a2a] mb-2">
             The Historic Graves Trail
           </h1>
@@ -151,6 +157,12 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
     return (
       <main className="min-h-screen bg-[#f5f5f0] p-6 max-w-[680px] mx-auto flex flex-col">
         <div className="flex-1">
+          <img
+            src={logoSvg}
+            alt=""
+            className="h-24 w-24 mx-auto mb-6"
+            aria-hidden
+          />
           <h1 className="text-3xl font-semibold text-[#1a2a2a] mb-2">
             {isReOnboarding
               ? `Welcome back, ${name.trim() || 'there'}. Let's set up your next trail.`
