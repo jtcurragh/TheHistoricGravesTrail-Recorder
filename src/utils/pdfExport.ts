@@ -400,11 +400,11 @@ export async function generateBrochurePdf(
       color: TEAL,
     })
 
-    // App logo (top left corner)
+    // App logo (top right corner)
     const LOGO_MARGIN = 15
     if (logoImg) {
       page1.drawImage(logoImg, {
-        x: LOGO_MARGIN,
+        x: A6_WIDTH - LOGO_MARGIN - LOGO_SIZE,
         y: A6_HEIGHT - LOGO_MARGIN - LOGO_SIZE,
         width: LOGO_SIZE,
         height: LOGO_SIZE,
@@ -435,11 +435,11 @@ export async function generateBrochurePdf(
       color: TEAL,
     })
 
-    // App logo (top left corner)
+    // App logo (top right corner)
     const LOGO_MARGIN = 15
     if (logoImg) {
       page1.drawImage(logoImg, {
-        x: LOGO_MARGIN,
+        x: A6_WIDTH - LOGO_MARGIN - LOGO_SIZE,
         y: A6_HEIGHT - LOGO_MARGIN - LOGO_SIZE,
         width: LOGO_SIZE,
         height: LOGO_SIZE,
