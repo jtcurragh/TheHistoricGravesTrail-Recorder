@@ -135,10 +135,28 @@ export async function updatePOI(
 }
 
 export async function deletePOI(id: string): Promise<void> {
+  const existing = await db.pois.get(id)
+  if (!existing) throw new Error(`POI not found: ${id}`)
+  const trailId = existing.trailId as string
+
   await db.pois.delete(id)
   if (features.SUPABASE_SYNC_ENABLED && supabase) {
     void enqueueSync('delete', 'poi', id, {})
   }
+
+  // Renumber remaining POIs in that trail sequentially (1, 2, 3... with no gaps)
+  const remaining = await db.pois.where('trailId').equals(trailId).toArray()
+  const sorted = remaining.sort((a, b) => (a.sequence as number) - (b.sequence as number))
+  if (sorted.length === 0) return
+
+  await db.transaction('rw', db.pois, async () => {
+    for (let i = 0; i < sorted.length; i++) {
+      await db.pois.update(sorted[i].id, { sequence: i + 1 })
+      if (features.SUPABASE_SYNC_ENABLED && supabase) {
+        void enqueueSync('update', 'poi', sorted[i].id, {})
+      }
+    }
+  })
 }
 
 export async function reorderPOI(
