@@ -118,7 +118,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       <main className="min-h-screen bg-[#f5f5f0] p-6 max-w-[680px] mx-auto flex flex-col">
         <div className="flex-1">
           <h1 className="text-3xl font-semibold text-[#1a2a2a] mb-2">
-            Historic Graves Trail
+            The Historic Graves Trail
           </h1>
           <p className="text-lg text-[#595959] mb-10">
             Recording our shared heritage
@@ -153,7 +153,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           <h1 className="text-3xl font-semibold text-[#1a2a2a] mb-2">
             {isReOnboarding
               ? `Welcome back, ${name.trim() || 'there'}. Let's set up your next trail.`
-              : 'Historic Graves Trail'}
+              : 'The Historic Graves Trail'}
           </h1>
           <p className="text-lg text-[#595959] mb-10">
             {isReOnboarding
@@ -234,7 +234,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
     <main className="min-h-screen bg-[#f5f5f0] p-6 max-w-[680px] mx-auto flex flex-col">
       <div className="flex-1">
         <h1 className="text-3xl font-semibold text-[#1a2a2a] mb-2">
-          Historic Graves Trail
+          The Historic Graves Trail
         </h1>
         <p className="text-lg text-[#595959] mb-10">
           Recording our shared heritage

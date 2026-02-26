@@ -74,6 +74,7 @@ export function HomeScreen() {
       <h1 className="text-2xl font-semibold text-[#1a2a2a] mb-6" id="home-heading">
         Welcome back, {profile.name}
       </h1>
+      <p className="text-sm text-[#595959] font-normal mb-6">{profile.email}</p>
 
       {graveyardTrail && (
         <TrailCard

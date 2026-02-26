@@ -15,7 +15,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/favicon.ico', 'icons/apple-touch-icon.png'],
       manifest: {
-        name: 'Historic Graves Trail',
+        name: 'The Historic Graves Trail',
         short_name: 'HG Trail',
         description: 'Recording heritage trail Points of Interest for Historic Graves',
         theme_color: '#1a2a2a',

@@ -8,7 +8,7 @@ describe('App', () => {
     localStorage.setItem('userEmail', 'test@example.com')
   })
 
-  it('renders Historic Graves Trail heading when welcome complete', () => {
+  it('renders The Historic Graves Trail heading when welcome complete', () => {
     render(<App />)
     expect(screen.getByText(/historic graves trail/i)).toBeInTheDocument()
   })

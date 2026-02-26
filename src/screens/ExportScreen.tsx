@@ -232,6 +232,7 @@ export function ExportScreen() {
 
   return (
     <main className="min-h-screen bg-[#f5f5f0] p-6 pb-24">
+      <p className="text-sm text-[#595959] font-normal mb-4">Exporting as: {profile.email}</p>
       <h1 className="text-2xl font-semibold text-[#1a2a2a] mb-4">Export</h1>
 
       <p className="text-lg text-[#0b0c0c] mb-4">
@@ -415,6 +416,7 @@ export function ExportScreen() {
         <h2 className="text-lg font-semibold text-[#1a2a2a] mb-4">
           Complete & Archive Trail
         </h2>
+        <p className="text-sm text-[#595959] font-normal mb-4">Account: {profile.email}</p>
         <p className="text-[#0b0c0c] mb-4">
           Only take this step when you have finished recording and are ready to hand off your trail. Before archiving, you must have completed both steps below.
         </p>
