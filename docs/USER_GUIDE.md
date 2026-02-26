@@ -6,71 +6,95 @@ A short guide for volunteer contributors recording heritage sites for local trai
 
 ## Getting started
 
-1. Enter your name and email.
-2. Tap **Start recording Trails**.
+![Welcome screen](images/welcome.png)
 
-Your email links your recordings to your account. On a new device, enter the same email and tap **Start recording Trails** — your data restores automatically from the cloud. No need to tap Sync.
+Enter your name and email, then tap **Start recording Trails**. Your email links your recordings to your account.
+
+On a new device, enter the same email and tap **Start recording Trails** — your data restores automatically from the cloud. No need to tap Sync.
 
 ---
 
 ## Recording a site
 
+![Recording flow](images/recording.png)
+
 You can record up to 12 sites per trail (Graveyard and Parish).
 
-1. Tap **Trails** in the bottom bar.
-2. Tap **Graveyard** or **Parish** to open that trail.
-3. Tap **Record** in the bottom bar.
-4. **Record location** — tap to capture GPS (recommended).
-5. **Take photo** — use the camera, or **Choose from Gallery** to pick an existing photo.
-6. Review the photo. Tap **Retake** or **Use Photo**.
-7. The site is saved to your trail.
+Tap **Trails** in the bottom bar and open **Graveyard** or **Parish** first. Then tap **Record**. Capture GPS by tapping **Record location** (recommended), then take a photo or choose one from your gallery. Review the photo and tap **Retake** or **Use Photo**. The site is saved to your trail.
 
-**Tip:** Record GPS first for accurate location data. Photos from your gallery may include GPS from when they were taken.
+Record GPS first for accurate location data. Photos from your gallery may include GPS from when they were taken.
 
 ---
 
 ## Adding site details
 
-After capturing a photo, add the site name and story so it counts as validated.
+![Trail list](images/trails.png)
 
-1. Tap **Trails** → open **Graveyard** or **Parish**.
-2. Tap a site in the list.
-3. Fill in:
-   - **Site name** (required)
-   - **Category** (required)
-   - **Story** (required, max 55 words)
-   - **Website URL** (optional, for brochure QR code)
-   - **Notes** (optional)
-4. Tap **Save**.
+After capturing a photo, add the site name and story so it counts as validated. Tap **Trails** → open **Graveyard** or **Parish** → tap a site in the list.
 
-A site is marked **✓ Validated** when it has a site name and story. Use the ↑ and ↓ buttons on the trail list to reorder sites.
+| Field | Required | Word limit |
+|-------|----------|------------|
+| Site name | Yes | — |
+| Category | Yes | — |
+| Story | Yes | 55 words max |
+| Website URL | No | — (used for brochure QR code) |
+| Notes | No | — |
+
+Tap **Save**. A site is marked **✓ Validated** when it has a site name and story. Use the ↑ and ↓ buttons on the trail list to reorder sites.
 
 ---
 
 ## Saving to the cloud
 
-1. Tap **Sync** in the bottom bar.
-2. Tap **Sync now** (or wait for automatic sync when online).
-3. Your data is uploaded to the cloud.
+Tap **Sync** in the bottom bar, then **Sync now** (or wait for automatic sync when online). Your data is uploaded to the cloud.
 
-**Tip:** Work offline when recording; sync when you have a connection. Sync uploads your work from this device. Restore from the cloud happens automatically when you sign in on another device.
+Work offline when recording; sync when you have a connection. Sync uploads from this device. Restore happens automatically when you sign in on another device.
 
 ---
 
 ## Exporting your data
 
-1. Tap **Export** in the bottom bar.
-2. **Export (ZIP)** — download trails as a ZIP file (text, KML, photos) to share with coordinators.
-3. **Digital Brochure** — set up cover details and generate a PDF brochure (requires at least 8 validated POIs).
+![Export screen](images/export.png)
+
+Tap **Export** in the bottom bar. **Export (ZIP)** downloads trails as a ZIP file (text, KML, photos) to share with coordinators. **Digital Brochure** lets you set up cover details and generate a PDF brochure — it requires at least 8 validated POIs.
 
 ---
 
-## Clearing data
+## Brochure setup
 
-Use **Clear all data** when you’re finished with a device. This removes all trails, photos, and your profile from this device.
+![Brochure setup](images/brochure-setup.png)
 
-- Export your data first if you want to keep it.
-- On another device, enter the same email and tap **Start recording Trails** — your data restores automatically.
+Before generating the PDF, fill in the brochure setup fields. These appear on the cover and page 2 of the brochure.
+
+| Field | Word limit | Where it appears |
+|-------|------------|------------------|
+| Cover title | — | Cover page |
+| Cover photo | — | Cover page (optional) |
+| Community group name | — | Cover footer, page 2 |
+| Introduction | 75 words | Page 2, under "INTRODUCTION" |
+| Funded and supported by | No limit | Page 2, sponsor names (e.g. Heritage Council, Local Council) |
+| Credits & acknowledgements | 40 words | Page 2, under "CREDITS & ACKNOWLEDGEMENTS" |
+
+The intro is 3–5 sentences about the trail and community. Credits cover funding, support, and acknowledgements. After saving, tap **Generate Brochure** to create the PDF.
+
+---
+
+## Complete & Archive Trail
+
+When you have finished recording and are ready to hand off your trail:
+
+1. **Download the ZIP export** — Tap **Export** → **Export (ZIP)** and save the file.
+2. **Generate and save the digital brochure PDF** — Complete brochure setup and tap **Generate Brochure**.
+3. Tick both checkboxes in the **Complete & Archive Trail** section.
+4. Tap **Complete & Archive Trail** and confirm with **Yes, Archive Trail**.
+
+This marks your trail as archived in the cloud and removes it from this device. You must be online to archive. Your data stays safely stored in the cloud.
+
+---
+
+## Logging back in after archiving
+
+After you archive a trail and log back in with the same email, you'll see **Welcome back, [name]. Let's set up your next trail.** Enter the parish and graveyard for your new location, then tap **Create My Trails**. Your new trails will use the parish names you enter (e.g. Ardmore Graveyard Trail, Ardmore Parish Trail).
 
 ---
 
@@ -87,6 +111,10 @@ Use **Clear all data** when you’re finished with a device. This removes all tr
 
 ## Quick tips
 
-- **Open a trail first** — Tap Trails → Graveyard or Parish before recording. Record captures into the trail you last opened.
-- **Validate for the brochure** — Add site name and story so it counts toward the 8 required for the PDF.
-- **Same email = restore** — On a new device, enter the same email and tap Start recording Trails. Your data will load automatically from the cloud.
+**Open a trail first** — Tap Trails → Graveyard or Parish before recording. Record captures into the trail you last opened.
+
+**Validate for the brochure** — Add site name and story so it counts toward the 8 required for the PDF.
+
+**Same email = restore** — On a new device, enter the same email and tap Start recording Trails. Your data will load automatically from the cloud.
+
+**After archiving** — Log back in with the same email to set up your next trail. You'll see the parish setup screen to name your new location.
