@@ -9,6 +9,9 @@ import {
 import type { Trail, POIRecord, BrochureSetup } from '../types'
 import { fetchStaticMapForPdf } from './mapbox'
 
+// App logo for brochure cover (96x96 PNG, bundled)
+import logoPngUrl from '../assets/logo.png'
+
 export const INTRO_WORD_LIMIT = 75
 
 /** Exported for testing. Returns up to INTRO_WORD_LIMIT words from text. */
@@ -318,6 +321,18 @@ async function embedImage(
   return isPng(blob) ? await doc.embedPng(bytes) : await doc.embedJpg(bytes)
 }
 
+/** Load and embed the app logo for brochure cover. Returns null if fetch fails. */
+async function loadLogoImage(doc: PDFDocument): Promise<PDFImage | null> {
+  try {
+    const res = await fetch(logoPngUrl)
+    if (!res.ok) return null
+    const blob = await res.blob()
+    return await doc.embedPng(await blobToUint8Array(blob))
+  } catch {
+    return null
+  }
+}
+
 export async function generateBrochurePdf(
   _trail: Trail,
   setup: BrochureSetup,
@@ -331,6 +346,9 @@ export async function generateBrochurePdf(
     .filter((p) => p.completed)
     .sort((a, b) => a.sequence - b.sequence)
     .slice(0, 8)
+
+  const logoImg = await loadLogoImage(doc)
+  const LOGO_SIZE = 24 // points
 
   const page1 = doc.addPage([A6_WIDTH, A6_HEIGHT])
 
@@ -382,12 +400,25 @@ export async function generateBrochurePdf(
       color: TEAL,
     })
 
+    // App logo (left of header)
+    const headerCenterY = imageZoneTop + HEADER_HEIGHT / 2
+    const logoY = headerCenterY - LOGO_SIZE / 2
+    if (logoImg) {
+      page1.drawImage(logoImg, {
+        x: 20,
+        y: logoY,
+        width: LOGO_SIZE,
+        height: LOGO_SIZE,
+      })
+    }
+
     // Supertitle "Historic Graves Trail": 14pt, white, letter-spacing
     const supertitleY = A6_HEIGHT - HEADER_PADDING - SUPER_TITLE_SIZE
+    const supertitleX = logoImg ? 20 + LOGO_SIZE + 8 : 20
     drawTextWithLetterSpacing(
       page1,
-      'Historic Graves Trail',
-      20,
+      'The Historic Graves Trail',
+      supertitleX,
       supertitleY,
       SUPER_TITLE_SIZE,
       helvetica,
@@ -405,10 +436,20 @@ export async function generateBrochurePdf(
       color: TEAL,
     })
 
-    // Historic Graves Trail branding for text-only covers
+    // App logo centered at top
+    if (logoImg) {
+      page1.drawImage(logoImg, {
+        x: (A6_WIDTH - LOGO_SIZE) / 2,
+        y: A6_HEIGHT - 60 - LOGO_SIZE,
+        width: LOGO_SIZE,
+        height: LOGO_SIZE,
+      })
+    }
+
+    // The Historic Graves Trail branding for text-only covers
     drawTextWithLetterSpacing(
       page1,
-      'Historic Graves Trail',
+      'The Historic Graves Trail',
       A6_WIDTH / 2,
       45,
       SUPER_TITLE_SIZE,
