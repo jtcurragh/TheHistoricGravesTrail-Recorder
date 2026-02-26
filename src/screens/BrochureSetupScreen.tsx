@@ -238,7 +238,7 @@ export function BrochureSetupScreen() {
             aria-required
             aria-invalid={!!errors.coverTitle}
             aria-describedby={errors.coverTitle ? 'coverTitle-error' : undefined}
-            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
+            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
           />
         </div>
 
@@ -267,7 +267,7 @@ export function BrochureSetupScreen() {
             aria-required
             aria-invalid={!!errors.groupName}
             aria-describedby={errors.groupName ? 'groupName-error' : undefined}
-            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
+            className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
           />
         </div>
 
@@ -289,7 +289,7 @@ export function BrochureSetupScreen() {
             accept="image/*"
             onChange={handleCoverPhotoChange}
             aria-label="Upload cover photo"
-            className="block w-full min-h-[48px] file:min-h-[48px] file:px-4 file:py-3 file:border-2 file:border-[#0b0c0c] file:bg-white file:font-bold file:text-[#0b0c0c] file:cursor-pointer"
+            className="block w-full min-h-[48px] file:min-h-[48px] file:px-4 file:py-3 file:border-2 file:border-[#0b0c0c] file:bg-white file:font-bold file:text-[#0b0c0c] file:cursor-pointer file:rounded-lg"
           />
           {coverPhotoBlob && (
             <div className="mt-2">
@@ -330,7 +330,7 @@ export function BrochureSetupScreen() {
             aria-required
             aria-invalid={!!errors.introText}
             aria-describedby={errors.introText ? 'introText-error' : undefined}
-            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none resize-y"
+            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg resize-y"
           />
           <p className="mt-1 text-sm text-[#595959]">
             {introText.trim().split(/\s+/).filter(Boolean).length} / {INTRO_WORD_LIMIT} words
@@ -350,7 +350,7 @@ export function BrochureSetupScreen() {
             value={funderText}
             onChange={(e) => setFunderText(e.target.value)}
             placeholder="Sponsor names (e.g. Local Council, Heritage Council)"
-            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
+            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
           />
         </div>
 
@@ -367,7 +367,7 @@ export function BrochureSetupScreen() {
             onChange={(e) => setCreditsText(e.target.value)}
             rows={4}
             placeholder="Funded by, supported by, acknowledgements (max 40 words)"
-            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none resize-y"
+            className="block w-full px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg resize-y"
           />
           <p className="mt-1 text-sm text-[#595959]">
             {creditsText.trim().split(/\s+/).filter(Boolean).length} / 40 words

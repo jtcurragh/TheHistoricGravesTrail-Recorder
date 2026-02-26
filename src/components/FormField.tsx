@@ -47,7 +47,7 @@ export function FormField({
         aria-required={required}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
-        className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
+        className="block w-full min-h-[48px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
       />
     </div>
   )

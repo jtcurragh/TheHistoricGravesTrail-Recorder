@@ -172,7 +172,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                 value={graveyardName}
                 onChange={(e) => setGraveyardName(e.target.value)}
                 placeholder="Graveyard name (e.g. St. Declan's, Clonfert Cathedral)"
-                className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
+                className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
                 autoComplete="organization"
               />
             </div>
@@ -186,7 +186,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                 value={parishName}
                 onChange={(e) => setParishName(e.target.value)}
                 placeholder="Parish or place name (e.g. Ardmore, Clonfert)"
-                className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
+                className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
                 autoComplete="organization"
               />
             </div>
@@ -252,7 +252,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your first and last name"
-              className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none mb-4"
+              className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg mb-4"
               autoComplete="name"
             />
             <label htmlFor="email" className="sr-only">
@@ -264,7 +264,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email address"
-              className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-none"
+              className="block w-full min-h-[56px] px-4 py-3 text-lg border-2 border-[#0b0c0c] bg-white rounded-lg"
               autoComplete="email"
             />
           </div>
