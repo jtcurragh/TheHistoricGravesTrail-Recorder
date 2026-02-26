@@ -130,7 +130,7 @@ export function BrochureSetupScreen() {
       localStorage.setItem(BROCHURE_TRAIL_KEY, trailId)
       setTimeout(() => {
         setSaved(false)
-        navigate('/export')
+        navigate('/export', { state: { fromBrochureSetup: true } })
       }, 1000)
     } catch (err) {
       console.error('[BrochureSetup] Save failed:', err)

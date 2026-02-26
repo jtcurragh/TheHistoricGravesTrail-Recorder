@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getUserProfile } from '../db/userProfile'
 import { getTrailsByGroupCode } from '../db/trails'
 import { getPOIsByTrailId } from '../db/pois'
@@ -31,6 +31,7 @@ async function clearAllData(): Promise<void> {
 }
 
 export function ExportScreen() {
+  const location = useLocation()
   const navigate = useNavigate()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [graveyardTrail, setGraveyardTrail] = useState<Trail | null>(null)
@@ -88,6 +89,12 @@ export function ExportScreen() {
   useEffect(() => {
     reloadData()
   }, [])
+
+  useEffect(() => {
+    if ((location.state as { fromBrochureSetup?: boolean })?.fromBrochureSetup) {
+      window.scrollTo(0, 0)
+    }
+  }, [location.state])
 
   useEffect(() => {
     if (brochureTrailId) {
