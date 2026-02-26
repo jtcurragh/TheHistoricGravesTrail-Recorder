@@ -20,26 +20,32 @@ export function TrailCard({
 
   return (
     <article
-      className="bg-white rounded-xl p-5 mb-6 border-l-[3px] border-l-[#3a9b8e] shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
+      className="bg-white rounded-xl p-5 mb-6 border-l-[5px] border-l-[#3a9b8e] shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
     >
-      <h2 className="text-[20px] font-bold text-[#1a2a2a] mb-2">
+      <h2 className="text-[20px] font-bold text-[#1a2a2a] mb-2 flex items-center gap-2">
+        <span className="text-[20px] shrink-0" aria-hidden>📍</span>
         {trail.displayName}
       </h2>
       <p className="text-base text-[#595959] mb-3">
         {poiCount} of {MAX_POIS} POIs recorded — {completedCount} completed
       </p>
-      <div
-        className="h-[10px] bg-[#e0e0e0] rounded-full mb-4 overflow-hidden"
-        role="progressbar"
-        aria-valuenow={poiCount}
-        aria-valuemin={0}
-        aria-valuemax={MAX_POIS}
-        aria-label={`${poiCount} of ${MAX_POIS} POIs recorded`}
-      >
+      <div className="flex items-center gap-3 mb-4">
         <div
-          className="h-full bg-[#3a9b8e] rounded-full transition-all"
-          style={{ width: `${progressPercent}%` }}
-        />
+          className="flex-1 h-[10px] bg-[#e0e0e0] rounded-full overflow-hidden min-w-0"
+          role="progressbar"
+          aria-valuenow={poiCount}
+          aria-valuemin={0}
+          aria-valuemax={MAX_POIS}
+          aria-label={`${poiCount} of ${MAX_POIS} POIs recorded`}
+        >
+          <div
+            className="h-full bg-[#3a9b8e] rounded-full transition-all"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <span className="text-[14px] text-[#595959] shrink-0 tabular-nums">
+          {poiCount} / {MAX_POIS} POIs
+        </span>
       </div>
       {isFull ? (
         <div className="space-y-2">
@@ -52,7 +58,7 @@ export function TrailCard({
           <button
             type="button"
             disabled
-            className="w-full min-h-[48px] px-4 py-3 bg-govuk-muted text-white font-bold opacity-60 cursor-not-allowed rounded-lg"
+            className="w-full min-h-[48px] px-4 py-3 bg-govuk-muted text-white font-bold opacity-60 cursor-not-allowed rounded-[12px]"
             aria-disabled="true"
           >
             Open {trail.trailType === 'graveyard' ? 'Graveyard' : 'Parish'} Trail
@@ -62,7 +68,7 @@ export function TrailCard({
         <button
           type="button"
           onClick={onOpen}
-          className="w-full min-h-[56px] bg-[#2d7a6e] text-white text-lg font-bold px-4 py-3 rounded-lg"
+          className="w-full min-h-[56px] bg-[#2d7a6e] text-white text-lg font-bold px-4 py-3 rounded-[12px]"
           aria-label={`Open ${trail.displayName}`}
         >
           Open {trail.trailType === 'graveyard' ? 'Graveyard' : 'Parish'} Trail
