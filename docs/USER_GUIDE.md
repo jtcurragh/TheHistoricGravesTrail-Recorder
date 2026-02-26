@@ -1,6 +1,6 @@
-# Historic Graves Trail — User Guide
+# The Historic Graves Trail — User Guide
 
-A short guide for volunteer contributors recording heritage sites for local trails.
+A friendly guide for volunteer contributors recording heritage sites for local trails.
 
 ---
 
@@ -12,21 +12,30 @@ Enter your name and email, then tap **Start recording Trails**. Your email links
 
 On a new device, enter the same email and tap **Start recording Trails** — your data restores automatically from the cloud. No need to tap Sync.
 
+**User types:** Everyone starts as a volunteer (Free). You can record, sync, and export. Some coordinators have extra tools (Pro) such as importing trails from a ZIP file. Area editors (EditorAdmin) can validate and manage trails. Your coordinator will tell you what you can do.
+
 ---
 
-## Recording a site
+## Recording a POI in the field
 
 ![Recording flow](images/recording.png)
 
 You can record up to 12 sites per trail (Graveyard and Parish).
 
-Tap **Trails** in the bottom bar and open **Graveyard** or **Parish** first. Then tap **Record**. Capture GPS by tapping **Record location** (recommended), then take a photo or choose one from your gallery. Review the photo and tap **Retake** or **Use Photo**. The site is saved to your trail.
+**Step 1 — Open a trail:** Tap **Trails** in the bottom bar and open **Graveyard** or **Parish** first.
 
-Record GPS first for accurate location data. Photos from your gallery may include GPS from when they were taken.
+**Step 2 — Record location:** Tap **Record** in the bottom bar. Tap **1. Record Location** to capture GPS. This helps map your sites. Do this each time before taking a photo.
+
+**Step 3 — Take or choose a photo:** Tap **2. Take Photo** to use the camera, or tap **Choose from Gallery** to pick one or more photos from your device.
+
+- **Single photo:** Pick one photo. You’ll see a preview. Tap **Use Photo** to save.
+- **Multiple photos:** Pick several at once. A progress bar shows “1 of 5 photos processed” (or similar) as each one is saved. Wait until it finishes. Your work is saved automatically.
+
+Photos from your gallery may include GPS from when they were taken.
 
 ---
 
-## Adding site details
+## Completing your POI at home on desktop
 
 ![Trail list](images/trails.png)
 
@@ -40,15 +49,52 @@ After capturing a photo, add the site name and story so it counts as validated. 
 | Website URL | No | — (used for brochure QR code) |
 | Notes | No | — |
 
+**Category:** The list changes depending on your trail type. Graveyard trails show options like Gravestone, High Cross, Church, and Holy Well. Parish trails show options like Vernacular Building, Holy Well, and Stone Bridge. Pick the one that best fits your site.
+
 Tap **Save**. A site is marked **✓ Validated** when it has a site name and story. Use the ↑ and ↓ buttons on the trail list to reorder sites.
 
 ---
 
-## Saving to the cloud
+## Managing your trail
 
-Tap **Sync** in the bottom bar, then **Sync now** (or wait for automatic sync when online). Your data is uploaded to the cloud.
+Tap **Trails** in the bottom bar to see your Graveyard and Parish trails. Open one to view and edit its sites. You can reorder, edit details, or delete a site. Your work saves automatically on your device.
 
-Work offline when recording; sync when you have a connection. Sync uploads from this device. Restore happens automatically when you sign in on another device.
+---
+
+## Syncing your data
+
+Tap **Sync** in the bottom bar. Your data uploads to the cloud so it’s safe and can be restored on another device.
+
+**What sync does:** It sends your recordings from this phone or tablet to the cloud. You can work offline when recording. Sync when you have a connection.
+
+**If you see “Sync problem” or “Failed to fetch”:** Don’t worry — your work is safe on this device. This usually means the internet connection dropped or was too weak. Try again when you have a good connection (e.g. WiFi). If it keeps failing, contact your area editor.
+
+**Green:** Your work is saved to the cloud.  
+**Amber:** You have items waiting to upload. They will sync when you’re online.  
+**Red:** Sync failed. Your data is still on this device. Tap **Sync now** again when connected.
+
+---
+
+## Creating a brochure
+
+![Brochure setup](images/brochure-setup.png)
+
+Brochure setup is best done on a desktop or laptop. Tap **Export** in the bottom bar. **Digital Brochure** lets you set up the cover and generate a PDF. You need at least 8 validated POIs.
+
+**Brochure setup fields:**
+
+| Field | Where it appears |
+|-------|------------------|
+| Cover title | Cover page |
+| Cover photo | Cover page (optional) |
+| Community group name | Cover footer, page 2 |
+| Introduction | Page 2, under "INTRODUCTION" (75 words) |
+| Funded and supported by | Page 2, sponsor names |
+| Credits & acknowledgements | Page 2, under "CREDITS & ACKNOWLEDGEMENTS" (40 words) |
+
+**Cover layout:** The cover shows the app logo in the top-right corner. If you add a cover photo, it appears below the title. The title and logo sit on a teal band above the photo. You can leave the cover photo blank for a plain teal cover.
+
+After saving, tap **Generate Brochure** to create the PDF.
 
 ---
 
@@ -56,26 +102,11 @@ Work offline when recording; sync when you have a connection. Sync uploads from 
 
 ![Export screen](images/export.png)
 
-Tap **Export** in the bottom bar. **Export (ZIP)** downloads trails as a ZIP file (text, KML, photos) to share with coordinators. **Digital Brochure** lets you set up cover details and generate a PDF brochure — it requires at least 8 validated POIs.
+Tap **Export** in the bottom bar.
 
----
-
-## Brochure setup
-
-![Brochure setup](images/brochure-setup.png)
-
-Before generating the PDF, fill in the brochure setup fields. These appear on the cover and page 2 of the brochure.
-
-| Field | Word limit | Where it appears |
-|-------|------------|------------------|
-| Cover title | — | Cover page |
-| Cover photo | — | Cover page (optional) |
-| Community group name | — | Cover footer, page 2 |
-| Introduction | 75 words | Page 2, under "INTRODUCTION" |
-| Funded and supported by | No limit | Page 2, sponsor names (e.g. Heritage Council, Local Council) |
-| Credits & acknowledgements | 40 words | Page 2, under "CREDITS & ACKNOWLEDGEMENTS" |
-
-The intro is 3–5 sentences about the trail and community. Credits cover funding, support, and acknowledgements. After saving, tap **Generate Brochure** to create the PDF.
+- **Export (ZIP):** Downloads trails as a ZIP file (text, KML, photos) to share with coordinators.
+- **Import Trail ZIP:** (Pro coordinators only) If you have a ZIP file from another device, you can import it here.
+- **Digital Brochure:** Set up cover details and generate a PDF brochure — requires at least 8 validated POIs.
 
 ---
 
@@ -98,18 +129,7 @@ After you archive a trail and log back in with the same email, you'll see **Welc
 
 ---
 
-## Bottom bar
-
-| Tab | Purpose |
-|-----|---------|
-| **Record** | Capture photos and add sites to trails |
-| **Trails** | View Graveyard and Parish trails, edit sites |
-| **Sync** | Upload to cloud |
-| **Export** | Download ZIP, generate brochure |
-
----
-
-## Quick tips
+## Tips for volunteers
 
 **Open a trail first** — Tap Trails → Graveyard or Parish before recording. Record captures into the trail you last opened.
 
@@ -118,3 +138,16 @@ After you archive a trail and log back in with the same email, you'll see **Welc
 **Same email = restore** — On a new device, enter the same email and tap Start recording Trails. Your data will load automatically from the cloud.
 
 **After archiving** — Log back in with the same email to set up your next trail. You'll see the parish setup screen to name your new location.
+
+**Multiple photos:** If you have several photos ready, choose them all at once from the gallery. The progress bar shows how many are done. Great for when you’ve taken photos elsewhere and want to add them quickly.
+
+---
+
+## Bottom bar
+
+| Tab | Purpose |
+|-----|---------|
+| **Record** | Capture photos and add sites to trails |
+| **Trails** | View Graveyard and Parish trails, edit sites |
+| **Sync** | Upload to cloud |
+| **Export** | Download ZIP, generate brochure |

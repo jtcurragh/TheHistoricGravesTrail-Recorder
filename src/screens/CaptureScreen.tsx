@@ -39,6 +39,7 @@ export function CaptureScreen() {
   const savingRef = useRef(false)
   const [gpsSource, setGpsSource] = useState<'device' | 'exif' | 'none'>('none')
   const [exifGps, setExifGps] = useState<{ latitude: number; longitude: number; accuracy: number | null } | null>(null)
+  const [importProgress, setImportProgress] = useState<{ current: number; total: number } | null>(null)
 
   const loadTrailState = useCallback(async () => {
     if (!activeTrailId) return
@@ -74,25 +75,104 @@ export function CaptureScreen() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file || !file.type.startsWith('image/')) return
+    const files = Array.from(e.target.files ?? []).filter((f) => f.type.startsWith('image/'))
+    if (files.length === 0) return
 
-    // Try to extract GPS from EXIF
-    const gpsData = await extractGpsFromJpeg(file)
-    if (gpsData) {
-      setExifGps(gpsData)
-      setGpsSource('exif')
-    } else {
-      setExifGps(null)
-      setGpsSource('none')
+    e.target.value = ''
+
+    if (files.length === 1) {
+      const file = files[0]
+      const gpsData = await extractGpsFromJpeg(file)
+      if (gpsData) {
+        setExifGps(gpsData)
+        setGpsSource('exif')
+      } else {
+        setExifGps(null)
+        setGpsSource('none')
+      }
+      setCapturedBlob(file)
+      setPreviewUrl(URL.createObjectURL(file))
+      setCaptureState('preview')
+      return
     }
 
-    setCapturedBlob(file)
-    setPreviewUrl(URL.createObjectURL(file))
-    setCaptureState('preview')
-    
-    // Reset the input so the same file can be selected again
-    e.target.value = ''
+    if (!trail || !activeTrailId || savingRef.current) return
+    const total = Math.min(files.length, MAX_POIS - poiCount)
+    if (total <= 0) return
+
+    savingRef.current = true
+    setImportProgress({ current: 0, total })
+    setSaving(true)
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    let sequence = trail.nextSequence
+    let imported = 0
+
+    try {
+      for (let i = 0; i < total; i++) {
+        setImportProgress({ current: i, total })
+
+        const file = files[i]
+        let finalLat = latitude
+        let finalLon = longitude
+        let finalAccuracy = accuracy
+
+        const gpsData = await extractGpsFromJpeg(file)
+        if (gpsData) {
+          finalLat = gpsData.latitude
+          finalLon = gpsData.longitude
+          finalAccuracy = gpsData.accuracy
+        } else if (gpsStatus === 'success') {
+          finalLat = latitude
+          finalLon = longitude
+        }
+
+        let photoBlob: Blob = file
+        if (finalLat !== null && finalLon !== null && !isIOS) {
+          photoBlob = await embedGpsInJpeg(file, finalLat, finalLon)
+        }
+
+        let thumbnailBlob: Blob
+        try {
+          thumbnailBlob = await generateThumbnail(photoBlob)
+        } catch {
+          thumbnailBlob = photoBlob
+        }
+
+        await createPOI({
+          trailId: trail.id,
+          groupCode: trail.groupCode,
+          trailType: trail.trailType,
+          sequence,
+          photoBlob,
+          thumbnailBlob,
+          latitude: finalLat,
+          longitude: finalLon,
+          accuracy: finalAccuracy,
+          capturedAt: new Date().toISOString(),
+        })
+        await incrementTrailSequence(trail.id)
+        sequence++
+        imported++
+      }
+
+      setImportProgress({ current: total, total })
+      await new Promise((r) => setTimeout(r, 500))
+      setImportProgress(null)
+
+      setSuccessMessage({ prefix: `Imported ${imported} photo${imported !== 1 ? 's' : ''} — `, filename: '' })
+      setTimeout(() => setSuccessMessage(null), 2000)
+      await loadTrailState()
+    } catch (err) {
+      console.error('Failed to import photos:', err)
+      setSuccessMessage({ prefix: `Imported ${imported} of ${total}. Error: `, filename: err instanceof Error ? err.message : 'Unknown' })
+      setTimeout(() => setSuccessMessage(null), 3000)
+      await new Promise((r) => setTimeout(r, 500))
+      setImportProgress(null)
+    } finally {
+      savingRef.current = false
+      setSaving(false)
+    }
   }
 
   async function handleCapture() {
@@ -123,6 +203,7 @@ export function CaptureScreen() {
 
     savingRef.current = true
     setSaving(true)
+    setImportProgress({ current: 0, total: 1 })
     try {
       // Determine which GPS to use
       let finalLat = latitude
@@ -164,6 +245,10 @@ export function CaptureScreen() {
       })
       await incrementTrailSequence(trail.id)
 
+      setImportProgress({ current: 1, total: 1 })
+      await new Promise((r) => setTimeout(r, 500))
+      setImportProgress(null)
+
       setSuccessMessage({ prefix: 'Saved — ', filename: poi.filename })
       setPoiCount((c) => c + 1)
       if (previewUrl) URL.revokeObjectURL(previewUrl)
@@ -178,6 +263,7 @@ export function CaptureScreen() {
       await loadTrailState()
     } catch (err) {
       console.error('Failed to save photo:', err)
+      setImportProgress(null)
     } finally {
       savingRef.current = false
       setSaving(false)
@@ -320,6 +406,18 @@ export function CaptureScreen() {
             />
           </div>
           <div className="shrink-0 p-4 bg-white border-t border-[#e0e0e0]">
+            {importProgress && (
+              <div className="mb-3 p-3 bg-[#f5f5f0] rounded-[12px] border-2 border-[#2d7a6e]" role="status" aria-live="polite">
+                <p className="text-[#0b0c0c] font-bold mb-2">
+                  {importProgress.current} of {importProgress.total} photos processed
+                </p>
+                <progress
+                  value={importProgress.current}
+                  max={importProgress.total}
+                  className="w-full h-3 rounded-full [&::-webkit-progress-bar]:bg-white [&::-webkit-progress-value]:bg-[#2d7a6e] [&::-moz-progress-bar]:bg-[#2d7a6e]"
+                />
+              </div>
+            )}
             <p className="text-[#1a2a2a] font-bold text-center mb-2 text-base">
               Is the site clearly visible?
             </p>
@@ -410,18 +508,32 @@ export function CaptureScreen() {
             </button>
           </div>
 
+          {importProgress && (
+            <div className="mb-3 p-4 bg-[#f5f5f0] rounded-[12px] border-2 border-[#2d7a6e]" role="status" aria-live="polite">
+              <p className="text-[#0b0c0c] font-bold mb-2">
+                {importProgress.current} of {importProgress.total} photos processed
+              </p>
+              <progress
+                value={importProgress.current}
+                max={importProgress.total}
+                className="w-full h-3 rounded-full [&::-webkit-progress-bar]:bg-white [&::-webkit-progress-value]:bg-[#2d7a6e] [&::-moz-progress-bar]:bg-[#2d7a6e]"
+              />
+            </div>
+          )}
           <div className="mb-3">
             <input
               type="file"
               accept="image/*"
+              multiple
               onChange={handleFileUpload}
               className="hidden"
               id="photo-upload"
               aria-label="Choose photo from gallery"
+              disabled={!!importProgress}
             />
             <label
               htmlFor="photo-upload"
-              className="block w-full min-h-[56px] border-2 border-[#2d7a6e] text-[#2d7a6e] bg-white text-lg font-bold rounded-[12px] flex items-center justify-center gap-2 cursor-pointer hover:bg-[#f5f5f0]"
+              className={`block w-full min-h-[56px] border-2 border-[#2d7a6e] text-[#2d7a6e] bg-white text-lg font-bold rounded-[12px] flex items-center justify-center gap-2 cursor-pointer hover:bg-[#f5f5f0] ${importProgress ? 'opacity-50 pointer-events-none' : ''}`}
             >
               <span aria-hidden>🖼️</span>
               Choose from Gallery
