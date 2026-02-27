@@ -18,6 +18,11 @@ dist-ssr
 
 # Local test artifacts
 Tests/
+test-results/
+
+# Screenshot docs debug artifacts
+docs/screenshots/FAILED_*
+docs/debug-trail.html
 
 # Editor directories and files
 .vscode/*
